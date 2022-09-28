@@ -1,0 +1,33 @@
+{
+  "name": "afho_discord_bot",
+  "version": "0.1.0",
+  "description": "Discord bot for AFHO",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint botFiles/index.js",
+    "start": "nodemon botFiles/index.js",
+    "adddev": "METHOD=add NODE_ENV=dev node botFiles/deploy-commands.js",
+    "deldev": "METHOD=delete NODE_ENV=dev node botFiles/deploy-commands.js",
+    "add": "NODE_ENV=prod node botFiles/deploy-commands.js"
+  },
+  "author": "Nicobonnardot3",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/opus": "^0.8.0",
+    "@discordjs/voice": "^0.11.0",
+    "colors": "^1.4.0",
+    "dayjs": "^1.11.5",
+    "discord-ytdl-core": "^5.0.4",
+    "discord.js": "^14.5.0",
+    "dotenv": "^16.0.2",
+    "ffmpeg-static": "^5.1.0",
+    "libsodium-wrappers": "^0.7.10",
+    "mysql": "^2.18.1",
+    "nodemon": "^2.0.20",
+    "youtube-sr": "^4.3.4",
+    "ytdl-core": "^4.11.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.24.0"
+  }
+}

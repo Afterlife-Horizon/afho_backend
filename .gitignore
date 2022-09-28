@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+node_modules
+.env
+config.json
+devconfig.json
+DBConfig.json
+=======
 # Logs
 logs
 *.log
@@ -102,3 +109,4 @@ dist
 
 # TernJS port file
 .tern-port
+>>>>>>> AFHO_BOT/master
