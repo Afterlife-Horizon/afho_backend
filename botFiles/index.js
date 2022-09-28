@@ -7,8 +7,6 @@ const path = require('node:path');
 // --------- importing discord.js / Init ---------
 const { Client, Collection, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
 const { getVoiceConnection } = require('@discordjs/voice');
-const { connect } = require("node:http2");
-
 
 const client = new Client({
     intents: [GatewayIntentBits.DirectMessages, GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
