@@ -7,7 +7,6 @@ require('dotenv').config();
 module.exports = async client => {
     const slashcommandsPath = path.join(process.env.WORKPATH, 'slashcommands');
     const commandsPath = path.join(process.env.WORKPATH, 'commands');
-    const eventsPath = path.join(process.env.WORKPATH, 'events');
 
 
     // ------------ Prefix Commands ------------
