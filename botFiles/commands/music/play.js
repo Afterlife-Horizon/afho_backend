@@ -84,7 +84,7 @@ module.exports = {
             else {
                 song = song ? song : playList.videos[0];
                 const index = playList.videos.findIndex(s => s.id == song.id) || 0;
-                playList.videos.splice(index, 1);
+                playList.videos.splice(0, index + 1);
 
                 if (!queue || queue.tracks.length == 0) {
                     const bitrate = 128;

@@ -9,6 +9,13 @@ const { Client, Collection, GatewayIntentBits, PermissionFlagsBits } = require('
 const { getVoiceConnection } = require('@discordjs/voice');
 
 const client = new Client({
+    presence: {
+        activity: {
+            name: `/help`,
+            type: "PLAYING",
+        },
+        status: "online",
+    },
     intents: [GatewayIntentBits.DirectMessages, GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
     partials: ["message", "channel", "reaction"],
     failIfNotExists: false,
@@ -39,13 +46,6 @@ require("./util/musicUtils.js")(client);
 
 client.once('ready', () => {
     console.log("logged in as: " + client.user.tag);
-    client.user.setPresence({
-        activities: [{
-            name: `${client.config.prefix} help | /help`,
-            type: "PLAYING",
-        }],
-        status: "idle",
-    });
 });
 
 // ------------ Taking care of Slash commands ------------
