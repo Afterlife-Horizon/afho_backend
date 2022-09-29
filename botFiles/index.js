@@ -9,6 +9,13 @@ const { Client, Collection, GatewayIntentBits, PermissionFlagsBits } = require('
 const { getVoiceConnection } = require('@discordjs/voice');
 
 const client = new Client({
+    presence: {
+        activity: {
+            name: `/help`,
+            type: "PLAYING",
+        },
+        status: "online",
+    },
     intents: [GatewayIntentBits.DirectMessages, GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
     partials: ["message", "channel", "reaction"],
     failIfNotExists: false,
@@ -35,17 +42,13 @@ fs.readdirSync(commandsPath).forEach(dir => {
 
 client.queues = new Collection();
 
+require("./util/musicUtils.js")(client);
+
 client.once('ready', () => {
     console.log("logged in as: " + client.user.tag);
-    client.user.setPresence({
-        activities: [{
-            name: `${client.config.prefix} help | /help`,
-            type: "PLAYING",
-        }],
-        status: "idle",
-    });
 });
 
+// ------------ Taking care of Slash commands ------------
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
@@ -62,37 +65,52 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
+// ------------ Checking channels voice state updates ------------
 client.on("voiceStateUpdate", async (oldState, newState) => {
-    if (newState.id === client.user.id && newState.channelId && newState.channel.type === "GUILD_STAGE_VOICE" && newState.supress) {
+    console.log("[LOG] Voice state has updated!".yellow);
 
+    if (newState.id == client.user.id && newState.channelId && newState.channel.type == "GUILD_STAGE_VOICE" && newState.suppress) {
         if (newState.channel?.permissionsFor(newState.guild.me)?.has(PermissionFlagsBits.MuteMembers)) {
+            console.log("[LOG] Unmuting!".yellow);
             await newState.guild.me.voice.setSuppressed(false).catch(() => null);
         }
+    }
 
-        if (newState.id === client.user.id) return;
+    if (newState.id == client.user.id) {
+        console.log("[LOG] User is the bot!".yellow);
+        return;
+    }
 
-        const stateChange = (one, two) => {
-            if (one === false && two === true || one === true && two === false) return true;
-            else return false;
-        };
+    function stateChange(one, two) {
+        if (one === false && two === true || one === true && two === false) return true;
+        else return false;
+    }
+    if (stateChange(oldState.streaming, newState.streaming) ||
+        stateChange(oldState.serverDeaf, newState.serverDeaf) ||
+        stateChange(oldState.serverMute, newState.serverMute) ||
+        stateChange(oldState.selfDeaf, newState.selfDeaf) ||
+        stateChange(oldState.selfMute, newState.selfMute) ||
+        stateChange(oldState.selfVideo, newState.selfVideo) ||
+        stateChange(oldState.suppress, newState.suppress)) {
+        return;
+    }
 
-        if (
-            stateChange(oldState.streaming, newState.streaming) ||
-            stateChange(oldState.serverDeaf, newState.serverDeaf) ||
-            stateChange(oldState.serverMute, newState.serverMute) ||
-            stateChange(oldState.selfDeaf, newState.selfDeaf) ||
-            stateChange(oldState.selfMute, newState.selfMute) ||
-            stateChange(oldState.selfVideo, newState.selfVideo) ||
-            stateChange(oldState.suppress, newState.supress)
-        ) return;
+    // channel joins
+    if (!oldState.channelId && newState.channelId) {
+        console.log("[LOG] User joined channel!".yellow);
+        return;
+    }
 
-        if (!oldState.channelId && newState.channelId) return;
-
-        if (!newState.channelId && oldState.channelId || newState.channelId && oldState.channelId) {
+    // channel leaves
+    if (!newState.channelId && oldState.channelId || newState.channelId && oldState.channelId) {
+        if (oldState.channel.members.filter(m => !m.user.bot).size <= 0) console.log("[LOG] Channel is empty!".yellow);
+        setTimeout(() => {
             const connection = getVoiceConnection(newState.guild.id);
-            if (oldState.channel.filter(member => !member.user.bot && !member.voice.selfDeaf && !member.voice.serverDeaf).size >= 1) return;
+            if (oldState.channel.members.filter(m => !m.user.bot).size >= 1) return;
+            // if (connection && oldState.channel.members.filter(m => !m.user.bot).size <= 0) connection.destroy();
             if (connection && connection.joinConfig.channelId == oldState.channelId) connection.destroy();
-        }
+            return;
+        }, 15000);
     }
 });
 
