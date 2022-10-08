@@ -19,6 +19,7 @@
     "bcrypt": "^5.0.1",
     "buffer": "^6.0.3",
     "colors": "^1.4.0",
+    "connect-history-api-fallback": "^2.0.0",
     "dayjs": "^1.11.5",
     "discord-ytdl-core": "^5.0.4",
     "discord.js": "^14.5.0",
@@ -29,6 +30,7 @@
     "lodash": "^4.17.21",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.20",
+    "undici": "^5.11.0",
     "youtube-sr": "^4.3.4",
     "ytdl-core": "^4.11.2"
   },

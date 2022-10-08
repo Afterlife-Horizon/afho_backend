@@ -1,7 +1,8 @@
 // ------------ Packages ------------
-import { Card, Input } from "antd";
-import { useEffect, useState } from "react";
+import { Card, Avatar } from "antd";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useSearchParams } from "react-router-dom";
 
 // ------------ CSS Files ------------
 import "../css/Music.css";
@@ -18,7 +19,88 @@ interface testCallback {
 }
 
 const Music = (props: any) => {
+	const [user, setUser] = useState({
+		accent_color: 14172358,
+		avatar: "",
+		avatar_decoration: null,
+		banner: "",
+		banner_color: "",
+		discriminator: "",
+		flags: 128,
+		id: "",
+		locale: "",
+		mfa_enabled: true,
+		premium_type: 2,
+		public_flags: 128,
+		username: "",
+	});
+	const [searchParams] = useSearchParams();
+	window.onload = () => {
+		const code = searchParams.get("code");
+
+		const access_token = sessionStorage.getItem("access_token");
+
+		if ((!code || code === "") && !sessionStorage.getItem("access_token")) return window.location.replace("/login");
+		if (!access_token) {
+			const getUser = async (callback: testCallback) => {
+				await axios
+					.post(
+						"/api/login",
+						{ code: code },
+						{
+							headers: { "Content-Type": "application/json" },
+						}
+					)
+					.then((res) => {
+						// console.log(res);
+						callback(null, res.status, res.data);
+					})
+					.catch((err) => {
+						callback(err, err.response, null);
+					});
+			};
+
+			getUser((err, status, data) => {
+				if (err) return console.error(err);
+				else if (status !== 200) return;
+				sessionStorage.setItem("access_token", data.access_token);
+				sessionStorage.setItem("token_type", data.token_type);
+				// setTimeout(() => {
+				// 	window.location.replace("/");
+				// }, 500);
+			});
+		} else {
+			const getUser = async (callback: testCallback) => {
+				await axios
+					.post(
+						"/api/loginaccess",
+						{
+							access_token: sessionStorage.getItem("access_token"),
+							token_type: sessionStorage.getItem("token_type"),
+						},
+						{
+							headers: { "Content-Type": "application/json" },
+						}
+					)
+					.then((res) => {
+						// console.log(res);
+						callback(null, res.status, res.data);
+					})
+					.catch((err) => {
+						callback(err, err.response, null);
+					});
+			};
+
+			getUser((err, status, data) => {
+				if (err) return console.error(err);
+				else if (status !== 200) return;
+				setUser(data);
+			});
+		}
+	};
+
 	const classes = "music " + props.className;
+
 	const [nextClicked, setNextClicked] = useState(false);
 	const [isPaused, setIsPaused] = useState(false);
 	const [queue, setQueue]: any[] = useState([]);
@@ -26,8 +108,8 @@ const Music = (props: any) => {
 	const [hasChanged, setHasChanged] = useState(true);
 
 	const [song, setSong] = useState({
-		name: "Sun eater",
-		artist: "Lorna Shore",
+		name: "None",
+		artist: "",
 		requester: "None",
 		filters: {
 			bassboost: 0,
@@ -53,12 +135,13 @@ const Music = (props: any) => {
 		url: "",
 		formatedprog: "00:00",
 		duration: "00:00",
-		cover_src: "https://i.scdn.co/image/ab67616d0000b273c561b52837c5f9b24350ef79",
+		cover_src: "https://freesvg.org/img/aiga_waiting_room_bg.png",
 	});
 
 	const [intervalReset, setIntervalReset] = useState(false);
 	useEffect(() => {
 		const repeatedFetchInterval = setInterval(() => {
+			if (searchParams.get("code")) window.location.replace("/");
 			const getQueue = async (callback: testCallback) => {
 				await axios
 					.get("/api/fetchqueue")
@@ -216,10 +299,18 @@ const Music = (props: any) => {
 		});
 	};
 
+	const handleLogout = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		sessionStorage.removeItem("access_token");
+		sessionStorage.removeItem("token_type");
+		window.location.replace("/login");
+	};
+
 	return (
 		<div className={classes}>
 			<div className="nowplaying">
 				<Card
+					className="nowplaying-card"
 					cover={<img className="nowplaying-img" alt="example" src={song.cover_src} />}
 					actions={[
 						<button className="next" onClick={handleStopClicked}>
@@ -252,8 +343,17 @@ const Music = (props: any) => {
 						}
 					/>
 				</Card>
+				<Card className="nowplaying-card">
+					<Meta
+						avatar={<Avatar src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} />}
+						title={`${user.username}#${user.discriminator}`}
+					/>
+				</Card>
+				<div className="nowplaying-card ant-card">
+					<button onClick={handleLogout}>LOG OUT</button>
+				</div>
 			</div>
-			<Queue song={song} queue={queue} />
+			<Queue song={song} queue={queue} user={user} />
 			<Filters hasChanged={hasChanged} filters={song.filters} />
 		</div>
 	);

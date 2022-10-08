@@ -93,6 +93,27 @@ const Filters = (props: any) => {
 		changeSongFilter((err, status, data) => {
 			if (err) return console.error(err);
 			setInputValues({ bassboost: "", speed: "" });
+			setEffects({
+				bassboost: 0,
+				subboost: false,
+				mcompand: false,
+				haas: false,
+				gate: false,
+				karaoke: false,
+				flanger: false,
+				pulsator: false,
+				surrounding: false,
+				"3d": false,
+				vaporwave: false,
+				nightcore: false,
+				phaser: false,
+				normalizer: false,
+				speed: 1,
+				tremolo: false,
+				vibrato: false,
+				reverse: false,
+				treble: false,
+			});
 			// console.log(data);
 		});
 	};

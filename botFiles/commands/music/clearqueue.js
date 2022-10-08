@@ -6,20 +6,25 @@ module.exports = {
         .setName('clearqueue')
         .setDescription('clear the queue!'),
     async execute(interaction) {
-        if (!interaction.member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(() => null);
-        // get an old connection
-        const oldConnection = getVoiceConnection(interaction.guild.id);
-        if (!oldConnection) return interaction.reply("👎 **I'm not connected somewhere!**").catch(() => null);
-        if (oldConnection && oldConnection.joinConfig.channelId != interaction.member.voice.channelId) return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(() => null);
+        try {
+            if (!interaction.member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**");
 
-        const queue = interaction.client.queues.get(interaction.guild.id);
-        if (!queue) {
-            return interaction.reply(`👎 **Nothing playing right now**`).catch(() => null);
+            const oldConnection = getVoiceConnection(interaction.guildId);
+            if (!oldConnection) return interaction.reply("👎 **I'm not connected somewhere!**");
+            if (oldConnection && oldConnection.joinConfig.channelId != interaction.member.voice.channelId) return interaction.reply("👎 **We are not in the same Voice-Channel**!");
+
+            const queue = interaction.client.queues.get(interaction.guildId);
+            if (!queue) {
+                return interaction.reply(`👎 **Nothing playing right now**`);
+            }
+
+            queue.tracks = [queue.tracks[0]];
+
+
+            return interaction.reply(`🪣 **Successfully cleared the Queue.**`);
         }
-        // no new songs (and no current)
-        queue.tracks = [queue.tracks[0]];
-        // skip the track
-
-        return interaction.reply(`🪣 **Successfully cleared the Queue.**`).catch(() => null);
+        catch (err) {
+            console.log(err);
+        }
     },
 };

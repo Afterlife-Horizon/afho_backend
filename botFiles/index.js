@@ -6,6 +6,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const express = require('express');
 const { default: YouTube } = require('youtube-sr');
+const { request } = require('undici');
+const connectHistoryApiFallback = require("connect-history-api-fallback");
 
 // --------- importing discord.js / Init ---------
 const { Client, Collection, GatewayIntentBits, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
@@ -122,6 +124,16 @@ const app = express();
 const port = process.env.PORT || 4000;
 const base_channelId = "941726047991369800";
 
+
+const getJSONResponse = async (body) => {
+    let fullBody = '';
+
+    for await (const data of body) {
+        fullBody += data.toString();
+    }
+    return JSON.parse(fullBody);
+};
+
 app
     .use(express.json())
     .get("/api/skip", async (req, res) => {
@@ -132,113 +144,113 @@ app
             channel.send(msg);
         };
 
-        const skipInteraction = {
-            client: client,
-            reply: (msg) => send(msg),
-            bot: true,
-            isChatInputCommand: () => true,
-            type: 2,
-            id: '1027148824524894258',
-            applicationId: '1024250006800183396',
-            channelId: '941726047991369800',
-            guildId: '941701148883161118',
-            user: {
-                id: '756222140524658810',
-                bot: false,
-                system: false,
-                flags: { bitfield: 128 },
-                username: 'Bot',
-                discriminator: '8371',
-                avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
-                banner: undefined,
-                accentColor: undefined,
-            },
-            member: {
-                voice: {
-                    channelId: client.currentChannel.id,
-                },
-                guild: {
-                    id: '941701148883161118',
-                    name: 'Afterlife Horizon',
-                    icon: '3e2c794b9a0ba978453defec2f7d544f',
-                    available: true,
-                    shardId: 0,
-                    splash: 'cc5c48725d0abc2c5d564833e70de2b0',
-                    banner: null,
-                    description: null,
-                    verificationLevel: 0,
-                    vanityURLCode: null,
-                    nsfwLevel: 0,
-                    premiumSubscriptionCount: 4,
-                    discoverySplash: null,
-                    memberCount: 40,
-                    large: false,
-                    premiumProgressBarEnabled: true,
-                    applicationId: null,
-                    afkTimeout: 300,
-                    afkChannelId: null,
-                    systemChannelId: '941701148883161122',
-                    premiumTier: 1,
-                    widgetEnabled: null,
-                    widgetChannelId: null,
-                    explicitContentFilter: 0,
-                    mfaLevel: 0,
-                    joinedTimestamp: 1664458476022,
-                    defaultMessageNotifications: 1,
-                    maximumMembers: 500000,
-                    maximumPresences: null,
-                    maxVideoChannelUsers: 25,
-                    approximateMemberCount: null,
-                    approximatePresenceCount: null,
-                    vanityURLUses: null,
-                    rulesChannelId: null,
-                    publicUpdatesChannelId: null,
-                    preferredLocale: 'en-US',
-                    ownerId: '756222140524658810',
-                },
-                joinedTimestamp: 1644589449863,
-                premiumSinceTimestamp: 1644590643837,
-                nickname: 'カーラ',
-                pending: false,
-                communicationDisabledUntilTimestamp: null,
-                _roles: [
-                    '941703723774791680',
-                    '941717032515301426',
-                    '1009957459441487892',
-                    '941702832170610709',
-                ],
+        try {
+            const skipInteraction = {
+                client: client,
+                reply: (msg) => send(msg),
+                bot: true,
+                isChatInputCommand: () => true,
+                type: 2,
+                id: '1027148824524894258',
+                applicationId: '1024250006800183396',
+                channelId: '941726047991369800',
+                guildId: '941701148883161118',
                 user: {
                     id: '756222140524658810',
                     bot: false,
                     system: false,
+                    flags: { bitfield: 128 },
                     username: 'Bot',
                     discriminator: '8371',
                     avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
                     banner: undefined,
                     accentColor: undefined,
                 },
-                avatar: null,
-            },
-            version: 1,
-            appPermissions: { bitfield: 4398046511103n },
-            memberPermissions: { bitfield: 4398046511103n },
-            locale: 'en-US',
-            guildLocale: 'en-US',
-            commandId: '1025036853537165343',
-            commandName: 'skip',
-            commandType: 1,
-            commandGuildId: null,
-            deferred: false,
-            replied: false,
-            ephemeral: null,
-            webhook: { id: '1024250006800183396' },
-            options: {
-                _group: null,
-                _subcommand: null,
-                _hoistedOptions: [],
-            },
-        };
-        try {
+                member: {
+                    voice: {
+                        channelId: client.currentChannel.id,
+                    },
+                    guild: {
+                        id: '941701148883161118',
+                        name: 'Afterlife Horizon',
+                        icon: '3e2c794b9a0ba978453defec2f7d544f',
+                        available: true,
+                        shardId: 0,
+                        splash: 'cc5c48725d0abc2c5d564833e70de2b0',
+                        banner: null,
+                        description: null,
+                        verificationLevel: 0,
+                        vanityURLCode: null,
+                        nsfwLevel: 0,
+                        premiumSubscriptionCount: 4,
+                        discoverySplash: null,
+                        memberCount: 40,
+                        large: false,
+                        premiumProgressBarEnabled: true,
+                        applicationId: null,
+                        afkTimeout: 300,
+                        afkChannelId: null,
+                        systemChannelId: '941701148883161122',
+                        premiumTier: 1,
+                        widgetEnabled: null,
+                        widgetChannelId: null,
+                        explicitContentFilter: 0,
+                        mfaLevel: 0,
+                        joinedTimestamp: 1664458476022,
+                        defaultMessageNotifications: 1,
+                        maximumMembers: 500000,
+                        maximumPresences: null,
+                        maxVideoChannelUsers: 25,
+                        approximateMemberCount: null,
+                        approximatePresenceCount: null,
+                        vanityURLUses: null,
+                        rulesChannelId: null,
+                        publicUpdatesChannelId: null,
+                        preferredLocale: 'en-US',
+                        ownerId: '756222140524658810',
+                    },
+                    joinedTimestamp: 1644589449863,
+                    premiumSinceTimestamp: 1644590643837,
+                    nickname: 'カーラ',
+                    pending: false,
+                    communicationDisabledUntilTimestamp: null,
+                    _roles: [
+                        '941703723774791680',
+                        '941717032515301426',
+                        '1009957459441487892',
+                        '941702832170610709',
+                    ],
+                    user: {
+                        id: '756222140524658810',
+                        bot: false,
+                        system: false,
+                        username: 'Bot',
+                        discriminator: '8371',
+                        avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
+                        banner: undefined,
+                        accentColor: undefined,
+                    },
+                    avatar: null,
+                },
+                version: 1,
+                appPermissions: { bitfield: 4398046511103n },
+                memberPermissions: { bitfield: 4398046511103n },
+                locale: 'en-US',
+                guildLocale: 'en-US',
+                commandId: '1025036853537165343',
+                commandName: 'skip',
+                commandType: 1,
+                commandGuildId: null,
+                deferred: false,
+                replied: false,
+                ephemeral: null,
+                webhook: { id: '1024250006800183396' },
+                options: {
+                    _group: null,
+                    _subcommand: null,
+                    _hoistedOptions: [],
+                },
+            };
             await client.emit('interactionCreate', skipInteraction);
             res.status(200).send("OK");
         }
@@ -255,113 +267,114 @@ app
             channel.send(msg);
         };
 
-        const pauseInteraction = {
-            client: client,
-            reply: (msg) => send(msg),
-            bot: true,
-            isChatInputCommand: () => true,
-            type: 2,
-            id: '1027148824524894258',
-            applicationId: '1024250006800183396',
-            channelId: '941726047991369800',
-            guildId: '941701148883161118',
-            user: {
-                id: '756222140524658810',
-                bot: false,
-                system: false,
-                flags: { bitfield: 128 },
-                username: 'Bot',
-                discriminator: '8371',
-                avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
-                banner: undefined,
-                accentColor: undefined,
-            },
-            member: {
-                voice: {
-                    channelId: client.currentChannel.id,
-                },
-                guild: {
-                    id: '941701148883161118',
-                    name: 'Afterlife Horizon',
-                    icon: '3e2c794b9a0ba978453defec2f7d544f',
-                    available: true,
-                    shardId: 0,
-                    splash: 'cc5c48725d0abc2c5d564833e70de2b0',
-                    banner: null,
-                    description: null,
-                    verificationLevel: 0,
-                    vanityURLCode: null,
-                    nsfwLevel: 0,
-                    premiumSubscriptionCount: 4,
-                    discoverySplash: null,
-                    memberCount: 40,
-                    large: false,
-                    premiumProgressBarEnabled: true,
-                    applicationId: null,
-                    afkTimeout: 300,
-                    afkChannelId: null,
-                    systemChannelId: '941701148883161122',
-                    premiumTier: 1,
-                    widgetEnabled: null,
-                    widgetChannelId: null,
-                    explicitContentFilter: 0,
-                    mfaLevel: 0,
-                    joinedTimestamp: 1664458476022,
-                    defaultMessageNotifications: 1,
-                    maximumMembers: 500000,
-                    maximumPresences: null,
-                    maxVideoChannelUsers: 25,
-                    approximateMemberCount: null,
-                    approximatePresenceCount: null,
-                    vanityURLUses: null,
-                    rulesChannelId: null,
-                    publicUpdatesChannelId: null,
-                    preferredLocale: 'en-US',
-                    ownerId: '756222140524658810',
-                },
-                joinedTimestamp: 1644589449863,
-                premiumSinceTimestamp: 1644590643837,
-                nickname: 'カーラ',
-                pending: false,
-                communicationDisabledUntilTimestamp: null,
-                _roles: [
-                    '941703723774791680',
-                    '941717032515301426',
-                    '1009957459441487892',
-                    '941702832170610709',
-                ],
+
+        try {
+            const pauseInteraction = {
+                client: client,
+                reply: (msg) => send(msg),
+                bot: true,
+                isChatInputCommand: () => true,
+                type: 2,
+                id: '1027148824524894258',
+                applicationId: '1024250006800183396',
+                channelId: '941726047991369800',
+                guildId: '941701148883161118',
                 user: {
                     id: '756222140524658810',
                     bot: false,
                     system: false,
+                    flags: { bitfield: 128 },
                     username: 'Bot',
                     discriminator: '8371',
                     avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
                     banner: undefined,
                     accentColor: undefined,
                 },
-                avatar: null,
-            },
-            version: 1,
-            appPermissions: { bitfield: 4398046511103n },
-            memberPermissions: { bitfield: 4398046511103n },
-            locale: 'en-US',
-            guildLocale: 'en-US',
-            commandId: '1025036853495210082',
-            commandName: 'pause',
-            commandType: 1,
-            commandGuildId: null,
-            deferred: false,
-            replied: false,
-            ephemeral: null,
-            webhook: { id: '1024250006800183396' },
-            options: {
-                _group: null,
-                _subcommand: null,
-                _hoistedOptions: [],
-            },
-        };
-        try {
+                member: {
+                    voice: {
+                        channelId: client.currentChannel.id,
+                    },
+                    guild: {
+                        id: '941701148883161118',
+                        name: 'Afterlife Horizon',
+                        icon: '3e2c794b9a0ba978453defec2f7d544f',
+                        available: true,
+                        shardId: 0,
+                        splash: 'cc5c48725d0abc2c5d564833e70de2b0',
+                        banner: null,
+                        description: null,
+                        verificationLevel: 0,
+                        vanityURLCode: null,
+                        nsfwLevel: 0,
+                        premiumSubscriptionCount: 4,
+                        discoverySplash: null,
+                        memberCount: 40,
+                        large: false,
+                        premiumProgressBarEnabled: true,
+                        applicationId: null,
+                        afkTimeout: 300,
+                        afkChannelId: null,
+                        systemChannelId: '941701148883161122',
+                        premiumTier: 1,
+                        widgetEnabled: null,
+                        widgetChannelId: null,
+                        explicitContentFilter: 0,
+                        mfaLevel: 0,
+                        joinedTimestamp: 1664458476022,
+                        defaultMessageNotifications: 1,
+                        maximumMembers: 500000,
+                        maximumPresences: null,
+                        maxVideoChannelUsers: 25,
+                        approximateMemberCount: null,
+                        approximatePresenceCount: null,
+                        vanityURLUses: null,
+                        rulesChannelId: null,
+                        publicUpdatesChannelId: null,
+                        preferredLocale: 'en-US',
+                        ownerId: '756222140524658810',
+                    },
+                    joinedTimestamp: 1644589449863,
+                    premiumSinceTimestamp: 1644590643837,
+                    nickname: 'カーラ',
+                    pending: false,
+                    communicationDisabledUntilTimestamp: null,
+                    _roles: [
+                        '941703723774791680',
+                        '941717032515301426',
+                        '1009957459441487892',
+                        '941702832170610709',
+                    ],
+                    user: {
+                        id: '756222140524658810',
+                        bot: false,
+                        system: false,
+                        username: 'Bot',
+                        discriminator: '8371',
+                        avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
+                        banner: undefined,
+                        accentColor: undefined,
+                    },
+                    avatar: null,
+                },
+                version: 1,
+                appPermissions: { bitfield: 4398046511103n },
+                memberPermissions: { bitfield: 4398046511103n },
+                locale: 'en-US',
+                guildLocale: 'en-US',
+                commandId: '1025036853495210082',
+                commandName: 'pause',
+                commandType: 1,
+                commandGuildId: null,
+                deferred: false,
+                replied: false,
+                ephemeral: null,
+                webhook: { id: '1024250006800183396' },
+                options: {
+                    _group: null,
+                    _subcommand: null,
+                    _hoistedOptions: [],
+                },
+            };
             await client.emit('interactionCreate', pauseInteraction);
             res.status(200).send("OK");
         }
@@ -378,113 +391,113 @@ app
             channel.send(msg);
         };
 
-        const unPauseInteraction = {
-            client: client,
-            reply: (msg) => send(msg),
-            bot: true,
-            isChatInputCommand: () => true,
-            type: 2,
-            id: '1027148824524894258',
-            applicationId: '1024250006800183396',
-            channelId: '941726047991369800',
-            guildId: '941701148883161118',
-            user: {
-                id: '756222140524658810',
-                bot: false,
-                system: false,
-                flags: { bitfield: 128 },
-                username: 'Bot',
-                discriminator: '8371',
-                avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
-                banner: undefined,
-                accentColor: undefined,
-            },
-            member: {
-                voice: {
-                    channelId: client.currentChannel.id,
-                },
-                guild: {
-                    id: '941701148883161118',
-                    name: 'Afterlife Horizon',
-                    icon: '3e2c794b9a0ba978453defec2f7d544f',
-                    available: true,
-                    shardId: 0,
-                    splash: 'cc5c48725d0abc2c5d564833e70de2b0',
-                    banner: null,
-                    description: null,
-                    verificationLevel: 0,
-                    vanityURLCode: null,
-                    nsfwLevel: 0,
-                    premiumSubscriptionCount: 4,
-                    discoverySplash: null,
-                    memberCount: 40,
-                    large: false,
-                    premiumProgressBarEnabled: true,
-                    applicationId: null,
-                    afkTimeout: 300,
-                    afkChannelId: null,
-                    systemChannelId: '941701148883161122',
-                    premiumTier: 1,
-                    widgetEnabled: null,
-                    widgetChannelId: null,
-                    explicitContentFilter: 0,
-                    mfaLevel: 0,
-                    joinedTimestamp: 1664458476022,
-                    defaultMessageNotifications: 1,
-                    maximumMembers: 500000,
-                    maximumPresences: null,
-                    maxVideoChannelUsers: 25,
-                    approximateMemberCount: null,
-                    approximatePresenceCount: null,
-                    vanityURLUses: null,
-                    rulesChannelId: null,
-                    publicUpdatesChannelId: null,
-                    preferredLocale: 'en-US',
-                    ownerId: '756222140524658810',
-                },
-                joinedTimestamp: 1644589449863,
-                premiumSinceTimestamp: 1644590643837,
-                nickname: 'カーラ',
-                pending: false,
-                communicationDisabledUntilTimestamp: null,
-                _roles: [
-                    '941703723774791680',
-                    '941717032515301426',
-                    '1009957459441487892',
-                    '941702832170610709',
-                ],
+        try {
+            const unPauseInteraction = {
+                client: client,
+                reply: (msg) => send(msg),
+                bot: true,
+                isChatInputCommand: () => true,
+                type: 2,
+                id: '1027148824524894258',
+                applicationId: '1024250006800183396',
+                channelId: '941726047991369800',
+                guildId: '941701148883161118',
                 user: {
                     id: '756222140524658810',
                     bot: false,
                     system: false,
+                    flags: { bitfield: 128 },
                     username: 'Bot',
                     discriminator: '8371',
                     avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
                     banner: undefined,
                     accentColor: undefined,
                 },
-                avatar: null,
-            },
-            version: 1,
-            appPermissions: { bitfield: 4398046511103n },
-            memberPermissions: { bitfield: 4398046511103n },
-            locale: 'en-US',
-            guildLocale: 'en-US',
-            commandId: '1025036853537165342',
-            commandName: 'resume',
-            commandType: 1,
-            commandGuildId: null,
-            deferred: false,
-            replied: false,
-            ephemeral: null,
-            webhook: { id: '1024250006800183396' },
-            options: {
-                _group: null,
-                _subcommand: null,
-                _hoistedOptions: [],
-            },
-        };
-        try {
+                member: {
+                    voice: {
+                        channelId: client.currentChannel.id,
+                    },
+                    guild: {
+                        id: '941701148883161118',
+                        name: 'Afterlife Horizon',
+                        icon: '3e2c794b9a0ba978453defec2f7d544f',
+                        available: true,
+                        shardId: 0,
+                        splash: 'cc5c48725d0abc2c5d564833e70de2b0',
+                        banner: null,
+                        description: null,
+                        verificationLevel: 0,
+                        vanityURLCode: null,
+                        nsfwLevel: 0,
+                        premiumSubscriptionCount: 4,
+                        discoverySplash: null,
+                        memberCount: 40,
+                        large: false,
+                        premiumProgressBarEnabled: true,
+                        applicationId: null,
+                        afkTimeout: 300,
+                        afkChannelId: null,
+                        systemChannelId: '941701148883161122',
+                        premiumTier: 1,
+                        widgetEnabled: null,
+                        widgetChannelId: null,
+                        explicitContentFilter: 0,
+                        mfaLevel: 0,
+                        joinedTimestamp: 1664458476022,
+                        defaultMessageNotifications: 1,
+                        maximumMembers: 500000,
+                        maximumPresences: null,
+                        maxVideoChannelUsers: 25,
+                        approximateMemberCount: null,
+                        approximatePresenceCount: null,
+                        vanityURLUses: null,
+                        rulesChannelId: null,
+                        publicUpdatesChannelId: null,
+                        preferredLocale: 'en-US',
+                        ownerId: '756222140524658810',
+                    },
+                    joinedTimestamp: 1644589449863,
+                    premiumSinceTimestamp: 1644590643837,
+                    nickname: 'カーラ',
+                    pending: false,
+                    communicationDisabledUntilTimestamp: null,
+                    _roles: [
+                        '941703723774791680',
+                        '941717032515301426',
+                        '1009957459441487892',
+                        '941702832170610709',
+                    ],
+                    user: {
+                        id: '756222140524658810',
+                        bot: false,
+                        system: false,
+                        username: 'Bot',
+                        discriminator: '8371',
+                        avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
+                        banner: undefined,
+                        accentColor: undefined,
+                    },
+                    avatar: null,
+                },
+                version: 1,
+                appPermissions: { bitfield: 4398046511103n },
+                memberPermissions: { bitfield: 4398046511103n },
+                locale: 'en-US',
+                guildLocale: 'en-US',
+                commandId: '1025036853537165342',
+                commandName: 'resume',
+                commandType: 1,
+                commandGuildId: null,
+                deferred: false,
+                replied: false,
+                ephemeral: null,
+                webhook: { id: '1024250006800183396' },
+                options: {
+                    _group: null,
+                    _subcommand: null,
+                    _hoistedOptions: [],
+                },
+            };
             await client.emit('interactionCreate', unPauseInteraction);
             res.status(200).send("OK");
         }
@@ -616,6 +629,130 @@ app
             res.send(err);
         }
     })
+    .get("/api/clearqueue", async (req, res) => {
+
+        const channel = await client.channels.fetch(base_channelId);
+
+        const send = (msg) => {
+            channel.send(msg);
+        };
+
+
+        try {
+            const clearqueueInteraction = {
+                client: client,
+                reply: (msg) => send(msg),
+                bot: true,
+                isChatInputCommand: () => true,
+                type: 2,
+                id: '1027148824524894258',
+                applicationId: '1024250006800183396',
+                channelId: '941726047991369800',
+                guildId: '941701148883161118',
+                user: {
+                    id: '756222140524658810',
+                    bot: false,
+                    system: false,
+                    flags: { bitfield: 128 },
+                    username: 'Bot',
+                    discriminator: '8371',
+                    avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
+                    banner: undefined,
+                    accentColor: undefined,
+                },
+                member: {
+                    voice: {
+                        channelId: client.currentChannel.id,
+                    },
+                    guild: {
+                        id: '941701148883161118',
+                        name: 'Afterlife Horizon',
+                        icon: '3e2c794b9a0ba978453defec2f7d544f',
+                        available: true,
+                        shardId: 0,
+                        splash: 'cc5c48725d0abc2c5d564833e70de2b0',
+                        banner: null,
+                        description: null,
+                        verificationLevel: 0,
+                        vanityURLCode: null,
+                        nsfwLevel: 0,
+                        premiumSubscriptionCount: 4,
+                        discoverySplash: null,
+                        memberCount: 40,
+                        large: false,
+                        premiumProgressBarEnabled: true,
+                        applicationId: null,
+                        afkTimeout: 300,
+                        afkChannelId: null,
+                        systemChannelId: '941701148883161122',
+                        premiumTier: 1,
+                        widgetEnabled: null,
+                        widgetChannelId: null,
+                        explicitContentFilter: 0,
+                        mfaLevel: 0,
+                        joinedTimestamp: 1664458476022,
+                        defaultMessageNotifications: 1,
+                        maximumMembers: 500000,
+                        maximumPresences: null,
+                        maxVideoChannelUsers: 25,
+                        approximateMemberCount: null,
+                        approximatePresenceCount: null,
+                        vanityURLUses: null,
+                        rulesChannelId: null,
+                        publicUpdatesChannelId: null,
+                        preferredLocale: 'en-US',
+                        ownerId: '756222140524658810',
+                    },
+                    joinedTimestamp: 1644589449863,
+                    premiumSinceTimestamp: 1644590643837,
+                    nickname: 'カーラ',
+                    pending: false,
+                    communicationDisabledUntilTimestamp: null,
+                    _roles: [
+                        '941703723774791680',
+                        '941717032515301426',
+                        '1009957459441487892',
+                        '941702832170610709',
+                    ],
+                    user: {
+                        id: '756222140524658810',
+                        bot: false,
+                        system: false,
+                        username: 'Bot',
+                        discriminator: '8371',
+                        avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
+                        banner: undefined,
+                        accentColor: undefined,
+                    },
+                    avatar: null,
+                },
+                version: 1,
+                appPermissions: { bitfield: 4398046511103n },
+                memberPermissions: { bitfield: 4398046511103n },
+                locale: 'en-US',
+                guildLocale: 'en-US',
+                commandId: '1025036853495210079',
+                commandName: 'clearqueue',
+                commandType: 1,
+                commandGuildId: null,
+                deferred: false,
+                replied: false,
+                ephemeral: null,
+                webhook: { id: '1024250006800183396' },
+                options: {
+                    _group: null,
+                    _subcommand: null,
+                    _hoistedOptions: [],
+                },
+            };
+            await client.emit('interactionCreate', clearqueueInteraction);
+            res.status(200).send("OK");
+        }
+        catch (err) {
+            console.log(err);
+            res.send(err);
+        }
+    })
     .get("/api/shuffle", async (req, res) => {
 
         const channel = await client.channels.fetch(base_channelId);
@@ -624,113 +761,113 @@ app
             channel.send(msg);
         };
 
-        const stopInteraction = {
-            client: client,
-            reply: (msg) => send(msg),
-            bot: true,
-            isChatInputCommand: () => true,
-            type: 2,
-            id: '1027148824524894258',
-            applicationId: '1024250006800183396',
-            channelId: '941726047991369800',
-            guildId: '941701148883161118',
-            user: {
-                id: '756222140524658810',
-                bot: false,
-                system: false,
-                flags: { bitfield: 128 },
-                username: 'Bot',
-                discriminator: '8371',
-                avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
-                banner: undefined,
-                accentColor: undefined,
-            },
-            member: {
-                voice: {
-                    channelId: client.currentChannel.id,
-                },
-                guild: {
-                    id: '941701148883161118',
-                    name: 'Afterlife Horizon',
-                    icon: '3e2c794b9a0ba978453defec2f7d544f',
-                    available: true,
-                    shardId: 0,
-                    splash: 'cc5c48725d0abc2c5d564833e70de2b0',
-                    banner: null,
-                    description: null,
-                    verificationLevel: 0,
-                    vanityURLCode: null,
-                    nsfwLevel: 0,
-                    premiumSubscriptionCount: 4,
-                    discoverySplash: null,
-                    memberCount: 40,
-                    large: false,
-                    premiumProgressBarEnabled: true,
-                    applicationId: null,
-                    afkTimeout: 300,
-                    afkChannelId: null,
-                    systemChannelId: '941701148883161122',
-                    premiumTier: 1,
-                    widgetEnabled: null,
-                    widgetChannelId: null,
-                    explicitContentFilter: 0,
-                    mfaLevel: 0,
-                    joinedTimestamp: 1664458476022,
-                    defaultMessageNotifications: 1,
-                    maximumMembers: 500000,
-                    maximumPresences: null,
-                    maxVideoChannelUsers: 25,
-                    approximateMemberCount: null,
-                    approximatePresenceCount: null,
-                    vanityURLUses: null,
-                    rulesChannelId: null,
-                    publicUpdatesChannelId: null,
-                    preferredLocale: 'en-US',
-                    ownerId: '756222140524658810',
-                },
-                joinedTimestamp: 1644589449863,
-                premiumSinceTimestamp: 1644590643837,
-                nickname: 'カーラ',
-                pending: false,
-                communicationDisabledUntilTimestamp: null,
-                _roles: [
-                    '941703723774791680',
-                    '941717032515301426',
-                    '1009957459441487892',
-                    '941702832170610709',
-                ],
+        try {
+            const stopInteraction = {
+                client: client,
+                reply: (msg) => send(msg),
+                bot: true,
+                isChatInputCommand: () => true,
+                type: 2,
+                id: '1027148824524894258',
+                applicationId: '1024250006800183396',
+                channelId: '941726047991369800',
+                guildId: '941701148883161118',
                 user: {
                     id: '756222140524658810',
                     bot: false,
                     system: false,
+                    flags: { bitfield: 128 },
                     username: 'Bot',
                     discriminator: '8371',
                     avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
                     banner: undefined,
                     accentColor: undefined,
                 },
-                avatar: null,
-            },
-            version: 1,
-            appPermissions: { bitfield: 4398046511103n },
-            memberPermissions: { bitfield: 4398046511103n },
-            locale: 'en-US',
-            guildLocale: 'en-US',
-            commandId: '1025075091731652708',
-            commandName: 'shuffle',
-            commandType: 1,
-            commandGuildId: null,
-            deferred: false,
-            replied: false,
-            ephemeral: null,
-            webhook: { id: '1024250006800183396' },
-            options: {
-                _group: null,
-                _subcommand: null,
-                _hoistedOptions: [],
-            },
-        };
-        try {
+                member: {
+                    voice: {
+                        channelId: client.currentChannel.id,
+                    },
+                    guild: {
+                        id: '941701148883161118',
+                        name: 'Afterlife Horizon',
+                        icon: '3e2c794b9a0ba978453defec2f7d544f',
+                        available: true,
+                        shardId: 0,
+                        splash: 'cc5c48725d0abc2c5d564833e70de2b0',
+                        banner: null,
+                        description: null,
+                        verificationLevel: 0,
+                        vanityURLCode: null,
+                        nsfwLevel: 0,
+                        premiumSubscriptionCount: 4,
+                        discoverySplash: null,
+                        memberCount: 40,
+                        large: false,
+                        premiumProgressBarEnabled: true,
+                        applicationId: null,
+                        afkTimeout: 300,
+                        afkChannelId: null,
+                        systemChannelId: '941701148883161122',
+                        premiumTier: 1,
+                        widgetEnabled: null,
+                        widgetChannelId: null,
+                        explicitContentFilter: 0,
+                        mfaLevel: 0,
+                        joinedTimestamp: 1664458476022,
+                        defaultMessageNotifications: 1,
+                        maximumMembers: 500000,
+                        maximumPresences: null,
+                        maxVideoChannelUsers: 25,
+                        approximateMemberCount: null,
+                        approximatePresenceCount: null,
+                        vanityURLUses: null,
+                        rulesChannelId: null,
+                        publicUpdatesChannelId: null,
+                        preferredLocale: 'en-US',
+                        ownerId: '756222140524658810',
+                    },
+                    joinedTimestamp: 1644589449863,
+                    premiumSinceTimestamp: 1644590643837,
+                    nickname: 'カーラ',
+                    pending: false,
+                    communicationDisabledUntilTimestamp: null,
+                    _roles: [
+                        '941703723774791680',
+                        '941717032515301426',
+                        '1009957459441487892',
+                        '941702832170610709',
+                    ],
+                    user: {
+                        id: '756222140524658810',
+                        bot: false,
+                        system: false,
+                        username: 'Bot',
+                        discriminator: '8371',
+                        avatar: '25c59f6fabd49e80d7cb3f4c26942b6f',
+                        banner: undefined,
+                        accentColor: undefined,
+                    },
+                    avatar: null,
+                },
+                version: 1,
+                appPermissions: { bitfield: 4398046511103n },
+                memberPermissions: { bitfield: 4398046511103n },
+                locale: 'en-US',
+                guildLocale: 'en-US',
+                commandId: '1025075091731652708',
+                commandName: 'shuffle',
+                commandType: 1,
+                commandGuildId: null,
+                deferred: false,
+                replied: false,
+                ephemeral: null,
+                webhook: { id: '1024250006800183396' },
+                options: {
+                    _group: null,
+                    _subcommand: null,
+                    _hoistedOptions: [],
+                },
+            };
             await client.emit('interactionCreate', stopInteraction);
             res.status(200).send("OK");
         }
@@ -874,14 +1011,14 @@ app
             if (!playList) {
                 if (!queue || queue.tracks.length == 0) {
                     const bitrate = 128;
-                    const newQueue = client.createQueue(song, "website", client.currentChannel.guild.id, bitrate);
+                    const newQueue = client.createQueue(song, req.body.user, client.currentChannel.guild.id, bitrate);
                     client.queues.set(client.currentChannel.guild.id, newQueue);
                     await client.playSong(client.currentChannel, song);
 
                     res.status(200).send("OK");
                     return channel.send({ content: `Now playing : ${song.title} - ${song.durationFormatted}!` });
                 }
-                queue.tracks.push(client.createSong(song, "website"));
+                queue.tracks.push(client.createSong(song, req.body.user));
             }
             else {
                 song = song ? song : playList.videos[0];
@@ -890,8 +1027,8 @@ app
 
                 if (!queue || queue.tracks.length == 0) {
                     const bitrate = 128;
-                    const newQueue = client.createQueue(song, "website", client.channelId, bitrate);
-                    playList.videos.forEach(nsong => newQueue.tracks.push(client.createSong(nsong, "website")));
+                    const newQueue = client.createQueue(song, req.body.user, client.channelId, bitrate);
+                    playList.videos.forEach(nsong => newQueue.tracks.push(client.createSong(nsong, req.body.user)));
                     client.queues.set(client.currentChannel.guild.id, newQueue);
 
                     await client.playSong(client.currentChannel, song);
@@ -900,10 +1037,81 @@ app
                     return channel.send({ content: `Now playing : ${song.title} - ${song.durationFormatted} - from playlist: ${playList.title}` });
                 }
 
-                playList.videos.forEach(nsong => queue.tracks.push(client.createSong(nsong, "website")));
+                playList.videos.forEach(nsong => queue.tracks.push(client.createSong(nsong, req.body.user)));
 
                 res.status(200).send("OK");
                 return channel.send(`Queued at \`${client.queuePos(queue.tracks.length - (playList.videos.length - 1))}\`: __${song.title} - \`${song.durationFormatted}\`\n> Added \`${playList.videos.length - 1} Songs\` from the Playlist:\n> ${playList.title}`);
+            }
+        }
+        catch (err) {
+            console.log(err);
+            res.status(500).send("OK");
+        }
+    })
+    .post("/api/playfirst", async (req, res) => {
+        try {
+            const channel = await client.channels.fetch(base_channelId);
+            const queue = client.queues.get(client.currentChannel.guild.id);
+
+            const args = req.body.songs.split(" ");
+            const track = args.join(' ');
+
+            const youtubRegex = /^(https?:\/\/)?(www\.)?(m\.|music\.)?(youtube\.com|youtu\.?be)\/.+$/gi;
+            const playlistRegex = /^.*(list=)([^#\&\?]*).*/gi;
+            const songRegex = /^.*(watch\?v=)([^#\&\?]*).*/gi;
+
+            let song = null;
+            let playlist = null;
+
+            const isYT = youtubRegex.exec(track);
+            const isSong = songRegex.exec(track);
+            const isList = playlistRegex.exec(track);
+
+            await channel.send(`🔍 *Searching **${track}** ...*`);
+            // get song from the link
+            if (isYT && isSong && !isList) {
+                song = await YouTube.getVideo(track);
+            }
+            // get playlist from the link
+            else if (isYT && !isSong && isList) {
+                playlist = await YouTube.getPlaylist(track).then(() => playlist.fetch());
+            }
+            // get playlist & song from the link
+            else if (isYT && isSong && isList) {
+                song = await YouTube.getVideo(`https://www.youtube.com/watch?v=${isSong[2]}`);
+                playlist = await YouTube.getPlaylist(`https://www.youtube.com/playlist?list=${isList[2]}`).then(() => playlist.fetch());
+            }
+            // otherwise search for it
+            else {
+                song = await YouTube.searchOne(track);
+            }
+            if (!song && !playlist) return channel.send(`❌ **Failed looking up for ${track}!**`);
+            /* FOR NO PLAYLIST REQUESTS */
+            if (!playlist) {
+                // Add the song to the queue
+                if (!queue) {
+
+                    res.status(406).send("No queue");
+                    return channel.send({ content: `❗ No queue bitch!` });
+                }
+                queue.tracks = [queue.tracks[0], client.createSong(song, req.body.user), ...queue.tracks.slice(1)];
+                // edit the loading message
+                return channel.send(`▶️ **Queued at \`1st\`: __${song.title}__** - \`${song.durationFormatted}\``);
+            }
+            /* FOR PLAYLIST REQUEST */
+            else {
+                // get the song, or the first playlist song
+                song = song ? song : playlist.videos[0];
+                // remove the song which got added
+                const index = playlist.videos.findIndex(s => s.id == song.id) || 0;
+                playlist.videos.splice(index, 1);
+                const playlistSongs = [];
+                // Add the playlist songs to the queue
+                playlist.videos.forEach(nsong => playlistSongs.push(client.createSong(nsong, req.body.user)));
+                queue.tracks = [queue.tracks[0], client.createSong(song, req.body.user), ...playlistSongs, ...queue.tracks.slice(1)];
+                // edit the loading message
+                await channel.send(`👍 **Queued at \`1st\`: __${song.title}__** - \`${song.durationFormatted}\`\n> **Added \`${playlist.videos.length - 1} Songs\` from the Playlist:**\n> __**${playlist.title}**__`);
+                res.status(200).send("OK");
             }
         }
         catch (err) {
@@ -976,8 +1184,64 @@ app
         }
 
     })
+    .post("/api/login", async (req, res) => {
+        if (!req.body || !req.body.code) return res.status(406).send("no code");
+
+
+        try {
+            const params = new URLSearchParams();
+            params.append('client_id', "1028294291698765864");
+            params.append('client_secret', 'PQI01KT2dwee50HuE853-AJg_i1uE-nW');
+            params.append('grant_type', 'authorization_code');
+            params.append('code', String(req.body.code));
+            params.append('redirect_uri', `https://music.afterlifehorizon.net/`);
+            params.append('scope', 'identify');
+            console.log(params.toString());
+            const tokenResponseData = await request('https://discord.com/api/oauth2/token', {
+                method: 'POST',
+                body: params.toString(),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+            if (tokenResponseData.statusCode === 401) return res.status(406).send(tokenResponseData.body);
+
+            const oauthData = await getJSONResponse(tokenResponseData.body);
+            res.status(200).json(oauthData);
+        }
+        catch (error) {
+            console.error(error);
+            res.status(500).send("Internal Error");
+        }
+    })
+    .post("/api/loginaccess", async (req, res) => {
+        if (!req.body || !req.body.access_token) return res.status(406).send("no code");
+
+        try {
+
+            const userResult = await request('https://discord.com/api/users/@me', {
+                headers: {
+                    authorization: `${req.body.token_type} ${req.body.access_token}`,
+                },
+            });
+            res.status(200).json(await getJSONResponse(userResult.body));
+        }
+        catch (error) {
+            // NOTE: An unauthorized token will not throw an error
+            // tokenResponseData.statusCode will be 401
+            console.error(error);
+
+            res.status(500).send("Internal Error");
+        }
+    })
+    .use(
+        connectHistoryApiFallback({
+            verbose: false,
+        }),
+    )
     .use(express.static(path.join(__dirname, "../webapp/frontend/build")))
     .listen(port, () => console.log(`Listening on port ${port}`.toUpperCase().white.bgGreen.bold));
+
 
 // --------- Loging in bot ---------
 client.login(client.config.token);

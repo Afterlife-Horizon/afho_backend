@@ -37,7 +37,7 @@ module.exports = {
 
         try {
             // try to play the requested song
-            const m = await interaction.reply(`🔍 *Searching **${track}** ...*`).catch(() => null);
+            await interaction.reply(`🔍 *Searching **${track}** ...*`).catch(() => null);
             // get song from the link
             if (isYT && isSong && !isList) {
                 song = await YouTube.getVideo(track);
@@ -55,13 +55,13 @@ module.exports = {
             else {
                 song = await YouTube.searchOne(track);
             }
-            if (!song && !playlist) return m.edit(`❌ **Failed looking up for ${track}!**`);
+            if (!song && !playlist) return interaction.editReply(`❌ **Failed looking up for ${track}!**`);
             /* FOR NO PLAYLIST REQUESTS */
             if (!playlist) {
                 // Add the song to the queue
                 queue.tracks = [queue.tracks[0], interaction.client.createSong(song, interaction.user), ...queue.tracks.slice(1)];
                 // edit the loading message
-                return m.edit(`▶️ **Queued at \`1st\`: __${song.title}__** - \`${song.durationFormatted}\``).catch(() => null);
+                return interaction.editReply(`▶️ **Queued at \`1st\`: __${song.title}__** - \`${song.durationFormatted}\``).catch(() => null);
             }
             /* FOR PLAYLIST REQUEST */
             else {
@@ -75,7 +75,7 @@ module.exports = {
                 playlist.videos.forEach(nsong => playlistSongs.push(interaction.client.createSong(nsong, interaction.user)));
                 queue.tracks = [queue.tracks[0], interaction.client.createSong(song, interaction.user), ...playlistSongs, ...queue.tracks.slice(1)];
                 // edit the loading message
-                return m.edit(`👍 **Queued at \`1st\`: __${song.title}__** - \`${song.durationFormatted}\`\n> **Added \`${playlist.videos.length - 1} Songs\` from the Playlist:**\n> __**${playlist.title}**__`).catch(() => null);
+                return interaction.editReply(`👍 **Queued at \`1st\`: __${song.title}__** - \`${song.durationFormatted}\`\n> **Added \`${playlist.videos.length - 1} Songs\` from the Playlist:**\n> __**${playlist.title}**__`).catch(() => null);
             }
 
         }
