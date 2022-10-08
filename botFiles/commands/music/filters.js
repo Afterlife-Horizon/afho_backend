@@ -52,7 +52,6 @@ module.exports = {
                     ],
                 });
                 // will be removed on .stop();
-                queue.tracks = [queue.tracks[0], ...queue.tracks];
                 queue.filtersChanged = true;
                 const curPos = oldConnection.state.subscription.player.state.resource.playbackDuration;
                 oldConnection.state.subscription.player.stop();

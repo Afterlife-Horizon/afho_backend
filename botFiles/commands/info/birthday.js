@@ -5,7 +5,12 @@ dayjs.extend(customParseFormat);
 require('dotenv').config();
 
 // --------- importing database ---------
-const { updateDB, selectFromDB } = require(process.env.WORKPATH + "DB/DB_functions");
+const db = {
+    database: "AFHObot",
+};
+require(process.env.WORKPATH + "DB/DB_functions")(db);
+
+const { updateDB, selectFromDB } = db;
 
 module.exports = {
     // --------- command setup ---------

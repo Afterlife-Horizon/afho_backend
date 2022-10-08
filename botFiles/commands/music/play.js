@@ -21,6 +21,7 @@ module.exports = {
             }
             if (!interaction.member.voice.channelId) return await interaction.reply({ content: `Please join a voice channel first` });
 
+            interaction.client.currentChannel = interaction.member.voice.channel;
             const args = interaction.options.getString('song').split(" ");
             const track = args.join(' ');
             if (!args[0]) return interaction.reply(`Please add the wished music via /play <name/link>`);

@@ -13,6 +13,7 @@ module.exports = {
 
             await interaction.client.joinVoiceChannel(interaction.member.voice.channel);
             console.log("[LOG] Joined voice channel!".green);
+            interaction.client.currentChannel = interaction.member.voice.channel;
             await interaction.reply({ content: `joined voice channel!` });
         }
         catch (err) {

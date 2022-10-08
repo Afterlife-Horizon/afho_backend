@@ -1,7 +1,18 @@
-const db = require("./connection");
+const { host, user, password } = require('../config/DBConfig.json');
+const _ = require('lodash');
 
-const updateDB = (query, args, callback) => {
-    db.connection.getConnection((connErr, connection) => {
+const mysql = require("mysql");
+const dbConnection = (database) => {
+    return mysql.createPool({
+        host: host,
+        user: user,
+        password: password,
+        database: database,
+    });
+};
+
+const updateDB = (database, query, args, callback) => {
+    dbConnection(database).getConnection((connErr, connection) => {
         if (connErr) {
             connection.release();
             return callback(connErr);
@@ -21,8 +32,8 @@ const updateDB = (query, args, callback) => {
     });
 };
 
-const selectFromDB = (query, args, callback) => {
-    db.connection.getConnection((connErr, connection) => {
+const selectFromDB = (database, query, args, callback) => {
+    dbConnection(database).getConnection((connErr, connection) => {
         if (connErr) {
             return callback(connErr, []);
         }
@@ -41,4 +52,7 @@ const selectFromDB = (query, args, callback) => {
     });
 };
 
-module.exports = { updateDB, selectFromDB };
+module.exports = db => {
+    db.updateDB = _.curry(updateDB)(db.database);
+    db.selectFromDB = _.curry(selectFromDB)(db.database);
+};

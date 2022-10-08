@@ -1,0 +1,173 @@
+.music {
+	display: flex;
+	flex-flow: row;
+	flex-wrap: wrap;
+	flex: 1 1 30%;
+	padding: 1rem;
+	margin-inline: auto;
+	gap: 3rem;
+	width: 100%;
+}
+
+.music > div .music > form {
+	border: 1px solid black;
+	border-radius: 5px;
+	width: 100%;
+}
+
+.nowplaying {
+	padding: 0.5rem;
+	min-width: 30%;
+	margin-inline: auto;
+}
+
+.nowplaying .ant-card {
+	box-shadow: 2px 2px 2px 1px rgba(0, 0, 66, 0.1);
+}
+
+.nowplaying .ant-card-actions > li {
+	margin: 0;
+	padding: 0;
+}
+
+.nowplaying-img {
+	max-width: 100%;
+}
+
+button:not(.ant-switch) {
+	background-color: #ffffff; /* Green */
+	border: none;
+	color: black;
+	padding: 1rem 0.5rem;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	width: 100%;
+	font-size: 16px;
+}
+
+button:hover:not(.ant-switch) {
+	background-color: rgb(37, 138, 133); /* Green */
+	border: none;
+	color: black;
+	padding: 1rem 0.5rem;
+	text-align: center;
+	text-transform: uppercase;
+	text-decoration: none;
+	display: inline-block;
+	width: 100%;
+}
+
+.filterUl {
+	display: flex;
+	flex-flow: row;
+}
+
+.filterUl > div {
+	margin: 0.3rem 0.7rem;
+}
+
+.filtername {
+	width: 10rem;
+}
+
+.queue {
+	padding: 0.5rem;
+	border: 1px solid rgba(0, 0, 0, 0.06);
+	border-radius: 5px;
+	width: 35%;
+	margin-inline: auto;
+	box-shadow: 2px 2px 2px 1px rgba(0, 0, 66, 0.1);
+}
+
+.queue > ul {
+	margin: 1rem 0;
+	padding: 0;
+	list-style: none;
+}
+
+#sgprog {
+	width: 100%;
+}
+
+.ant-card-meta-detail {
+	width: 100%;
+}
+
+.queue-list-item {
+	display: flex;
+	flex-flow: row;
+	padding: 0;
+	margin: 0;
+	max-height: 6rem;
+}
+
+.queue-list-item button {
+	width: "50%";
+	line-height: 50%;
+	height: 50%;
+	text-transform: uppercase;
+	text-align: center;
+	justify-items: center;
+	border-right: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.queue-list-item button:not(:last-child) {
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.queue-list-item button:hover {
+	width: "50%";
+	border-right: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.queue-list-item > div.queue-item-name {
+	display: flex;
+	width: 100%;
+	justify-items: center;
+}
+
+div.queue-item-name > a {
+	margin: auto 1rem;
+}
+
+.queue-adder > button {
+	width: 25%;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+	border-left: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.queue-adder > button:hover {
+	width: 25%;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+	border-left: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.last-adder {
+	border-right: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+
+.queue-pages > button {
+	width: 25%;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+	border-left: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.queue-pages > button:hover {
+	width: 25%;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+	border-left: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.ant-divider-horizontal {
+	margin: 2.1rem 0 !important;
+}
+
+@media only screen and (max-width: 1365px) {
+	.nowplaying {
+		min-width: 90%;
+	}
+	.queue {
+		min-width: 90%;
+	}
+}
