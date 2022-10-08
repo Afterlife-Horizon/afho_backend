@@ -70,12 +70,11 @@ const Queue = (props: any) => {
 
 	const handleAdd = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
-		console.log("add", link);
-		const changeSongFilter = async (callback: testCallback) => {
+		const addSong = async (callback: testCallback) => {
 			await axios
 				.post(
 					"/api/play",
-					{ songs: link },
+					{ songs: link, user: props.user.username },
 					{
 						headers: { "Content-Type": "application/json" },
 					}
@@ -89,7 +88,7 @@ const Queue = (props: any) => {
 				});
 		};
 
-		changeSongFilter((err, status, data) => {
+		addSong((err, status, data) => {
 			setLink("");
 			if (err) return console.error(err);
 			// console.log(data);
@@ -99,6 +98,29 @@ const Queue = (props: any) => {
 	const handleAddFirst = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 		console.log("add first", link);
+		const AddFirst = async (callback: testCallback) => {
+			await axios
+				.post(
+					"/api/playfirst",
+					{ songs: link, user: props.user.username },
+					{
+						headers: { "Content-Type": "application/json" },
+					}
+				)
+				.then((res) => {
+					console.log(res);
+					callback(null, res.status, res.data);
+				})
+				.catch((err) => {
+					callback(err, err.response, null);
+				});
+		};
+
+		AddFirst((err, status, data) => {
+			setLink("");
+			if (err) return console.error(err);
+			// console.log(data);
+		});
 	};
 
 	const handleShuffle = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -121,6 +143,26 @@ const Queue = (props: any) => {
 		});
 	};
 
+	const handleClear = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		const clearSongs = async (callback: testCallback) => {
+			await axios
+				.get("/api/clearqueue")
+				.then((res) => {
+					// console.log(res);
+					callback(null, res.status, res.data);
+				})
+				.catch((err) => {
+					callback(err, err.response, null);
+				});
+		};
+
+		clearSongs((err, status, data) => {
+			if (err) return console.error(err);
+			// console.log(data);
+		});
+	};
+
 	return (
 		<div className="queue">
 			<div className="queue-adder">
@@ -128,7 +170,7 @@ const Queue = (props: any) => {
 				<button onClick={handleAdd}>ADD</button>
 				<button onClick={handleAddFirst}>ADD FIRST</button>
 				<button onClick={handleShuffle}>SHUFFLE</button>
-				<button className="last-adder" onClick={handleShuffle}>
+				<button className="last-adder" onClick={handleClear}>
 					CLEAR
 				</button>
 			</div>
@@ -160,6 +202,7 @@ const Queue = (props: any) => {
 										rel="noopener noreferrer">
 										{"  " + track.title}
 									</a>
+									<span>Requested by: {track.requester}</span>
 								</div>
 							</div>
 

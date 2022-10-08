@@ -30,8 +30,8 @@
 	padding: 0;
 }
 
-.nowplaying-img {
-	max-width: 100%;
+.nowplaying-card {
+	max-width: 35rem !important;
 }
 
 button:not(.ant-switch) {
@@ -127,8 +127,14 @@ button:hover:not(.ant-switch) {
 	justify-items: center;
 }
 
-div.queue-item-name > a {
+div.queue-item-name > a,
+div.queue-item-name > span {
 	margin: auto 1rem;
+	text-align: center;
+}
+
+div.queue-item-name > span {
+	align-self: flex-end;
 }
 
 .queue-adder > button {
