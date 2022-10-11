@@ -116,6 +116,10 @@ button[disabled]:hover:not(.ant-switch) {
 	width: 100%;
 }
 
+.ant-card-body {
+	max-width: 30vw;
+}
+
 .queue-list-item {
 	display: flex;
 	flex-flow: row;
@@ -198,6 +202,7 @@ div.queue-item-name > span {
 	text-align: center;
 	justify-items: center;
 	align-items: center;
+	max-width: 30vw !important;
 }
 
 .requesterdiv {
@@ -209,12 +214,18 @@ div.queue-item-name > span {
 
 @media only screen and (max-width: 1600px) {
 	.ant-card-cover img {
-		max-width: none;
+		max-width: none !important;
+	}
+	.ant-card-body {
+		max-width: none !important;
 	}
 	.nowplaying {
 		min-width: 90%;
 	}
 	.queue {
 		min-width: 90%;
+	}
+	.infobox {
+		max-width: none !important;
 	}
 }
