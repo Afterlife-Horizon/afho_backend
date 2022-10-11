@@ -78,20 +78,34 @@ const Filters = (props: any) => {
 
 		const changeSongFilter = async (callback: testCallback) => {
 			await axios
-				.post("/api/filters", effects, {
-					headers: { "Content-Type": "application/json" },
-				})
+				.post(
+					"/api/filters",
+					{ filters: { ...effects }, user: props.user.username },
+					{
+						headers: { "Content-Type": "application/json" },
+					}
+				)
 				.then((res) => {
 					console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
-					callback(err, err.response, null);
+					callback(err, err.response.status, err.response.data);
 				});
 		};
 
+		if (!props.user.isAdmin) {
+			props.setInfo("You need to be admin!");
+			return props.setInfoboxColor("orange");
+		}
+
 		changeSongFilter((err, status, data) => {
-			if (err) return console.error(err);
+			if (err) {
+				if (status !== 500) props.setInfo(data);
+				else props.setInfo("An error occured");
+				props.setInfoboxColor("red");
+				return console.error(err);
+			}
 			setInputValues({ bassboost: "", speed: "" });
 			setEffects({
 				bassboost: 0,
@@ -140,7 +154,8 @@ const Filters = (props: any) => {
 	return (
 		<form className="filters">
 			<h3>Filters</h3>
-			<Input type="submit" value="Submit" onClick={handlefilterSubmitted} />
+			<Input disabled={!props.user.isAdmin} type="submit" value="Submit" onClick={handlefilterSubmitted} />
+
 			<ul>
 				{filters.map((filter) => {
 					return (

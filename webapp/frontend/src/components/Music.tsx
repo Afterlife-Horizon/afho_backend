@@ -33,14 +33,15 @@ const Music = (props: any) => {
 		premium_type: 2,
 		public_flags: 128,
 		username: "",
+		isAdmin: false,
 	});
 	const [searchParams] = useSearchParams();
 	window.onload = () => {
 		const code = searchParams.get("code");
 
-		const access_token = sessionStorage.getItem("access_token");
+		const access_token = localStorage.getItem("access_token");
 
-		if ((!code || code === "") && !sessionStorage.getItem("access_token")) return window.location.replace("/login");
+		if ((!code || code === "") && !localStorage.getItem("access_token")) return window.location.replace("/login");
 		if (!access_token) {
 			const getUser = async (callback: testCallback) => {
 				await axios
@@ -56,15 +57,15 @@ const Music = (props: any) => {
 						callback(null, res.status, res.data);
 					})
 					.catch((err) => {
-						callback(err, err.response, null);
+						callback(err, err.response.status, err.response.data);
 					});
 			};
 
 			getUser((err, status, data) => {
 				if (err) return console.error(err);
 				else if (status !== 200) return;
-				sessionStorage.setItem("access_token", data.access_token);
-				sessionStorage.setItem("token_type", data.token_type);
+				localStorage.setItem("access_token", data.access_token);
+				localStorage.setItem("token_type", data.token_type);
 				// setTimeout(() => {
 				// 	window.location.replace("/");
 				// }, 500);
@@ -75,8 +76,8 @@ const Music = (props: any) => {
 					.post(
 						"/api/loginaccess",
 						{
-							access_token: sessionStorage.getItem("access_token"),
-							token_type: sessionStorage.getItem("token_type"),
+							access_token: localStorage.getItem("access_token"),
+							token_type: localStorage.getItem("token_type"),
 						},
 						{
 							headers: { "Content-Type": "application/json" },
@@ -87,25 +88,38 @@ const Music = (props: any) => {
 						callback(null, res.status, res.data);
 					})
 					.catch((err) => {
-						callback(err, err.response, null);
+						callback(err, err.response.status, err.response.data);
 					});
 			};
 
 			getUser((err, status, data) => {
-				if (err) return console.error(err);
-				else if (status !== 200) return;
-				setUser(data);
+				if (err) {
+					return setInfo("A probleme occured!");
+				} else if (status !== 200) {
+					setInfo("A probleme occured!");
+					localStorage.clear();
+					return window.location.replace("/login");
+				} else if (status === 200 && !data.username) {
+					setInfo("A probleme occured!");
+					localStorage.clear();
+					return window.location.replace("/login");
+				}
+				setInfo("Logged in!");
+				setUser({ ...data, isAdmin: false });
 			});
 		}
 	};
 
 	const classes = "music " + props.className;
 
+	const [info, setInfo] = useState("");
+	const [infoboxColor, setInfoboxColor] = useState("white");
 	const [nextClicked, setNextClicked] = useState(false);
 	const [isPaused, setIsPaused] = useState(false);
 	const [queue, setQueue]: any[] = useState([]);
 	const [songProgress, setSongProgress] = useState(0);
 	const [hasChanged, setHasChanged] = useState(true);
+	const [isSongRequester, setIsRequester] = useState(true);
 
 	const [song, setSong] = useState({
 		name: "None",
@@ -142,22 +156,22 @@ const Music = (props: any) => {
 	useEffect(() => {
 		const repeatedFetchInterval = setInterval(() => {
 			if (searchParams.get("code")) window.location.replace("/");
-			const getQueue = async (callback: testCallback) => {
+			const fetchInfo = async (callback: testCallback) => {
 				await axios
-					.get("/api/fetchqueue")
+					.get("/api/fetch")
 					.then((res) => {
 						// console.log(res);
 						callback(null, res.status, res.data);
 					})
 					.catch((err) => {
-						callback(err, err.response, null);
+						callback(err, err.response.status, err.response.data);
 					});
 			};
 
-			getQueue((err, status, data) => {
+			fetchInfo((err, status, data) => {
 				if (err) return console.error(err);
 				const queue = data.queue[0];
-				// console.log(queue);
+				let tmpIsRequester = false;
 				if (queue && queue?.tracks[0]) {
 					setSong({
 						name: queue.tracks[0].title,
@@ -173,6 +187,7 @@ const Music = (props: any) => {
 					setQueue(queue.tracks.slice(0));
 					setSongProgress(Math.floor(100 * (data.prog / queue.tracks[0].duration)));
 					setHasChanged(queue.filtersChanged);
+					tmpIsRequester = user.username === queue.tracks[0].requester;
 				} else {
 					setHasChanged(false);
 					setSong({
@@ -207,6 +222,9 @@ const Music = (props: any) => {
 					});
 					setQueue([]);
 				}
+				const isAdmin = data.admins.usernames.includes(user.username);
+				setUser((prev) => ({ ...prev, isAdmin: isAdmin }));
+				setIsRequester(tmpIsRequester);
 				setIntervalReset((prev) => !prev);
 			});
 		}, 1000);
@@ -220,19 +238,29 @@ const Music = (props: any) => {
 		event.preventDefault();
 		const skipSong = async (callback: testCallback) => {
 			await axios
-				.get("/api/skip")
+				.post("/api/skip", { user: user.username })
 				.then((res) => {
 					// console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
-					callback(err, err.response, null);
+					callback(err, err.response.status, err.response.data);
 				});
 		};
 
+		if (!queue || queue.length < 2) {
+			setInfo("No song to skip to!");
+			return setInfoboxColor("orange");
+		}
 		skipSong((err, status, data) => {
-			if (err) return console.error(err);
-			// console.log(data);
+			if (err) {
+				if (status !== 500) setInfo(data);
+				else setInfo("An error occured");
+				setInfoboxColor("red");
+				return console.error(err);
+			}
+			setInfo("Skipped!");
+			setInfoboxColor("green");
 		});
 
 		if (nextClicked) setNextClicked(false);
@@ -244,36 +272,52 @@ const Music = (props: any) => {
 
 		const pauseSong = async (callback: testCallback) => {
 			await axios
-				.get("/api/pause")
+				.post("/api/pause", { user: user.username })
 				.then((res) => {
 					// console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
-					callback(err, err.response, null);
+					callback(err, err.response.status, err.response.data);
 				});
 		};
 		const unPauseSong = async (callback: testCallback) => {
 			await axios
-				.get("/api/unpause")
+				.post("/api/unpause", { user: user.username })
 				.then((res) => {
 					console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
-					callback(err, err.response, null);
+					callback(err, err.response.status, err.response.data);
 				});
 		};
 
+		if (!queue || queue.length < 1) {
+			setInfo("No song playing!");
+			return setInfoboxColor("orange");
+		}
+
 		if (isPaused) {
 			unPauseSong((err, status, data) => {
-				if (err) return console.error(err);
-				// console.log(data);
+				if (err) {
+					if (status !== 500) setInfo(data);
+					else setInfo("An error occured");
+					setInfoboxColor("red");
+					return console.error(err);
+				}
+				setInfo("Resumed!");
 			});
 		} else {
 			pauseSong((err, status, data) => {
-				if (err) return console.error(err);
-				// console.log(data);
+				if (err) {
+					if (status !== 500) setInfo(data);
+					else setInfo("An error occured");
+					setInfoboxColor("red");
+					return console.error(err);
+				}
+				setInfo("Paused!");
+				setInfoboxColor("green");
 			});
 		}
 	};
@@ -283,29 +327,87 @@ const Music = (props: any) => {
 
 		const stopSong = async (callback: testCallback) => {
 			await axios
-				.get("/api/stop")
+				.post("/api/stop", { user: user.username })
 				.then((res) => {
 					// console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
-					callback(err, err.response, null);
+					callback(err, err.response.status, err.response.data);
 				});
 		};
 
+		if (!user.isAdmin) {
+			setInfo("You need to be admin!");
+			return setInfoboxColor("orange");
+		}
+
+		if (!queue || queue.length < 1) {
+			setInfo("No song playing!");
+			return setInfoboxColor("orange");
+		}
+
 		stopSong((err, status, data) => {
-			if (err) return console.error(err);
-			// console.log(data);
+			if (err) {
+				if (status !== 500) setInfo(data);
+				else setInfo("An error occured");
+				setInfoboxColor("red");
+				return console.error(err);
+			}
+			setInfo("Stopped playing!");
+			setInfoboxColor("green");
+		});
+	};
+
+	const handleDisconnectClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+
+		const disconnectBot = async (callback: testCallback) => {
+			await axios
+				.get("/api/disconnect")
+				.then((res) => {
+					// console.log(res);
+					callback(null, res.status, res.data);
+				})
+				.catch((err) => {
+					callback(err, err.response.status, err.response.data);
+				});
+		};
+
+		if (!user.isAdmin) {
+			setInfo("You need to be admin!");
+			return setInfoboxColor("orange");
+		}
+
+		disconnectBot((err, status, data) => {
+			if (err) {
+				if (status !== 500) setInfo(data);
+				else setInfo("An error occured");
+				setInfoboxColor("red");
+				return console.error(err);
+			}
+			setInfo("Disconnected the bot!");
+			setInfoboxColor("green");
 		});
 	};
 
 	const handleLogout = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
-		sessionStorage.removeItem("access_token");
-		sessionStorage.removeItem("token_type");
-		window.location.replace("/login");
+		try {
+			localStorage.removeItem("access_token");
+			localStorage.removeItem("token_type");
+			setInfo("Logged out!");
+			setInfoboxColor("green");
+			setTimeout(() => {
+				window.location.replace("/login");
+			}, 1000);
+		} catch (err) {
+			setInfo("A problem occured");
+			setInfoboxColor("red");
+		}
 	};
 
+	let checkRequester = !user.isAdmin && !isSongRequester;
 	return (
 		<div className={classes}>
 			<div className="nowplaying">
@@ -313,14 +415,17 @@ const Music = (props: any) => {
 					className="nowplaying-card"
 					cover={<img className="nowplaying-img" alt="example" src={song.cover_src} />}
 					actions={[
-						<button className="next" onClick={handleStopClicked}>
+						<button disabled={!user.isAdmin} className="next" onClick={handleDisconnectClicked}>
+							DISCONNECT
+						</button>,
+						<button disabled={!user.isAdmin} className="next" onClick={handleStopClicked}>
 							STOP
 						</button>,
-						<button className="next" onClick={handlePauseClicked}>
+						<button disabled={checkRequester} className="next" onClick={handlePauseClicked}>
 							{isPaused ? "UNPAUSE" : "PAUSE"}
 						</button>,
-						<button className="next" onClick={handleNextClicked}>
-							NEXT
+						<button disabled={checkRequester} className="next" onClick={handleNextClicked}>
+							SKIP
 						</button>,
 					]}>
 					<Meta
@@ -352,9 +457,26 @@ const Music = (props: any) => {
 				<div className="nowplaying-card ant-card">
 					<button onClick={handleLogout}>LOG OUT</button>
 				</div>
+
+				<div style={{ border: `1px solid ${infoboxColor}` }} className="nowplaying-card ant-card infobox">
+					{info}
+				</div>
 			</div>
-			<Queue song={song} queue={queue} user={user} />
-			<Filters hasChanged={hasChanged} filters={song.filters} />
+			<Queue
+				song={song}
+				queue={queue}
+				user={user}
+				setInfo={setInfo}
+				setInfoboxColor={setInfoboxColor}
+				isSongRequester={checkRequester}
+			/>
+			<Filters
+				filters={song.filters}
+				hasChanged={hasChanged}
+				user={user}
+				setInfo={setInfo}
+				setInfoboxColor={setInfoboxColor}
+			/>
 		</div>
 	);
 };

@@ -51,6 +51,7 @@ require("./util/musicUtils.js")(client);
 
 client.once('ready', () => {
     console.log("logged in as: " + client.user.tag);
+    client.ready = true;
 });
 
 // ------------ Taking care of Slash commands ------------
@@ -62,7 +63,7 @@ client.on('interactionCreate', async interaction => {
     if (!command) return;
 
     try {
-        console.log(interaction);
+        // console.log(interaction);
         await command.execute(interaction);
     }
     catch (error) {
@@ -136,8 +137,17 @@ const getJSONResponse = async (body) => {
 
 app
     .use(express.json())
-    .get("/api/skip", async (req, res) => {
+    .post("/api/skip", async (req, res) => {
 
+        const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+        const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
+        const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
+        const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+
+        if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
+        else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!");
+
+        if (!client.currentChannel) return res.status(406).send("not connected!");
         const channel = await client.channels.fetch(base_channelId);
 
         const send = (msg) => {
@@ -259,8 +269,17 @@ app
             res.send(err);
         }
     })
-    .get("/api/pause", async (req, res) => {
+    .post("/api/pause", async (req, res) => {
 
+        const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+        const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
+        const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
+        const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+
+        if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
+        else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!");
+
+        if (!client.currentChannel) return res.status(406).send("not connected!");
         const channel = await client.channels.fetch(base_channelId);
 
         const send = (msg) => {
@@ -383,8 +402,17 @@ app
             res.send(err);
         }
     })
-    .get("/api/unpause", async (req, res) => {
+    .post("/api/unpause", async (req, res) => {
 
+        const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+        const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
+        const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
+        const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+
+        if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
+        else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!");
+
+        if (!client.currentChannel) return res.status(406).send("not connected!");
         const channel = await client.channels.fetch(base_channelId);
 
         const send = (msg) => {
@@ -506,8 +534,17 @@ app
             res.send(err);
         }
     })
-    .get("/api/stop", async (req, res) => {
+    .post("/api/stop", async (req, res) => {
 
+        const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+        const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
+        const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
+        const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+
+        if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
+        else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!");
+
+        if (!client.currentChannel) return res.status(406).send("not connected!");
         const channel = await client.channels.fetch(base_channelId);
 
         const send = (msg) => {
@@ -629,7 +666,17 @@ app
             res.send(err);
         }
     })
-    .get("/api/clearqueue", async (req, res) => {
+    .post("/api/clearqueue", async (req, res) => {
+
+        const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+        const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
+        const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
+        const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+
+        if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
+        else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!");
+
+        if (!client.currentChannel) return res.status(406).send("not connected!");
 
         const channel = await client.channels.fetch(base_channelId);
 
@@ -753,7 +800,17 @@ app
             res.send(err);
         }
     })
-    .get("/api/shuffle", async (req, res) => {
+    .post("/api/shuffle", async (req, res) => {
+
+        const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+        const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
+        const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
+        const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+
+        if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
+        else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!");
+
+        if (!client.currentChannel) return res.status(406).send("not connected!");
 
         const channel = await client.channels.fetch(base_channelId);
 
@@ -873,12 +930,21 @@ app
         }
         catch (err) {
             console.log(err);
-            res.send(err);
+            res.status(500).send(err);
         }
     })
     .post("/api/skipto", async (req, res) => {
 
+        const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+        const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
+        const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
+        const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+
+        if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
+        else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!");
+
         const channel = await client.channels.fetch(base_channelId);
+        if (!client.currentChannel) return res.status(406).send("not connected!");
 
         const queue = client.queues.get(client.currentChannel.guild.id);
 
@@ -919,7 +985,17 @@ app
     })
     .post("/api/remove", async (req, res) => {
 
+
+        const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+        const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
+        const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
+        const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+
+        if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
+        else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!");
+
         const channel = await client.channels.fetch(base_channelId);
+        if (!client.currentChannel) return res.status(406).send("not connected!");
 
         const queue = client.queues.get(client.currentChannel.guild.id);
 
@@ -953,11 +1029,52 @@ app
         res.status(200).send("OK");
         return channel.send(`⏭️ **Successfully removed track number ${arg}**`).catch(() => null);
     })
+    .get("/api/disconnect", async (req, res) => {
+
+        if (!client.currentChannel) return res.status(406).send("not connected!");
+
+        try {
+            await client.leaveVoiceChannel(client.currentChannel);
+            res.status(200).send("disconnected");
+        }
+        catch (err) {
+            console.error(err);
+            res.status(500).send("Internal error!");
+        }
+    })
     .post("/api/play", async (req, res) => {
         try {
+
+            const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+            const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
+            const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
+
+            const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+
+            if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
+            else if (voiceChannel.size !== 0) client.currentChannel = voiceChannel;
+            else res.status(406).send("You are not connected to a voice channel!");
+
+            if (!client.currentChannel) return res.status(406).send("not connected!");
+
+
             const channel = await client.channels.fetch(base_channelId);
-            let queue = client.queues.get(client.currentChannel.guild.id);
-            const oldConnection = getVoiceConnection(client.currentChannel.guild.id);
+            let queue = client.queues.get(client.currentChannel.guildId);
+            const oldConnection = getVoiceConnection(client.currentChannel.guildId);
+
+            if (!oldConnection) {
+                try {
+                    await client.joinVoiceChannel(client.currentChannel);
+                }
+                catch (err) {
+                    console.log(err);
+                    res.status(406).send("");
+                    return await channel.send({ content: `Could not join Voice Channel!` }).catch(() => null);
+                }
+            }
+
+            const botsVoiceChanel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === "AFHO_bot").size !== 0);
+            if (botsVoiceChanel?.id !== voiceChannel.id && oldConnection) return res.status(406).send("Not the same channel!");
 
             const args = req.body.songs.split(" ");
             const track = args.join(' ');
@@ -973,20 +1090,10 @@ app
             const isYoutubeSong = songRegex.exec(track);
             const isYoutubePlaylist = playlistRegex.exec(track);
 
-            if (!oldConnection) {
-                try {
-                    await client.joinVoiceChannel(client.currentChannel.guild.id);
-                }
-                catch (err) {
-                    console.log(err);
-                    res.status(406).send("");
-                    return await channel.send({ content: `Could not join Voice Channel!` }).catch(() => null);
-                }
-            }
 
             await channel.send({ content: `Searching ${track} ...` });
             if (!oldConnection && queue) {
-                client.queues.delete(client.currentChannel.guild.id);
+                client.queues.delete(client.currentChannel.guildId);
                 queue = undefined;
             }
             if (isYoutube && isYoutubeSong && !isYoutubePlaylist) {
@@ -1011,14 +1118,16 @@ app
             if (!playList) {
                 if (!queue || queue.tracks.length == 0) {
                     const bitrate = 128;
-                    const newQueue = client.createQueue(song, req.body.user, client.currentChannel.guild.id, bitrate);
-                    client.queues.set(client.currentChannel.guild.id, newQueue);
+                    const newQueue = client.createQueue(song, req.body.user, client.currentChannel.guildId, bitrate);
+                    client.queues.set(client.currentChannel.guildId, newQueue);
                     await client.playSong(client.currentChannel, song);
 
                     res.status(200).send("OK");
                     return channel.send({ content: `Now playing : ${song.title} - ${song.durationFormatted}!` });
                 }
                 queue.tracks.push(client.createSong(song, req.body.user));
+                res.status(200).send("OK");
+                channel.send({ content: `Added : ${song.title} - ${song.durationFormatted}!` });
             }
             else {
                 song = song ? song : playList.videos[0];
@@ -1029,7 +1138,7 @@ app
                     const bitrate = 128;
                     const newQueue = client.createQueue(song, req.body.user, client.channelId, bitrate);
                     playList.videos.forEach(nsong => newQueue.tracks.push(client.createSong(nsong, req.body.user)));
-                    client.queues.set(client.currentChannel.guild.id, newQueue);
+                    client.queues.set(client.currentChannel.guildId, newQueue);
 
                     await client.playSong(client.currentChannel, song);
 
@@ -1050,6 +1159,16 @@ app
     })
     .post("/api/playfirst", async (req, res) => {
         try {
+
+            const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+            const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
+            const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
+            const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+
+            if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
+            else if (client.user.id !== voiceChannel.id) return res.status(406).send("Not the same channel!");
+
+            if (!client.currentChannel) return res.status(406).send("not connected!");
             const channel = await client.channels.fetch(base_channelId);
             const queue = client.queues.get(client.currentChannel.guild.id);
 
@@ -1120,7 +1239,17 @@ app
         }
     })
     .post("/api/filters", async (req, res) => {
-        console.log(req.body);
+
+        const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+        const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
+        const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
+        const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+
+        if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
+        else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!");
+
+        if (!client.currentChannel) return res.status(406).send("not connected!");
+        // console.log(req.body);
 
         const channel = await client.channels.fetch(base_channelId);
 
@@ -1132,7 +1261,7 @@ app
         if (queue.size === 0) return channel.send({ content: `👎 **I'm nothing playing right now.**` }).catch(() => null);
 
         try {
-            const filters = req.body;
+            const filters = req.body.filters;
             queue.effects = filters;
             queue.filtersChanged = true;
 
@@ -1164,8 +1293,13 @@ app
 
 
     })
-    .get("/api/fetchqueue", (req, res) => {
+    .get("/api/fetch", async (req, res) => {
         try {
+            if (!client.ready) return res.status(406).send("Loading!");
+            const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+            await guild.members.fetch();
+            const admins = await guild.roles.cache.find(r => r.name === "admin").members;
+
             let oldConnection;
             let curPos = 0;
             if (client.currentChannel) oldConnection = getVoiceConnection(client.currentChannel.guild.id);
@@ -1174,6 +1308,10 @@ app
                 queue: client.queues,
                 prog: curPos,
                 formatedprog: client.formatDuration(curPos),
+                admins: {
+                    admins: admins.map(admin => [admin.user, admin]),
+                    usernames: admins.map(admin => admin.user.username),
+                },
             };
             // console.log(client);
             res.send(data);

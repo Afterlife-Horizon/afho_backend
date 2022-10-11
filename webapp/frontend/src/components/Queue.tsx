@@ -8,8 +8,9 @@ interface testCallback {
 
 const Queue = (props: any) => {
 	const [page, setPage] = useState(1);
-	let maxPage = Math.floor(props.queue.length / 5);
-	if (props.queue.slice(maxPage * 5 + 1, (maxPage + 1) * 5 + 1)?.length === 0) maxPage -= 1;
+	let maxPage = props.queue.length > 6 ? Math.ceil((props.queue.length - 1) / 5) : -1;
+	if (page > maxPage + 2) setPage(maxPage + 2);
+	else if (page !== 1 && props.queue.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0) setPage((prev) => prev - 1);
 	let j = 0;
 
 	const [link, setLink] = useState("");
@@ -20,7 +21,7 @@ const Queue = (props: any) => {
 				await axios
 					.post(
 						"/api/remove",
-						{ queuePos: id },
+						{ queuePos: id, user: props.user.username },
 						{
 							headers: { "Content-Type": "application/json" },
 						}
@@ -30,13 +31,28 @@ const Queue = (props: any) => {
 						callback(null, res.status, res.data);
 					})
 					.catch((err) => {
-						callback(err, err.response, null);
+						callback(err, err.response.status, err.response.data);
 					});
 			};
 
+			if (!props.user.isAdmin) {
+				props.setInfo("You need to be admin!");
+				return props.setInfoboxColor("orange");
+			}
+
+			if (!props.queue || props.queue.length === 0) {
+				props.setInfo("No songs to remove!");
+				return props.setInfoboxColor("orange");
+			}
 			remove((err, status, data) => {
-				if (err) return console.error(err);
-				// console.log(data);
+				if (err) {
+					if (status !== 500) props.setInfo(data);
+					else props.setInfo("An error occured");
+					props.setInfoboxColor("red");
+					return console.error(err);
+				}
+				props.setInfo("Removed selected song!");
+				props.setInfoboxColor("green");
 			});
 		};
 	};
@@ -47,7 +63,7 @@ const Queue = (props: any) => {
 				await axios
 					.post(
 						"/api/skipto",
-						{ queuePos: id },
+						{ queuePos: id, user: props.user.username },
 						{
 							headers: { "Content-Type": "application/json" },
 						}
@@ -57,13 +73,28 @@ const Queue = (props: any) => {
 						callback(null, res.status, res.data);
 					})
 					.catch((err) => {
-						callback(err, err.response, null);
+						callback(err, err.response.status, err.response.data);
 					});
 			};
 
+			if (!props.user.isAdmin) {
+				props.setInfo("You need to be admin!");
+				return props.setInfoboxColor("orange");
+			}
+
+			if (!props.queue || props.queue.length === 0) {
+				props.setInfo("No songs to skipi to!");
+				return props.setInfoboxColor("orange");
+			}
 			skipto((err, status, data) => {
-				if (err) return console.error(err);
-				// console.log(data);
+				if (err) {
+					if (status !== 500) props.setInfo(data);
+					else props.setInfo("An error occured");
+					props.setInfoboxColor("red");
+					return console.error(err);
+				}
+				props.setInfo("Skiped to selected song!");
+				props.setInfoboxColor("green");
 			});
 		};
 	};
@@ -84,14 +115,26 @@ const Queue = (props: any) => {
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
-					callback(err, err.response, null);
+					callback(err, err.response.status, err.response.data);
 				});
 		};
 
+		if (link === "") {
+			props.setInfo("Please add a link or a song name before adding it!");
+			return props.setInfoboxColor("orange");
+		}
 		addSong((err, status, data) => {
 			setLink("");
-			if (err) return console.error(err);
-			// console.log(data);
+			console.log(data);
+			if (err) {
+				if (status !== 500) props.setInfo(data);
+				else props.setInfo("An error occured");
+				props.setInfoboxColor("red");
+				return console.error(err);
+			}
+			props.setInfoboxColor("green");
+			if (props.queue.length === 0) return props.setInfo("Added to queue!");
+			props.setInfo("Added after " + props.queue[props.queue.length - 1].title);
 		});
 	};
 
@@ -112,34 +155,58 @@ const Queue = (props: any) => {
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
-					callback(err, err.response, null);
+					callback(err, err.response.status, err.response.data);
 				});
 		};
 
+		if (!props.queue || props.queue.length < 2) {
+			props.setInfo('Please use "Add" button! There is no current queue!');
+			return props.setInfoboxColor("orange");
+		}
+		if (link === "") {
+			props.setInfo("Please add a link or a song name before adding it!");
+			return props.setInfoboxColor("orange");
+		}
 		AddFirst((err, status, data) => {
 			setLink("");
-			if (err) return console.error(err);
-			// console.log(data);
+			if (err) {
+				if (status !== 500) props.setInfo(data);
+				else props.setInfo("An error occured");
+				props.setInfoboxColor("red");
+				return console.error(err);
+			}
+			props.setInfo("Added after current song!");
+			props.setInfoboxColor("green");
 		});
 	};
 
 	const handleShuffle = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
-		const stopSong = async (callback: testCallback) => {
+		const shuffleSongs = async (callback: testCallback) => {
 			await axios
-				.get("/api/shuffle")
+				.post("/api/shuffle", { user: props.user.username })
 				.then((res) => {
 					// console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
-					callback(err, err.response, null);
+					callback(err, err.response.status, err.response.data);
 				});
 		};
 
-		stopSong((err, status, data) => {
-			if (err) return console.error(err);
-			// console.log(data);
+		if (!props.queue || props.queue.length < 3) {
+			props.setInfo("No songs to shuffle!");
+			return props.setInfoboxColor("orange");
+		}
+		shuffleSongs((err, status, data) => {
+			if (err) {
+				if (status !== 500) props.setInfo(data);
+				else props.setInfo("An error occured");
+				props.setInfoboxColor("red");
+				return console.error(err);
+			}
+			props.setInfo("Shuffled queue!");
+			props.setInfoboxColor("green");
 		});
 	};
 
@@ -147,19 +214,34 @@ const Queue = (props: any) => {
 		event.preventDefault();
 		const clearSongs = async (callback: testCallback) => {
 			await axios
-				.get("/api/clearqueue")
+				.post("/api/clearqueue", { user: props.user.username })
 				.then((res) => {
 					// console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
-					callback(err, err.response, null);
+					callback(err, err.response.status, err.response.data);
 				});
 		};
 
+		if (!props.user.isAdmin) {
+			props.setInfo("You need to be admin!");
+			return props.setInfoboxColor("orange");
+		}
+
+		if (!props.queue || props.queue.length < 2) {
+			props.setInfo("Nothing to clear!");
+			return props.setInfoboxColor("orange");
+		}
 		clearSongs((err, status, data) => {
-			if (err) return console.error(err);
-			// console.log(data);
+			if (err) {
+				if (status !== 500) props.setInfo(data);
+				else props.setInfo("An error occured");
+				props.setInfoboxColor("red");
+				return console.error(err);
+			}
+			props.setInfo("Cleared queue!");
+			props.setInfoboxColor("green");
 		});
 	};
 
@@ -169,31 +251,40 @@ const Queue = (props: any) => {
 				<Input placeholder="Song name / Link" value={link} onChange={(event: any) => setLink(event.target.value)} />
 				<button onClick={handleAdd}>ADD</button>
 				<button onClick={handleAddFirst}>ADD FIRST</button>
-				<button onClick={handleShuffle}>SHUFFLE</button>
-				<button className="last-adder" onClick={handleClear}>
+
+				<button disabled={!props.user.isAdmin} onClick={handleShuffle}>
+					SHUFFLE
+				</button>
+				<button disabled={!props.user.isAdmin} className="last-adder" onClick={handleClear}>
 					CLEAR
 				</button>
 			</div>
-			<div className="queue-pages">
-				<button onClick={() => setPage(1)}>{"⏮"}</button>
-				<button onClick={() => setPage((prev) => (prev !== 1 ? prev - 1 : 1))}>{"⏪"}</button>
-				<button onClick={() => setPage((prev) => (prev !== maxPage + 1 ? prev + 1 : maxPage + 1))}>{"⏩"}</button>
-				<button className="last-adder" onClick={() => setPage(maxPage + 1)}>
-					{"⏭"}
-				</button>
-			</div>
+			{maxPage === -1 ? null : (
+				<div className="queue-pages">
+					<button onClick={() => setPage(1)}>{"⏮"}</button>
+					<button onClick={() => setPage((prev) => (prev > 1 ? prev - 1 : 1))}>{"⏪"}</button>
+					<button onClick={() => setPage((prev) => (prev < maxPage + 1 ? prev + 1 : maxPage + 1))}>{"⏩"}</button>
+					<button className="last-adder" onClick={() => setPage(maxPage + 1)}>
+						{"⏭"}
+					</button>
+				</div>
+			)}
 			<div>
-				page: {page} / {maxPage + 1}
+				page: {page} / {maxPage === -1 ? 1 : maxPage}
 			</div>
 			<ul>
 				{props.queue.slice((page - 1) * 5 + 1, page * 5 + 1).map((track: any) => {
 					j++;
 					return (
-						<li key={"queuedSong" + String((page - 1) * 5 + j)}>
+						<li className="queue-item" key={"queuedSong" + String((page - 1) * 5 + j)}>
 							<div className="queue-list-item">
 								<div>
-									<button onClick={handleRemove((page - 1) * 5 + j)}>remove</button>
-									<button onClick={handleskipto((page - 1) * 5 + j)}>skip to</button>
+									<button disabled={props.checkRequester} onClick={handleRemove((page - 1) * 5 + j)}>
+										remove
+									</button>
+									<button disabled={!props.user.isAdmin} onClick={handleskipto((page - 1) * 5 + j)}>
+										skip to
+									</button>
 								</div>
 								<div className="queue-item-name">
 									<a
@@ -202,7 +293,7 @@ const Queue = (props: any) => {
 										rel="noopener noreferrer">
 										{"  " + track.title}
 									</a>
-									<span>Requested by: {track.requester}</span>
+									<div className="requesterdiv">Requested by: {track.requester}</div>
 								</div>
 							</div>
 

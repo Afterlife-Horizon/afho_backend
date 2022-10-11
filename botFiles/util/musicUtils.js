@@ -145,11 +145,11 @@ module.exports = client => {
 
     client.playSong = async (channel, songInfo) => {
         return new Promise((res, rej) => {
-            const oldConnection = getVoiceConnection(channel.guild.id);
+            const oldConnection = getVoiceConnection(channel.guildId);
             if (oldConnection) {
                 if (oldConnection.joinConfig.channelId != channel.id) return rej("We aren't in the same channel!");
                 try {
-                    const curQueue = client.queues.get(channel.guild.id);
+                    const curQueue = client.queues.get(channel.guildId);
 
                     const player = createAudioPlayer({
                         behaviors: {
@@ -164,26 +164,26 @@ module.exports = client => {
 
                     // When the player plays a new song
                     player.on("playing", () => {
-                        const queue = client.queues.get(channel.guild.id);
+                        const queue = client.queues.get(channel.guildId);
                         // if filters changed, don't send something
                         if (queue && queue.filtersChanged) {
                             queue.filtersChanged = false;
                         }
                         else {
-                            client.sendQueueUpdate(channel.guild.id);
+                            client.sendQueueUpdate(channel.guildId);
                         }
 
                     });
                     // When the player goes on idle
                     player.on("idle", () => {
-                        const queue = client.queues.get(channel.guild.id);
+                        const queue = client.queues.get(channel.guildId);
                         console.log(`${client.getTime()} :: QueueShift - Idle/Skip`);
                         handleQueue(client, player, queue);
                     });
                     // when an error happens
                     player.on('error', error => {
                         console.error(error);
-                        const queue = client.queues.get(channel.guild.id);
+                        const queue = client.queues.get(channel.guildId);
                         console.log(`${client.getTime()} :: QueueShift - Error`);
                         handleQueue(client, player, queue);
                     });

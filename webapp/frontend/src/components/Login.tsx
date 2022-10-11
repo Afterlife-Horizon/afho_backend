@@ -2,7 +2,7 @@ import "../css/Login.css";
 
 const Login = () => {
 	window.onload = () => {
-		if (sessionStorage.getItem("access_token")) return window.location.replace("/");
+		if (localStorage.getItem("access_token")) return window.location.replace("/");
 	};
 	const handleLogin = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();

@@ -17,8 +17,12 @@
 
 .nowplaying {
 	padding: 0.5rem;
-	min-width: 30%;
+	min-width: 30vw;
 	margin-inline: auto;
+}
+
+.ant-card-cover img {
+	max-width: 30vw;
 }
 
 .nowplaying .ant-card {
@@ -31,11 +35,11 @@
 }
 
 .nowplaying-card {
-	max-width: 35rem !important;
+	max-width: 100% !important;
 }
 
 button:not(.ant-switch) {
-	background-color: #ffffff; /* Green */
+	background-color: #ffffff;
 	border: none;
 	color: black;
 	padding: 1rem 0.5rem;
@@ -47,7 +51,7 @@ button:not(.ant-switch) {
 }
 
 button:hover:not(.ant-switch) {
-	background-color: rgb(37, 138, 133); /* Green */
+	background-color: rgb(37, 138, 133);
 	border: none;
 	color: black;
 	padding: 1rem 0.5rem;
@@ -56,6 +60,24 @@ button:hover:not(.ant-switch) {
 	text-decoration: none;
 	display: inline-block;
 	width: 100%;
+}
+
+button:active:not(.ant-switch) {
+	transform: translateY(2px);
+}
+
+button:disabled,
+button[disabled] {
+	background-color: #f5f5f5;
+	color: rgba(0, 0, 0, 0.25);
+}
+
+button:disabled:hover:not(.ant-switch),
+button[disabled]:hover:not(.ant-switch) {
+	cursor: not-allowed;
+	transform: none;
+	background-color: #f5f5f5;
+	color: rgba(0, 0, 0, 0.25);
 }
 
 .filterUl {
@@ -125,6 +147,7 @@ button:hover:not(.ant-switch) {
 	display: flex;
 	width: 100%;
 	justify-items: center;
+	place-content: space-between;
 }
 
 div.queue-item-name > a,
@@ -169,7 +192,25 @@ div.queue-item-name > span {
 	margin: 2.1rem 0 !important;
 }
 
-@media only screen and (max-width: 1365px) {
+.infobox {
+	margin-top: 2rem !important;
+	padding: 1rem !important;
+	text-align: center;
+	justify-items: center;
+	align-items: center;
+}
+
+.requesterdiv {
+	align-items: center;
+	margin: 2rem;
+	justify-items: center;
+	max-width: 25%;
+}
+
+@media only screen and (max-width: 1600px) {
+	.ant-card-cover img {
+		max-width: none;
+	}
 	.nowplaying {
 		min-width: 90%;
 	}
