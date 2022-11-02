@@ -43,6 +43,7 @@ module.exports = {
 
 
         const member = interaction.member;
+        const dsId = member.user.id;
         const channel = interaction.channel;
         await interaction.reply({
             content: `executing!`,
@@ -56,13 +57,16 @@ module.exports = {
         const hashedPass = await bcrypt.hash(password, salt);
 
         const roles = ["admin", "premium member", "member", "slave"];
-        const roleCollection = await member.roles.cache.filter(r => roles.indexOf(r.name) >= 0);
-        const role = [...roleCollection][0][1].name;
+        const roleCollection = await member.roles.cache;
         let isAdmin = 0;
-        switch (role === 'admin') {
-            case false: isAdmin = 0; break;
-            case true: isAdmin = 1; break;
-        }
+        let isScPlayer = 0;
+        let role = "";
+        console.log([...roleCollection][0][1].name);
+        [...roleCollection].forEach(dRole => {
+            if (dRole[1].name === "admin") isAdmin = 1;
+            if (dRole[1].name === "sc") isScPlayer = 1;
+            if (roles.includes(dRole[1].name)) role = dRole[1].name;
+        });
 
         channel.send({ content: `Adding user ${interaction.user} to Users!` });
         console.log("[LOG] Checking user ".yellow + username.blue);
@@ -81,8 +85,8 @@ module.exports = {
             else {
                 // ------------ INSERT IN USERS ------------
                 console.log("[DB] Inserting user:  ".yellow + username.blue + " into database AFHO(users)".yellow);
-                query = `INSERT INTO users(name, discord_tag, email, role, password, isAdmin) VALUES (?, ?, ?, ?, ?, ?)`;
-                args = [username, discordTag, email, role, hashedPass, isAdmin];
+                query = `INSERT INTO users(discordId, name, discord_tag, email, role, password, isAdmin, isSCPlayer) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+                args = [dsId, username, discordTag, email, role, hashedPass, isAdmin, isScPlayer];
                 updateDB(query, args, (err) => {
                     if (err) {
                         console.error(err);

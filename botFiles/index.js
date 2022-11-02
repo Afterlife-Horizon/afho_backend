@@ -89,9 +89,9 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
     }
 
     function stateChange(one, two) {
-        if (one === false && two === true || one === true && two === false) return true;
-        else return false;
+        return (one === false && two === true || one === true && two === false);
     }
+
     if (stateChange(oldState.streaming, newState.streaming) ||
         stateChange(oldState.serverDeaf, newState.serverDeaf) ||
         stateChange(oldState.serverMute, newState.serverMute) ||

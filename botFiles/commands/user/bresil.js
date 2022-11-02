@@ -29,10 +29,10 @@ module.exports = {
             const filePath = path.resolve(process.env.WORKPATH, `config/movecounts.json`);
             const data = await fsPromises.readFile(filePath);
             const moveCounts = JSON.parse(data);
-            let moveCount = moveCounts.filter(m => m.username === member.user.username)[0]?.counter;
+            let moveCount = moveCounts.filter(m => m.id === member.user.id)[0]?.counter;
 
             if (!moveCount) {
-                fs.writeFile(filePath, JSON.stringify([...moveCounts, { username: member.user.username, counter: 1 }]), 'utf8', (err) => {
+                fs.writeFile(filePath, JSON.stringify([...moveCounts, { id: member.user.id.toString(), username: member.user.username, counter: 1 }]), 'utf8', (err) => {
                     if (err) {
                         console.log("An error occured while writing JSON Object to File.");
                         return console.log(err);
@@ -44,7 +44,7 @@ module.exports = {
             else {
                 moveCount += 1;
                 const index = moveCounts.findIndex(m => m.username === member.user.username);
-                moveCounts[index] = { username: member.user.username, counter: moveCount };
+                moveCounts[index] = { id: member.user.id.toString(), username: member.user.username, counter: moveCount };
                 fs.writeFile(filePath, JSON.stringify([...moveCounts]), 'utf8', (err) => {
                     if (err) {
                         console.log("An error occured while writing JSON Object to File.");
@@ -54,10 +54,10 @@ module.exports = {
             }
 
             const brasilChannel = interaction.client.channels.cache.get(brasilChannelId);
-            member.voice.setChannel(brasilChannel);
+            await member.voice.setChannel(brasilChannel);
 
             const replyEmbed = new EmbedBuilder()
-                .setColor("FUCHSIA")
+                .setColor("Fuchsia")
                 .setTitle(`💨Brasiled`)
                 .addFields(
                     {
@@ -84,7 +84,6 @@ module.exports = {
             console.error(err);
             await interaction.reply({ content: `❌ An error occured!` });
         }
-
     },
 };
 
