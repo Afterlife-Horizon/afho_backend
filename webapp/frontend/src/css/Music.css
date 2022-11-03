@@ -21,8 +21,14 @@
 	margin-inline: auto;
 }
 
+.ant-card-cover {
+	display: flex;
+	align-content: center;
+	justify-content: center;
+}
+
 .ant-card-cover img {
-	max-width: 30vw;
+	max-width: 25vw;
 }
 
 .nowplaying .ant-card {
@@ -205,6 +211,15 @@ div.queue-item-name > span {
 	max-width: 30vw !important;
 }
 
+.brasilboardd {
+	margin-bottom: 2rem !important;
+	padding: 1rem !important;
+	text-align: center;
+	justify-items: center;
+	align-items: center;
+	max-width: 30vw !important;
+}
+
 .requesterdiv {
 	align-items: center;
 	margin: 2rem;
@@ -213,8 +228,11 @@ div.queue-item-name > span {
 }
 
 @media only screen and (max-width: 1600px) {
+	button:not(.ant-switch) {
+		white-space: nowrap;
+	}
 	.ant-card-cover img {
-		max-width: none !important;
+		display: none;
 	}
 	.ant-card-body {
 		max-width: none !important;
@@ -226,6 +244,9 @@ div.queue-item-name > span {
 		min-width: 90%;
 	}
 	.infobox {
+		max-width: none !important;
+	}
+	.brasilboardd {
 		max-width: none !important;
 	}
 }

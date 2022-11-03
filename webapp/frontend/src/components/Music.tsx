@@ -12,8 +12,6 @@ import "antd/dist/antd.css";
 import Queue from "./Queue";
 import Filters from "./Filters";
 const { Meta } = Card;
-const _ = require("lodash");
-
 interface testCallback {
 	(err: any, status: any, data: any): any;
 }
@@ -411,6 +409,9 @@ const Music = (props: any) => {
 	return (
 		<div className={classes}>
 			<div className="nowplaying">
+				<div className="nowplaying-card ant-card brasilboardd">
+					<a href={"/brasilboard"}>Go to BrasilBoard!</a>
+				</div>
 				<Card
 					className="nowplaying-card"
 					cover={<img className="nowplaying-img" alt="example" src={song.cover_src} />}
@@ -449,34 +450,17 @@ const Music = (props: any) => {
 					/>
 				</Card>
 				<Card className="nowplaying-card">
-					<Meta
-						avatar={<Avatar src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} />}
-						title={`${user.username}#${user.discriminator}`}
-					/>
+					<Meta avatar={<Avatar src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} />} title={`${user.username}#${user.discriminator}`} />
 				</Card>
 				<div className="nowplaying-card ant-card">
 					<button onClick={handleLogout}>LOG OUT</button>
 				</div>
-
 				<div style={{ border: `1px solid ${infoboxColor}` }} className="nowplaying-card ant-card infobox">
 					{info}
 				</div>
 			</div>
-			<Queue
-				song={song}
-				queue={queue}
-				user={user}
-				setInfo={setInfo}
-				setInfoboxColor={setInfoboxColor}
-				isSongRequester={checkRequester}
-			/>
-			<Filters
-				filters={song.filters}
-				hasChanged={hasChanged}
-				user={user}
-				setInfo={setInfo}
-				setInfoboxColor={setInfoboxColor}
-			/>
+			<Queue song={song} queue={queue} user={user} setInfo={setInfo} setInfoboxColor={setInfoboxColor} isSongRequester={checkRequester} />
+			<Filters filters={song.filters} hasChanged={hasChanged} user={user} setInfo={setInfo} setInfoboxColor={setInfoboxColor} />
 		</div>
 	);
 };
