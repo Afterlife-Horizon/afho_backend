@@ -8,6 +8,7 @@ const express = require('express');
 const { default: YouTube } = require('youtube-sr');
 const { request } = require('undici');
 const connectHistoryApiFallback = require("connect-history-api-fallback");
+const fsPromises = require('fs/promises');
 
 // --------- importing discord.js / Init ---------
 const { Client, Collection, GatewayIntentBits, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
@@ -137,6 +138,23 @@ const getJSONResponse = async (body) => {
 
 app
     .use(express.json())
+    .get("/api/brasilBoard", async (req, res) => {
+        const filePath = path.resolve(process.env.WORKPATH, `config/movecounts.json`);
+        const data = await fsPromises.readFile(filePath);
+        const moveCounts = await JSON.parse(data);
+        const ids = moveCounts.map(m => m.id);
+
+        const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+        await guild.members.fetch();
+        const members = guild.members.cache.filter(m => ids.includes(m.id));
+
+        const sendData = members.map(m => {
+            const count = moveCounts.find(move => move.id === m.id);
+            return { user: m, counter: count.counter };
+        });
+
+        res.json(sendData.sort(compareData));
+    })
     .post("/api/skip", async (req, res) => {
 
         const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
@@ -1325,7 +1343,6 @@ app
     .post("/api/login", async (req, res) => {
         if (!req.body || !req.body.code) return res.status(406).send("no code");
 
-
         try {
             const params = new URLSearchParams();
             params.append('client_id', "1028294291698765864");
@@ -1379,6 +1396,13 @@ app
     )
     .use(express.static(path.join(__dirname, "../webapp/frontend/build")))
     .listen(port, () => console.log(`Listening on port ${port}`.toUpperCase().white.bgGreen.bold));
+
+
+function compareData(count1, count2) {
+    if (count1.counter > count2.counter) return -1;
+    else if (count1.counter < count2.counter) return 1;
+    return 0;
+}
 
 
 // --------- Loging in bot ---------
