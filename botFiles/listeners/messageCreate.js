@@ -30,7 +30,7 @@ module.exports = function (client) {
                 }
                 else {
                     xp += 1;
-                    const index = levels.findIndex(m => m.username === member.user.username);
+                    const index = levels.findIndex(m => m.username === message.author.username);
                     levels[index] = { id: message.author.id.toString(), username: message.author.username, xp: moveCount, lvl: getLevel(level) };
                     fs.writeFile(filePath, JSON.stringify([...levels]), 'utf8', (err) => {
                         if (err) {
