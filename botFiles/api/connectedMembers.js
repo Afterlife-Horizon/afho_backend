@@ -5,6 +5,7 @@ module.exports = function (client) {
     return (
         router.get("/", async (req, res) => {
 
+            await client.guilds.fetch();
             const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
 
             await guild.members.fetch();
