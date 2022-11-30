@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require('node:path');
 const fs = require('fs');
 const fsPromises = require('fs/promises');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = function (client) {
     return (
