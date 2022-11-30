@@ -7,7 +7,7 @@ const getLevel = xp => {
 module.exports = function (client) {
     return (
         // ------------ Taking care of Slash commands ------------
-        client.on("message", async (message) => {
+        client.on("messageCreate", async (message) => {
             if (message.author.bot) return;
             if (!message.guild) return;
             try {

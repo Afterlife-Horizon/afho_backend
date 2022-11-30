@@ -49,7 +49,7 @@ client.once('ready', () => {
     console.log("logged in as: " + client.user.tag);
     client.ready = true;
 });
-require("./listeners/message.js")(client);
+require("./listeners/messageCreate.js")(client);
 require("./listeners/interactionCreate.js")(client);
 require("./listeners/voiceStateUpdate.js")(client);
 
