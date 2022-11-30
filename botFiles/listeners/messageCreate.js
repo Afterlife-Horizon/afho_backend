@@ -31,7 +31,7 @@ module.exports = function (client) {
                 else {
                     xp += 1;
                     const index = levels.findIndex(m => m.username === message.author.username);
-                    levels[index] = { id: message.author.id.toString(), username: message.author.username, xp: moveCount, lvl: getLevel(level) };
+                    levels[index] = { id: message.author.id.toString(), username: message.author.username, xp: xp, lvl: getLevel(xp) };
                     fs.writeFile(filePath, JSON.stringify([...levels]), 'utf8', (err) => {
                         if (err) {
                             console.log("An error occured while writing JSON Object to File.");
