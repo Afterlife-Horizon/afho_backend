@@ -19,7 +19,7 @@ module.exports = {
             }
 
             const tmpsong = queue.tracks[0];
-            queue.tracks = shuffleArray(queue.tracks);
+            queue.tracks = shuffleArray(queue.tracks.slice(1));
             if (queue.tracks.length === 0) return;
             queue.tracks.unshift(tmpsong);
 
