@@ -67,7 +67,7 @@ module.exports = {
                     },
                     {
                         name: `Moved`,
-                        value: `${messageMember} to <#${brasilChannelId}> !`,
+                        value: `<@${member.user.id}> to <#${brasilChannelId}> !`,
                         inline: false,
                     },
                     {

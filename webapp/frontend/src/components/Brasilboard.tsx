@@ -152,7 +152,7 @@ const Brasilboard: React.FC = () => {
 			await axios
 				.post(
 					"/api/bresilMember",
-					{ member: currentPlayer, moverId: user.id, movedId: movedMemberId },
+					{ moverId: user.id, movedId: movedMemberId },
 					{
 						headers: { "Content-Type": "application/json" },
 					}
