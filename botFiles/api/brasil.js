@@ -11,10 +11,9 @@ module.exports = function (client) {
             try {
                 const {moverId, movedId} = req.body;
 
-                await client.channels.fetch();
-
                 const logChannelId = client.config.baseChannelId;
-                console.log(logChannelId);
+                console.log(client.config);
+
                 const logChannel = client.channels.fetch(logChannelId);
                 const brasilChannelId = client.config.brasilChannelId;
 
