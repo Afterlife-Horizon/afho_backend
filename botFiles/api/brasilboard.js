@@ -20,7 +20,6 @@ module.exports = function (client) {
                 const ids = moveCounts.map(m => m.id);
     
                 const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
-                console.log(guild);
     
                 await guild.members.fetch();
                 const members = guild.members.cache.filter(m => ids.includes(m.id));
