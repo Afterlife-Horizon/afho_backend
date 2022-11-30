@@ -7,6 +7,7 @@ module.exports = function (client) {
 
             await client.guilds.fetch();
             const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+            console.log(guild);
 
             await guild.members.fetch();
             const connectedMembers = guild.members.cache.filter(m => typeof m.voice !== undefined);
