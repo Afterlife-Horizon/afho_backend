@@ -12,25 +12,32 @@ function compareData(count1, count2) {
 module.exports = function (client) {
     return ( 
         router.get("/", async (req, res) => {
+            try {
+                const filePath = path.resolve(process.env.WORKPATH, `config/movecounts.json`);
+                const data = await fsPromises.readFile(filePath);
+    
+                const moveCounts = await JSON.parse(data);
+                const ids = moveCounts.map(m => m.id);
+    
+                const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+                console.log(guild);
+    
+                await guild.members.fetch();
+                const members = guild.members.cache.filter(m => ids.includes(m.id));
+    
+                const sendData = members.map(m => {
+                    const count = moveCounts.find(move => move.id === m.id);
+                    return { user: m, counter: count.counter };
+                });
 
-            const filePath = path.resolve(process.env.WORKPATH, `config/movecounts.json`);
-            const data = await fsPromises.readFile(filePath);
+                res.json(sendData.sort(compareData));
+            }
+            catch (err) {
+                console.error(err);
+                res.status(500).json({ error: "Internal error"});
+            }
 
-            const moveCounts = await JSON.parse(data);
-            const ids = moveCounts.map(m => m.id);
-
-            const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
-            console.log(guild);
-
-            await guild.members.fetch();
-            const members = guild.members.cache.filter(m => ids.includes(m.id));
-
-            const sendData = members.map(m => {
-                const count = moveCounts.find(move => move.id === m.id);
-                return { user: m, counter: count.counter };
-            });
-
-            res.json(sendData.sort(compareData));
+            
         })
     );
 }
