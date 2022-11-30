@@ -11,11 +11,13 @@ module.exports = function (client) {
             try {
                 const {moverId, movedId} = req.body;
 
-                const logChannelId = await client.config.baseChannelId;
-                const logChannel = await client.channels.cache.get(logChannelId);
+                await client.channels.fetch();
+
+                const logChannelId = client.config.baseChannelId;
+                const logChannel = client.channels.cache.get(logChannelId);
                 const brasilChannelId = client.config.brasilChannelId;
 
-                const guild = await client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+                const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
                 const mover = await guild.members.fetch(moverId);
                 const member = await guild.members.fetch(movedId);
                 const voiceChannel = mover.voice;
