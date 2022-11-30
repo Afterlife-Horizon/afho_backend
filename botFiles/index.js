@@ -120,10 +120,11 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
 });
 
 // ------------ api routes ------------
+
 // ------------ bresil ------------
-const brasilBoard = require("./api/brasilboard");
-const connectedMembers = require("./api/connectedMembers");
-const bresilMember = require("./api/brasil");
+const brasilBoard = require("./api/bresil/brasilboard");
+const connectedMembers = require("./api/bresil/connectedMembers");
+const bresilMember = require("./api/bresil/brasil");
 
 // ------------ music ------------
 const musicSkip = require('./api/music/skip');
@@ -141,8 +142,8 @@ const musicFilters = require('./api/music/filters');
 const musicFetch = require('./api/music/fetch');
 
 // ------------ login ------------
-const login = require('./api/music/login');
-const loginAccess = require('./api/music/loginAccess');
+const login = require('./api/login/login');
+const loginAccess = require('./api/login/loginAccess');
 
 const app = express();
 const port = process.env.PORT || 4000;
