@@ -9,7 +9,7 @@ module.exports = function (client) {
                 const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
     
                 await guild.members.fetch();
-                const connectedMembers = guild.members.cache.filter(m => m.voice.channel);
+                const connectedMembers = guild.members.cache.filter(m => m.voice.channel).map(m => m.user);
     
                 res.json(connectedMembers);
             }

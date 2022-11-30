@@ -87,7 +87,7 @@ const Brasilboard: React.FC = () => {
 	const [data, setData] = useState<DATA>([]);
 	const [counts, setCounts] = useState<COUNTS>([]);
 
-	const memberNames = data ? data.map((m) => m.username) : [""];
+	const memberNames = data ? data.map((m) => m.username) : [];
 
 	const [info, setInfo] = useState("");
 	useEffect(() => {
