@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const path = require('node:path');
+const fsPromises = require('fs/promises');
 
 module.exports = function (client) {
     return ( 
@@ -7,7 +9,7 @@ module.exports = function (client) {
 
             const filePath = path.resolve(process.env.WORKPATH, `config/movecounts.json`);
             const data = await fsPromises.readFile(filePath);
-            
+
             const moveCounts = await JSON.parse(data);
             const ids = moveCounts.map(m => m.id);
 
