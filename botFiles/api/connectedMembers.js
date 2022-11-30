@@ -11,7 +11,7 @@ module.exports = function (client) {
                 await guild.members.fetch();
                 const connectedMembers = guild.members.cache.filter(m => m.voice.channel).map(m => m.user);
     
-                res.json(connectedMembers);
+                res.json({data: connectedMembers});
             }
             catch (err) {
                 console.error(err);
