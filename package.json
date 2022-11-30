@@ -30,7 +30,7 @@
 		"mysql": "^2.18.1",
 		"undici": "^5.11.0",
 		"youtube-sr": "^4.3.4",
-		"ytdl-core": "^4.11.2"
+		"ytdl-core": "https://github.com/matteopolak/node-ytdl-core.git#d6b56cd67aaa38c22966b98f7b36ad3db4c90192"
 	},
 	"devDependencies": {
 		"eslint": "^8.24.0"

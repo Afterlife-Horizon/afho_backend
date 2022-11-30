@@ -8,7 +8,7 @@ const express = require('express');
 const connectHistoryApiFallback = require("connect-history-api-fallback");
 
 // --------- importing discord.js / Init ---------
-const { Client, Collection, GatewayIntentBits, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { Client, Collection, GatewayIntentBits } = require('discord.js');
 
 const client = new Client({
     presence: {
