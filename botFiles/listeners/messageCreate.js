@@ -1,3 +1,7 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const fsPromises = require('fs/promises');
+require('dotenv').config();
 
 const exp = 1.7;
 const getLevel = xp => {
