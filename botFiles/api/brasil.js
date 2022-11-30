@@ -11,10 +11,7 @@ module.exports = function (client) {
             try {
                 const {moverId, movedId} = req.body;
 
-                const logChannelId = client.config.baseChannelId;
-                console.log(client.config);
-
-                const logChannel = client.channels.fetch(logChannelId);
+                const logChannel = client.channels.cache.get(client.config.baseChannelId);
                 const brasilChannelId = client.config.brasilChannelId;
 
                 const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
