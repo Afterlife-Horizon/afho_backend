@@ -80,7 +80,7 @@ module.exports = function (client) {
 
             }
             catch (err) {
-                console.error(err);
+                console.log(err);
                 await logChannel.send({ content: `❌ An error occured!` });
                 res.status(500).json({error: 'Internal error!'});
             }
