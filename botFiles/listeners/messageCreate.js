@@ -3,7 +3,7 @@ const path = require('node:path');
 const fsPromises = require('fs/promises');
 require('dotenv').config();
 
-const exp = 4;
+const exp = 3;
 const getLevel = xp => {
     return Math.floor(Math.pow((xp / exp), 1 / exp));
 }
