@@ -137,12 +137,12 @@ const getJSONResponse = async (body) => {
 };
 
 const testRoute = require('./api/test.js')(client);
-const brasilBoard = require("./api/brasilboard")(client);
+const brasilBoard = require("./api/brasilboard");
 
 app
     .use(express.json())
     .use('/test', testRoute)
-    .use('/api/brasilBoard', brasilBoard)
+    .use('/api/brasilBoard', brasilBoard(client))
     .post("/api/skip", async (req, res) => {
 
         const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
