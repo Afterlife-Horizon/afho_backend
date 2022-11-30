@@ -10,7 +10,7 @@ module.exports = function (client) {
             console.log(guild);
 
             await guild.members.fetch();
-            const connectedMembers = guild.members.cache.filter(m => typeof m.voice !== undefined);
+            const connectedMembers = guild.members.cache.filter(m => m.voice.channel);
 
             res.json(connectedMembers);
         })
