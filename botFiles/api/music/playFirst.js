@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { default: YouTube } = require('youtube-sr');
 
 module.exports = function (client) {
     return (
