@@ -138,11 +138,13 @@ const getJSONResponse = async (body) => {
 
 const testRoute = require('./api/test.js')(client);
 const brasilBoard = require("./api/brasilboard");
+const connectedMembers = require("./api/connectedMembers");
 
 app
     .use(express.json())
     .use('/test', testRoute)
     .use('/api/brasilBoard', brasilBoard(client))
+    .use('api/connectedMembers', connectedMembers(client))
     .post("/api/skip", async (req, res) => {
 
         const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
