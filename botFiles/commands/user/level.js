@@ -5,7 +5,7 @@ require('dotenv').config();
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('command')
+        .setName('level')
         .setDescription('get member\'s level!')
         .addStringOption(option =>
             option.setName('member')
