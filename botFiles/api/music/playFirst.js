@@ -5,15 +5,17 @@ module.exports = function (client) {
         router.post("/", async (req, res) => {
             try {
                 const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+                await guild.members.fetch();
+                await guild.channels.fetch();
                 const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
                 const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
-                const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+                const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size > 0);
 
                 if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
                 else if (client.user.id !== voiceChannel.id) return res.status(406).send("Not the same channel!");
 
                 if (!client.currentChannel) return res.status(406).send("not connected!");
-                const channel = await client.channels.fetch(base_channelId);
+                const channel = await client.channels.fetch(client.config.baseChannelId);
                 const queue = client.queues.get(client.currentChannel.guild.id);
 
                 const args = req.body.songs.split(" ");

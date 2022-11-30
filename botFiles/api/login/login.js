@@ -1,6 +1,15 @@
 const express = require("express");
 const router = express.Router();
 
+const getJSONResponse = async (body) => {
+    let fullBody = '';
+
+    for await (const data of body) {
+        fullBody += data.toString();
+    }
+    return JSON.parse(fullBody);
+};
+
 module.exports = function () {
     return ( 
         router.post("/", async (req, res) => {

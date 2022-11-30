@@ -17,7 +17,7 @@ module.exports = function (client) {
             if (!client.currentChannel) return res.status(406).send("not connected!");
             // console.log(req.body);
 
-            const channel = await client.channels.fetch(base_channelId);
+            const channel = await client.channels.fetch(client.config.baseChannelId);
 
             const queue = client.queues.get(client.currentChannel.guild.id);
 

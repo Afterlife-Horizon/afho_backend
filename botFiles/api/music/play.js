@@ -21,7 +21,7 @@ module.exports = function (client) {
                 if (!client.currentChannel) return res.status(406).send("not connected!");
 
 
-                const channel = await client.channels.fetch(base_channelId);
+                const channel = await client.channels.fetch(client.config.baseChannelId);
                 let queue = client.queues.get(client.currentChannel.guildId);
                 const oldConnection = getVoiceConnection(client.currentChannel.guildId);
 

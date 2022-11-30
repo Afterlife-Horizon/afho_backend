@@ -12,7 +12,7 @@ module.exports = function (client) {
         if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
         else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!");
 
-        const channel = await client.channels.fetch(base_channelId);
+        const channel = await client.channels.fetch(client.config.baseChannelId);
         if (!client.currentChannel) return res.status(406).send("not connected!");
 
         const queue = client.queues.get(client.currentChannel.guild.id);

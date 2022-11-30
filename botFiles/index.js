@@ -119,31 +119,19 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
     }
 });
 
-const app = express();
-const port = process.env.PORT || 4000;
-const base_channelId = "941726047991369800";
-
-
-const getJSONResponse = async (body) => {
-    let fullBody = '';
-
-    for await (const data of body) {
-        fullBody += data.toString();
-    }
-    return JSON.parse(fullBody);
-};
-
+// ------------ api routes ------------
+// ------------ bresil ------------
 const brasilBoard = require("./api/brasilboard");
 const connectedMembers = require("./api/connectedMembers");
 const bresilMember = require("./api/brasil");
 
+// ------------ music ------------
 const musicSkip = require('./api/music/skip');
 const musicPause = require('./api/music/pause');
 const musicResume = require('./api/music/unpause');
 const musicStop = require('./api/music/stop');
 const musicClearQueue = require('./api/music/clearQueue');
 const musicShuffle = require('./api/music/shuffle');
-
 const musicSkipto = require('./api/music/skipto');
 const musicRemove = require('./api/music/remove');
 const musicPlay = require('./api/music/play');
@@ -151,9 +139,13 @@ const musicPlayFirst = require('./api/music/playFirst');
 const musicDisconnect = require('./api/music/disconnect');
 const musicFilters = require('./api/music/filters');
 const musicFetch = require('./api/music/fetch');
+
+// ------------ login ------------
 const login = require('./api/music/login');
 const loginAccess = require('./api/music/loginAccess');
 
+const app = express();
+const port = process.env.PORT || 4000;
 app
     .use(express.json())
     .use('/api/brasilBoard', brasilBoard(client))
@@ -178,7 +170,6 @@ app
     .use(connectHistoryApiFallback({verbose: false}))
     .use(express.static(path.join(__dirname, "../webapp/frontend/build")))
     .listen(port, () => console.log(`Listening on port ${port}`.toUpperCase().white.bgGreen.bold));
-
 
 // --------- Loging in bot ---------
 client.login(client.config.token);
