@@ -6,6 +6,8 @@ module.exports = function (client) {
     return (
         router.post("/", async (req, res) => {
             const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+            await guild.members.fetch();
+            await guild.channels.fetch();
             const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
             const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
             const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
