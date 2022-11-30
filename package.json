@@ -6,6 +6,7 @@
 	"scripts": {
 		"lint": "eslint botFiles/",
 		"start": "node botFiles/index.js",
+		"dev": "NODE_ENV=dev node botFiles/index.js",
 		"adddev": "METHOD=add NODE_ENV=dev node botFiles/deploy-commands.js",
 		"deldev": "METHOD=delete NODE_ENV=dev node botFiles/deploy-commands.js",
 		"add": "METHOD=add NODE_ENV=prod node botFiles/deploy-commands.js",

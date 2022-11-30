@@ -47,6 +47,7 @@ module.exports = {
         const channel = interaction.channel;
         await interaction.reply({
             content: `executing!`,
+            ephemeral: true,
         });
         await interaction.deleteReply();
 

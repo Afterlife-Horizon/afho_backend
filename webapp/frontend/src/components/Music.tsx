@@ -34,12 +34,12 @@ const Music = (props: any) => {
 		isAdmin: false,
 	});
 	const [searchParams] = useSearchParams();
-	window.onload = () => {
+	useEffect(() => {
 		const code = searchParams.get("code");
 
 		const access_token = localStorage.getItem("access_token");
 
-		if ((!code || code === "") && !localStorage.getItem("access_token")) return window.location.replace("/login");
+		if ((!code || code === "") && !access_token) return window.location.replace("/login");
 		if (!access_token) {
 			const getUser = async (callback: testCallback) => {
 				await axios
@@ -106,7 +106,7 @@ const Music = (props: any) => {
 				setUser({ ...data, isAdmin: false });
 			});
 		}
-	};
+	}, []);
 
 	const classes = "music " + props.className;
 

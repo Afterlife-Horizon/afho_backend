@@ -1,17 +1,30 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import AdvBrasil from "./AdvBrasil";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
-import Avatar from "@mui/material/Avatar";
-import { styled } from "@mui/material/styles";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-
+import Button from "@mui/material/Button";
 import "../css/brasilboard.css";
+
+interface testCallback {
+	(err: any, status: any, data: any): any;
+}
+
+type DATA = {
+	id: string;
+	bot: boolean;
+	system: boolean;
+	flags: number;
+	username: string;
+	discriminator: string;
+	avatar: string;
+	createdTimestamp: number;
+	defaultAvatarURL: string;
+	tag: string;
+	avatarURL: string;
+	displayAvatarURL: string;
+}[];
 
 type user = {
 	guildId: string;
@@ -28,40 +41,124 @@ type user = {
 	displayAvatarURL: string;
 };
 
-interface testCallback {
-	(err: any, status: any, data: any): any;
-}
+type COUNTS = { user: user; counter: number }[];
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-	[`&.${tableCellClasses.head}`]: {
-		backgroundColor: theme.palette.common.black,
-		color: theme.palette.common.white,
-		fontSize: "1.2rem",
-	},
-	[`&.${tableCellClasses.body}`]: {
-		fontSize: "1rem",
-	},
-}));
+const fetchConnectedUsers = async (callback: testCallback) => {
+	await axios
+		.get("/api/connectedMembers")
+		.then((res) => {
+			callback(null, res.status, res.data);
+		})
+		.catch((err) => {
+			callback(err, err.response.status, err.response.data);
+		});
+};
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-	"&:nth-of-type(odd)": {
-		backgroundColor: theme.palette.action.hover,
-	},
-	// hide last border
-	"&:last-child td, &:last-child th": {
-		border: 0,
-	},
-}));
+const fetchInfo = async (callback: testCallback) => {
+	await axios
+		.get("/api/brasilBoard")
+		.then((res) => {
+			// console.log(res);
+			callback(null, res.status, res.data);
+		})
+		.catch((err) => {
+			callback(err, err.response.status, err.response.data);
+		});
+};
 
 const Brasilboard: React.FC = () => {
-	const [data, setData] = useState<{ user: user; counter: number }[]>([]);
+	const [user, setUser] = useState({
+		accent_color: 14172358,
+		avatar: "",
+		avatar_decoration: null,
+		banner: "",
+		banner_color: "",
+		discriminator: "",
+		flags: 128,
+		id: "",
+		locale: "",
+		mfa_enabled: true,
+		premium_type: 2,
+		public_flags: 128,
+		username: "",
+	});
+	const [currentPlayer, setCurrentPlayer] = useState("");
 
+	const [data, setData] = useState<DATA>([]);
+	const [counts, setCounts] = useState<COUNTS>([]);
+
+	const memberNames = data ? data.map((m) => m.username) : [""];
+
+	const [info, setInfo] = useState("");
 	useEffect(() => {
-		const fetchInfo = async (callback: testCallback) => {
+		const access_token = localStorage.getItem("access_token");
+
+		if (!access_token) {
+			setInfo("Please log in!");
+		} else {
+			const getUser = async (callback: testCallback) => {
+				await axios
+					.post(
+						"/api/loginaccess",
+						{
+							access_token: localStorage.getItem("access_token"),
+							token_type: localStorage.getItem("token_type"),
+						},
+						{
+							headers: { "Content-Type": "application/json" },
+						}
+					)
+					.then((res) => {
+						// console.log(res);
+						callback(null, res.status, res.data);
+					})
+					.catch((err) => {
+						callback(err, err.response.status, err.response.data);
+					});
+			};
+
+			getUser((err, status, data) => {
+				if (err) {
+					return setInfo("A probleme occured!");
+				} else if (status !== 200) {
+					setInfo("A probleme occured!");
+					localStorage.clear();
+					return window.location.replace("/login");
+				} else if (status === 200 && !data.username) {
+					setInfo("A probleme occured!");
+					localStorage.clear();
+					return window.location.replace("/login");
+				}
+				setInfo("Logged in!");
+				setUser({ ...data });
+			});
+		}
+	}, []);
+
+	const autocompleteCheckValue = (option: any, newValue: any) => option === newValue || newValue === "";
+	const handleChangeCurrentPlayer = (event: any, values: any) => setCurrentPlayer(values);
+	const handleLogin = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+		window.location.replace("https://discord.com/api/oauth2/authorize?client_id=1028294291698765864&redirect_uri=https%3A%2F%2Fmusic.afterlifehorizon.net%2F&response_type=code&scope=identify");
+	};
+	const handleBresilClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault();
+
+		const movedMemberId = data.find((m) => m.username === currentPlayer)?.id;
+
+		if (currentPlayer === "" || !movedMemberId) return setInfo("member is not set");
+
+		const bresilMember = async (callback: testCallback) => {
 			await axios
-				.get("/api/brasilBoard")
+				.post(
+					"/api/bresilMember",
+					{ member: currentPlayer, moverId: user.id, movedId: movedMemberId },
+					{
+						headers: { "Content-Type": "application/json" },
+					}
+				)
 				.then((res) => {
-					// console.log(res);
+					console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
@@ -69,56 +166,81 @@ const Brasilboard: React.FC = () => {
 				});
 		};
 
+		bresilMember((err, status, data) => {
+			if (err) {
+				if (status !== 500) setInfo(data);
+				else setInfo("An error occured");
+				return;
+			}
+			setInfo("OK!");
+		});
+	};
+
+	useEffect(() => {
+		fetchConnectedUsers((err, status, data) => {
+			if (err || status !== 200) setInfo("There was an error");
+			setData(data.data);
+		});
 		fetchInfo((err, status, data) => {
 			if (err) return;
 			if (status !== 200) return;
-			setData(data);
+			setCounts(data);
 		});
 	}, []);
 
-	function stringOfRank(rank: number) {
-		switch (rank) {
-			case 1:
-				return "1st";
-			case 2:
-				return "2nd";
-			case 3:
-				return "3rd";
-			default:
-				return `${rank.toString()}th`;
-		}
-	}
+	const [intervalReset, setIntervalReset] = useState(false);
+	useEffect(() => {
+		const repeatedFetchInterval = setInterval(() => {
+			fetchConnectedUsers((err, status, data) => {
+				if (err || status !== 200) setInfo("There was an error");
+				setData(data.data);
+			});
+			fetchInfo((err, status, data) => {
+				if (err) return;
+				if (status !== 200) return;
+				setCounts(data);
+			});
+			setIntervalReset((prev) => !prev);
+		}, 5_000);
+
+		return () => {
+			clearInterval(repeatedFetchInterval);
+		};
+	}, [intervalReset]);
 
 	return (
 		<div className="brasilboard">
 			<Box sx={{ marginInline: "25vw" }}>
-				<TableContainer component={Paper} sx={{ maxHeight: "80vh" }}>
-					<Table stickyHeader>
-						<TableHead>
-							<StyledTableRow>
-								<StyledTableCell />
-								<StyledTableCell>USER</StyledTableCell>
-								<StyledTableCell align="right">COUNT</StyledTableCell>
-							</StyledTableRow>
-						</TableHead>
-						<TableBody>
-							{data.map((u, index) => (
-								<StyledTableRow key={u.user.userId}>
-									<StyledTableCell align="center" style={{ fontWeight: "700", marginInline: "0", paddingInline: "0", minWidth: 0 }}>
-										{stringOfRank(index + 1)}
-									</StyledTableCell>
-									<StyledTableCell component="th" scope="row">
-										<div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-											<Avatar alt={u.user.displayName} src={u.user.displayAvatarURL} />
-											{u.user.nickname ? u.user.nickname : u.user.displayName}
-										</div>
-									</StyledTableCell>
-									<StyledTableCell align="right">{u.counter}</StyledTableCell>
-								</StyledTableRow>
-							))}
-						</TableBody>
-					</Table>
-				</TableContainer>
+				{memberNames.includes(user.username) ? (
+					<div style={{ display: "flex", padding: "0.5rem", backgroundColor: "white", alignItems: "center", justifyContent: "space-between" }}>
+						<Autocomplete
+							style={{ width: "78%" }}
+							disableClearable
+							freeSolo
+							disablePortal
+							isOptionEqualToValue={autocompleteCheckValue}
+							value={currentPlayer}
+							options={memberNames}
+							onChange={handleChangeCurrentPlayer}
+							renderInput={(params) => <TextField {...params} variant="filled" label="Member" />}
+						/>
+
+						<Button style={{ maxWidth: "20%" }} variant="contained" onClick={handleBresilClicked}>
+							bresil
+						</Button>
+					</div>
+				) : user.username !== "" ? (
+					<div style={{ display: "flex", flexFlow: "row", padding: "0.5rem", backgroundColor: "white", alignItems: "center", justifyContent: "center" }}>
+						<div>join a voice channel to use brasil</div>
+					</div>
+				) : (
+					<div style={{ display: "flex", flexFlow: "row", padding: "0.5rem", backgroundColor: "white", alignItems: "center", justifyContent: "space-between" }}>
+						<button onClick={handleLogin} className="blue-button">
+							Login with Discord
+						</button>
+					</div>
+				)}
+				<AdvBrasil data={counts} />
 			</Box>
 		</div>
 	);

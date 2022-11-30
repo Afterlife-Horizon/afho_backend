@@ -6,3 +6,8 @@
 	place-content: center;
 	background-color: dimgray;
 }
+
+.blue-button {
+	justify-self: center;
+	margin-inline: auto;
+}
