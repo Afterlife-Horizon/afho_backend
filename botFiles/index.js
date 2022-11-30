@@ -1386,12 +1386,5 @@ app
     .listen(port, () => console.log(`Listening on port ${port}`.toUpperCase().white.bgGreen.bold));
 
 
-function compareData(count1, count2) {
-    if (count1.counter > count2.counter) return -1;
-    else if (count1.counter < count2.counter) return 1;
-    return 0;
-}
-
-
 // --------- Loging in bot ---------
 client.login(client.config.token);

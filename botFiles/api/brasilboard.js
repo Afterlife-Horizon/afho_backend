@@ -3,6 +3,12 @@ const router = express.Router();
 const path = require('node:path');
 const fsPromises = require('fs/promises');
 
+function compareData(count1, count2) {
+    if (count1.counter > count2.counter) return -1;
+    else if (count1.counter < count2.counter) return 1;
+    return 0;
+}
+
 module.exports = function (client) {
     return ( 
         router.get("/", async (req, res) => {
