@@ -11,9 +11,6 @@ module.exports = function (client) {
             const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
             const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
             const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
-
-            console.log(client.currentChannel.id);
-            console.log(voiceChannel.id);
     
             if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
             else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!");
