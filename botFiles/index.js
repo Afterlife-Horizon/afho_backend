@@ -9,7 +9,6 @@ const connectHistoryApiFallback = require("connect-history-api-fallback");
 
 // --------- importing discord.js / Init ---------
 const { Client, Collection, GatewayIntentBits, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
-const { getVoiceConnection } = require('@discordjs/voice');
 
 const client = new Client({
     presence: {
@@ -29,9 +28,8 @@ const client = new Client({
     shards: "auto",
 });
 
-// --------- importing config ---------
+// --------- importing config and commands ---------
 client.config = (process.env.NODE_ENV === 'dev') ? require('./config/devconfig.json') : require('./config/config.json');
-
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 fs.readdirSync(commandsPath).forEach(dir => {
@@ -44,80 +42,15 @@ fs.readdirSync(commandsPath).forEach(dir => {
 });
 
 client.queues = new Collection();
-
 require("./util/musicUtils.js")(client);
 
+// --------- listeners ---------
 client.once('ready', () => {
     console.log("logged in as: " + client.user.tag);
     client.ready = true;
 });
-
-// ------------ Taking care of Slash commands ------------
-client.on('interactionCreate', async interaction => {
-    if (!interaction.isChatInputCommand()) return;
-
-    const command = client.commands.get(interaction.commandName);
-
-    if (!command) return;
-
-    try {
-        // console.log(interaction);
-        await command.execute(interaction);
-    }
-    catch (error) {
-        console.error(error);
-        await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-    }
-});
-
-// ------------ Checking channels voice state updates ------------
-client.on("voiceStateUpdate", async (oldState, newState) => {
-    console.log("[LOG] Voice state has updated!".yellow);
-
-    if (newState.id == client.user.id && newState.channelId && newState.channel.type == "GUILD_STAGE_VOICE" && newState.suppress) {
-        if (newState.channel?.permissionsFor(newState.guild.me)?.has(PermissionFlagsBits.MuteMembers)) {
-            console.log("[LOG] Unmuting!".yellow);
-            await newState.guild.me.voice.setSuppressed(false).catch(() => null);
-        }
-    }
-
-    if (newState.id == client.user.id) {
-        console.log("[LOG] User is the bot!".yellow);
-        return;
-    }
-
-    function stateChange(one, two) {
-        return (one === false && two === true || one === true && two === false);
-    }
-
-    if (stateChange(oldState.streaming, newState.streaming) ||
-        stateChange(oldState.serverDeaf, newState.serverDeaf) ||
-        stateChange(oldState.serverMute, newState.serverMute) ||
-        stateChange(oldState.selfDeaf, newState.selfDeaf) ||
-        stateChange(oldState.selfMute, newState.selfMute) ||
-        stateChange(oldState.selfVideo, newState.selfVideo) ||
-        stateChange(oldState.suppress, newState.suppress)) {
-        return;
-    }
-
-    // channel joins
-    if (!oldState.channelId && newState.channelId) {
-        console.log("[LOG] User joined channel!".yellow);
-        return;
-    }
-
-    // channel leaves
-    if (!newState.channelId && oldState.channelId || newState.channelId && oldState.channelId) {
-        if (oldState.channel.members.filter(m => !m.user.bot).size <= 0) console.log("[LOG] Channel is empty!".yellow);
-        setTimeout(() => {
-            const connection = getVoiceConnection(newState.guild.id);
-            if (oldState.channel.members.filter(m => !m.user.bot).size >= 1) return;
-            // if (connection && oldState.channel.members.filter(m => !m.user.bot).size <= 0) connection.destroy();
-            if (connection && connection.joinConfig.channelId == oldState.channelId) connection.destroy();
-            return;
-        }, 15000);
-    }
-});
+require("./listeners/interactionCreate.js")(client);
+require("./listeners/voiceStateUpdate.js")(client);
 
 // ------------ api routes ------------
 
