@@ -136,25 +136,13 @@ const getJSONResponse = async (body) => {
     return JSON.parse(fullBody);
 };
 
+const testRoute = require('./api/test.js')(client);
+const brasilBoard = require("./api/brasilboard")(client);
+
 app
     .use(express.json())
-    .get("/api/brasilBoard", async (req, res) => {
-        const filePath = path.resolve(process.env.WORKPATH, `config/movecounts.json`);
-        const data = await fsPromises.readFile(filePath);
-        const moveCounts = await JSON.parse(data);
-        const ids = moveCounts.map(m => m.id);
-
-        const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
-        await guild.members.fetch();
-        const members = guild.members.cache.filter(m => ids.includes(m.id));
-
-        const sendData = members.map(m => {
-            const count = moveCounts.find(move => move.id === m.id);
-            return { user: m, counter: count.counter };
-        });
-
-        res.json(sendData.sort(compareData));
-    })
+    .use('/test', testRoute)
+    .use('/api/brasilBoard', brasilBoard)
     .post("/api/skip", async (req, res) => {
 
         const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
