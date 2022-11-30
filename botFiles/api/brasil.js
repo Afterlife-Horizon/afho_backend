@@ -5,7 +5,7 @@ const fsPromises = require('fs/promises');
 
 module.exports = function (client) {
     return (
-        router.get("/", async (req, res) => {
+        router.post("/", async (req, res) => {
             try {
                 const {moverId, movedId} = req.body;
 
