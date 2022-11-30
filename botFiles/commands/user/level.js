@@ -23,7 +23,7 @@ module.exports = {
 
             if (!lvl || !xp) return interaction.reply({ content: `<@${memberid}> has not sent any messages yet!` });
 
-            await interaction.reply({ content: `<@${memberid}>'s level is: ${lvl} with ${xp} messages sent!` });
+            await interaction.reply({ content: `<@${memberid}>is **level ${lvl}** with **${xp} messages** sent!` });
         }
         catch (err) {
             console.error(err);
