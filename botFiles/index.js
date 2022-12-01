@@ -55,6 +55,8 @@ require("./listeners/voiceStateUpdate.js")(client);
 
 // ------------ api routes ------------
 
+const levels = require("./api/levels.js");
+
 // ------------ bresil ------------
 const brasilBoard = require("./api/bresil/brasilboard");
 const connectedMembers = require("./api/bresil/connectedMembers");
@@ -83,6 +85,7 @@ const app = express();
 const port = process.env.PORT || 4000;
 app
     .use(express.json())
+    .use('/api/levels', levels(client))
     .use('/api/brasilBoard', brasilBoard(client))
     .use('/api/connectedMembers', connectedMembers(client))
     .use('/api/bresilMember', bresilMember(client))
