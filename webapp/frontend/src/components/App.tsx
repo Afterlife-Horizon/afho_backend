@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Music from "./Music";
 import Login from "./Login";
 import Brasilboard from "./Brasilboard";
+import LevelBoard from "./LevelBoard";
 
 // ------------ CSS Files ------------
 import "../css/App.css";
@@ -16,6 +17,7 @@ const App: React.FC = () => {
 			<Routes>
 				<Route path="login" element={<Login />} />
 				<Route path="brasilboard" element={<Brasilboard />} />
+				<Route path="levels" element={<LevelBoard />} />
 				<Route index element={<Music />} />
 			</Routes>
 		</BrowserRouter>
