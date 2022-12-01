@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const path = require('node:path');
+const fsPromises = require('fs/promises');
 
 function compareData(count1, count2) {
     if (count1.xp > count2.xp) return -1;
