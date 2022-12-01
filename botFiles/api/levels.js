@@ -27,7 +27,7 @@ module.exports = function (client) {
 
                 const sendData = members.map(m => {
                     const level = levels.find(move => move.id === m.id);
-                    return { user: m, xp: level.xp };
+                    return { user: m, xp: level.xp, lvl: level.lvl };
                 });
 
                 res.json(sendData.sort(compareData));

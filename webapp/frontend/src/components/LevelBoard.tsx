@@ -27,7 +27,7 @@ type user = {
 	displayAvatarURL: string;
 };
 
-type userXp = { user: user; xp: number }[];
+type userXp = { user: user; xp: number, lvl: number }[];
 
 const fetchInfo = async (callback: testCallback) => {
 	await axios

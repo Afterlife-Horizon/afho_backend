@@ -25,7 +25,7 @@ type user = {
 };
 
 interface props {
-	data: { user: user; xp: number }[];
+	data: { user: user; xp: number, lvl: number }[];
 }
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -71,6 +71,7 @@ const AdvLevel: React.FC<props> = ({ data }) => {
 						<StyledTableCell />
 						<StyledTableCell>USER</StyledTableCell>
 						<StyledTableCell align="right">XP</StyledTableCell>
+						<StyledTableCell align="right">LVL</StyledTableCell>
 					</StyledTableRow>
 				</TableHead>
 				<TableBody>
@@ -86,6 +87,7 @@ const AdvLevel: React.FC<props> = ({ data }) => {
 								</div>
 							</StyledTableCell>
 							<StyledTableCell align="right">{u.xp}</StyledTableCell>
+							<StyledTableCell align="right">{u.lvl}</StyledTableCell>
 						</StyledTableRow>
 					))}
 				</TableBody>
