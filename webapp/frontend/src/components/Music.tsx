@@ -151,6 +151,8 @@ const Music = (props: any) => {
 		cover_src: "https://freesvg.org/img/aiga_waiting_room_bg.png",
 	});
 
+	const isDarkTheme = window.matchMedia("(prefers-color-scheme:dark)").matches;
+
 	const [intervalReset, setIntervalReset] = useState(false);
 	useEffect(() => {
 		const repeatedFetchInterval = setInterval(() => {
@@ -234,10 +236,8 @@ const Music = (props: any) => {
 	}, [intervalReset]);
 
 	useEffect(() => {
-		if(window.matchMedia && window.matchMedia("(prefers-color-scheme:dark)").matches) {
-			setColorScheme("dark");
-		  }
-	}, [])
+		setColorScheme("dark")
+	}, [isDarkTheme])
 
 	const handleNextClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
