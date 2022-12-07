@@ -70,7 +70,7 @@
 .loader-container {
     width: 100vw;
     height: 100vh;
-    position: fixed;
+    display: flex;
     place-items: center;
     z-index: 100;
 }
