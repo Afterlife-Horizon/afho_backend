@@ -34,79 +34,79 @@ const Music = (props: any) => {
 		isAdmin: false,
 	});
 	const [searchParams] = useSearchParams();
-	// useEffect(() => {
-	// 	const code = searchParams.get("code");
+	useEffect(() => {
+		const code = searchParams.get("code");
 
-	// 	const access_token = localStorage.getItem("access_token");
+		const access_token = localStorage.getItem("access_token");
 
-	// 	if ((!code || code === "") && !access_token) return window.location.replace("/login");
-	// 	if (!access_token) {
-	// 		const getUser = async (callback: testCallback) => {
-	// 			await axios
-	// 				.post(
-	// 					"/api/login",
-	// 					{ code: code },
-	// 					{
-	// 						headers: { "Content-Type": "application/json" },
-	// 					}
-	// 				)
-	// 				.then((res) => {
-	// 					// console.log(res);
-	// 					callback(null, res.status, res.data);
-	// 				})
-	// 				.catch((err) => {
-	// 					callback(err, err.response.status, err.response.data);
-	// 				});
-	// 		};
+		if ((!code || code === "") && !access_token) return window.location.replace("/login");
+		if (!access_token) {
+			const getUser = async (callback: testCallback) => {
+				await axios
+					.post(
+						"/api/login",
+						{ code: code },
+						{
+							headers: { "Content-Type": "application/json" },
+						}
+					)
+					.then((res) => {
+						// console.log(res);
+						callback(null, res.status, res.data);
+					})
+					.catch((err) => {
+						callback(err, err.response.status, err.response.data);
+					});
+			};
 
-	// 		getUser((err, status, data) => {
-	// 			if (err) return console.error(err);
-	// 			else if (status !== 200) return;
-	// 			localStorage.setItem("access_token", data.access_token);
-	// 			localStorage.setItem("token_type", data.token_type);
-	// 			// setTimeout(() => {
-	// 			// 	window.location.replace("/");
-	// 			// }, 500);
-	// 		});
-	// 	} else {
-	// 		const getUser = async (callback: testCallback) => {
-	// 			await axios
-	// 				.post(
-	// 					"/api/loginaccess",
-	// 					{
-	// 						access_token: localStorage.getItem("access_token"),
-	// 						token_type: localStorage.getItem("token_type"),
-	// 					},
-	// 					{
-	// 						headers: { "Content-Type": "application/json" },
-	// 					}
-	// 				)
-	// 				.then((res) => {
-	// 					// console.log(res);
-	// 					callback(null, res.status, res.data);
-	// 				})
-	// 				.catch((err) => {
-	// 					callback(err, err.response.status, err.response.data);
-	// 				});
-	// 		};
+			getUser((err, status, data) => {
+				if (err) return console.error(err);
+				else if (status !== 200) return;
+				localStorage.setItem("access_token", data.access_token);
+				localStorage.setItem("token_type", data.token_type);
+				// setTimeout(() => {
+				// 	window.location.replace("/");
+				// }, 500);
+			});
+		} else {
+			const getUser = async (callback: testCallback) => {
+				await axios
+					.post(
+						"/api/loginaccess",
+						{
+							access_token: localStorage.getItem("access_token"),
+							token_type: localStorage.getItem("token_type"),
+						},
+						{
+							headers: { "Content-Type": "application/json" },
+						}
+					)
+					.then((res) => {
+						// console.log(res);
+						callback(null, res.status, res.data);
+					})
+					.catch((err) => {
+						callback(err, err.response.status, err.response.data);
+					});
+			};
 
-	// 		getUser((err, status, data) => {
-	// 			if (err) {
-	// 				return setInfo("A probleme occured!");
-	// 			} else if (status !== 200) {
-	// 				setInfo("A probleme occured!");
-	// 				localStorage.clear();
-	// 				return window.location.replace("/login");
-	// 			} else if (status === 200 && !data.username) {
-	// 				setInfo("A probleme occured!");
-	// 				localStorage.clear();
-	// 				return window.location.replace("/login");
-	// 			}
-	// 			setInfo("Logged in!");
-	// 			setUser({ ...data, isAdmin: false });
-	// 		});
-	// 	}
-	// }, []);
+			getUser((err, status, data) => {
+				if (err) {
+					return setInfo("A probleme occured!");
+				} else if (status !== 200) {
+					setInfo("A probleme occured!");
+					localStorage.clear();
+					return window.location.replace("/login");
+				} else if (status === 200 && !data.username) {
+					setInfo("A probleme occured!");
+					localStorage.clear();
+					return window.location.replace("/login");
+				}
+				setInfo("Logged in!");
+				setUser({ ...data, isAdmin: false });
+			});
+		}
+	}, []);
 
 	const classes = "music " + props.className;
 
