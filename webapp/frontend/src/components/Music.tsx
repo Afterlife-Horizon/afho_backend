@@ -17,6 +17,7 @@ interface testCallback {
 }
 
 const Music = (props: any) => {
+	const [loading, setLoading] = useState(true);
 	const [user, setUser] = useState({
 		accent_color: 14172358,
 		avatar: "",
@@ -103,6 +104,7 @@ const Music = (props: any) => {
 					localStorage.clear();
 					return window.location.replace("/login");
 				}
+				setLoading(false);
 				setInfo("Logged in!");
 				setUser({ ...data, isAdmin: false });
 			});
@@ -414,62 +416,71 @@ const Music = (props: any) => {
 
 	let checkRequester = !user.isAdmin && !isSongRequester;
 	return (
-		<div className={classes}>
-			<div className="nowplaying">
-				<div className="nowplaying-card ant-card brasilboardd">
-					<a href={"/brasilboard"}><button>BRASILBOARD</button></a>
-					<button onClick={() => setColorScheme(prev => prev === "" ? "dark" : "")}>CHANGE THEME</button>
-				</div>
-				<Card
-					className="nowplaying-card"
-					cover={<img className="nowplaying-img" alt="example" src={song.cover_src} />}
-					actions={[
-						<button disabled={!user.isAdmin} className="next" onClick={handleDisconnectClicked}>
-							DISCONNECT
-						</button>,
-						<button disabled={!user.isAdmin} className="next" onClick={handleStopClicked}>
-							STOP
-						</button>,
-						<button disabled={checkRequester} className="next" onClick={handlePauseClicked}>
-							{isPaused ? "UNPAUSE" : "PAUSE"}
-						</button>,
-						<button disabled={checkRequester} className="next" onClick={handleNextClicked}>
-							SKIP
-						</button>,
-					]}>
-					<Meta
-						title={
-							<a href={song.url} target="_blank" rel="noopener noreferrer">
-								{song.name}
-							</a>
-						}
-						description={
-							<div>
-								<div>{song.artist}</div>
-								<progress id="sgprog" max="100" value={songProgress}>
-									{songProgress + "%"}
-								</progress>
-								<div>
-									{song.formatedprog} / {song.duration}
-								</div>
-								<div>Requester: {song.requester}</div>
-							</div>
-						}
-					/>
-				</Card>
-				<Card className="nowplaying-card">
-					<Meta avatar={<Avatar src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} />} title={`${user.username}#${user.discriminator}`} />
-				</Card>
-				<div className="nowplaying-card ant-card">
-					<button onClick={handleLogout}>LOG OUT</button>
-				</div>
-				<div style={{ border: `1px solid ${infoboxColor}` }} className="nowplaying-card ant-card infobox">
-					{info}
-				</div>
-			</div>
-			<Queue song={song} queue={queue} user={user} setInfo={setInfo} setInfoboxColor={setInfoboxColor} isSongRequester={checkRequester} />
-			<Filters filters={song.filters} hasChanged={hasChanged} user={user} setInfo={setInfo} setInfoboxColor={setInfoboxColor} />
+		<>
+		{loading ? (
+		<div className="loader-container">
+        	<div className="spinner"></div>
 		</div>
+		) : (
+		<div className={classes}>
+				<div className="nowplaying">
+					<div className="nowplaying-card ant-card brasilboardd">
+						<a href={"/brasilboard"}><button>BRASILBOARD</button></a>
+						<button onClick={() => setColorScheme(prev => prev === "" ? "dark" : "")}>CHANGE THEME</button>
+					</div>
+					<Card
+						className="nowplaying-card"
+						cover={<img className="nowplaying-img" alt="example" src={song.cover_src} />}
+						actions={[
+							<button disabled={!user.isAdmin} className="next" onClick={handleDisconnectClicked}>
+								DISCONNECT
+							</button>,
+							<button disabled={!user.isAdmin} className="next" onClick={handleStopClicked}>
+								STOP
+							</button>,
+							<button disabled={checkRequester} className="next" onClick={handlePauseClicked}>
+								{isPaused ? "UNPAUSE" : "PAUSE"}
+							</button>,
+							<button disabled={checkRequester} className="next" onClick={handleNextClicked}>
+								SKIP
+							</button>,
+						]}>
+						<Meta
+							title={
+								<a href={song.url} target="_blank" rel="noopener noreferrer">
+									{song.name}
+								</a>
+							}
+							description={
+								<div>
+									<div>{song.artist}</div>
+									<progress id="sgprog" max="100" value={songProgress}>
+										{songProgress + "%"}
+									</progress>
+									<div>
+										{song.formatedprog} / {song.duration}
+									</div>
+									<div>Requester: {song.requester}</div>
+								</div>
+							}
+						/>
+					</Card>
+					<Card className="nowplaying-card">
+						<Meta avatar={<Avatar src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} />} title={`${user.username}#${user.discriminator}`} />
+					</Card>
+					<div className="nowplaying-card ant-card">
+						<button onClick={handleLogout}>LOG OUT</button>
+					</div>
+					<div style={{ border: `1px solid ${infoboxColor}` }} className="nowplaying-card ant-card infobox">
+						{info}
+					</div>
+				</div>
+				<Queue song={song} queue={queue} user={user} setInfo={setInfo} setInfoboxColor={setInfoboxColor} isSongRequester={checkRequester} />
+				<Filters filters={song.filters} hasChanged={hasChanged} user={user} setInfo={setInfo} setInfoboxColor={setInfoboxColor} />
+			</div>
+		)}
+		</>
+		
 	);
 };
 
