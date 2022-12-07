@@ -6,7 +6,7 @@ module.exports = {
             preset: 'default',
         }),
         postcssPresetEnv({
-                stage: 1,
+                stage: 0,
         }),
     ],
 };
