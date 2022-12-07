@@ -9,6 +9,14 @@
 	width: 100%;
 }
 
+.light {
+	prefers-color-scheme: light;
+}
+
+.black {
+	prefers-color-scheme: dark;
+}
+
 .music > div .music > form {
 	border: 1px solid black;
 	border-radius: 5px;
