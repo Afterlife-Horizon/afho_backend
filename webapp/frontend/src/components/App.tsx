@@ -9,7 +9,7 @@ import Brasilboard from "./Brasilboard";
 import LevelBoard from "./LevelBoard";
 
 // ------------ CSS Files ------------
-import "../css/App.css";
+import "../dev/css/App.css";
 
 const App: React.FC = () => {
 	return (

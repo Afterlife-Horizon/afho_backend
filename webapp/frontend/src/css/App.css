@@ -1,64 +1,65 @@
-@media screen and (prefers-color-scheme: dark) {
-    body {
-      background-color: #0e0e10;
-      color: #fff;
-    }
 
-    .ant-card-meta-description, .ant-card-meta-title {
+.black {
+	& body {
+        background-color: #0e0e10;
+        color: #fff;
+      }
+  
+    & .ant-card-meta-description, .ant-card-meta-title {
         color: #fff;
     }
 
-    .ant-card-actions {
+    & .ant-card-actions {
         border-top: 1px solid #0e0e10;
     }
 
-    .ant-card-actions > li:not(:last-child) {
+    & .ant-card-actions > li:not(:last-child) {
         border-right: none;
     }
 
-    .nowplaying .ant-card {
+    & .nowplaying .ant-card {
         background-color: #32323f;
         box-shadow: none !important;
         border: none;
         border-top: 1px solid #0e0e10;
     }
     
-    .filters {
+    & .filters {
         background-color: #32323f;
     }
 
-    .queue {
+    & .queue {
         background-color: #32323f;
         border-color: #0e0e10;
     }
 
-    button {
+    & button {
         background-color: #32323f !important;
         color: #fff !important;
     }
     
-    button:hover {
+    & button:hover {
         background-color: rgb(37, 138, 133) !important;
         color: #fff !important;
     }
     
-    button:disabled,
-    button[disabled] {
+    & button:disabled,
+    & button[disabled] {
         background-color: #40404e !important;
         color: #fff !important;
     }
     
-    button:disabled:hover:not(.ant-switch),
-    button[disabled]:hover:not(.ant-switch) {
+    & button:disabled:hover:not(.ant-switch),
+    & button[disabled]:hover:not(.ant-switch) {
         background-color: #40404e !important;
         color: #fff !important;
     }
 
-    button:not(.ant-switch) {
+    & button:not(.ant-switch) {
         border: none;
     }
 
-    p {
-      color: #fff;
+    & p {
+    color: #fff;
     }
-  }
+}
