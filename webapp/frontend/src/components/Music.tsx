@@ -236,7 +236,7 @@ const Music = (props: any) => {
 	}, [intervalReset]);
 
 	useEffect(() => {
-		setColorScheme("dark")
+		setColorScheme(isDarkTheme ? "dark" : "")
 	}, [isDarkTheme])
 
 	const handleNextClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
