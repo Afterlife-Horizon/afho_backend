@@ -223,6 +223,10 @@ div.queue-item-name > span {
 	flex-direction: row;
 }
 
+.brasilboardd > a {
+	color: black;
+}
+
 .brasilboardd > * {
 	flex-basis: 50%;
 }

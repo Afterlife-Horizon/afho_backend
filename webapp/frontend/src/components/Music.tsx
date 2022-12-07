@@ -411,8 +411,7 @@ const Music = (props: any) => {
 		<div className={classes}>
 			<div className="nowplaying">
 				<div className="nowplaying-card ant-card brasilboardd">
-					
-					<button><a href={"/brasilboard"}>BRASILBOARD</a></button>
+					<a href={"/brasilboard"}><button>BRASILBOARD</button></a>
 					<button onClick={() => setColorScheme(prev => prev === "" ? "dark" : "")}>CHANGE THEME</button>
 				</div>
 				<Card

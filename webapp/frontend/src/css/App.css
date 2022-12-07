@@ -22,15 +22,20 @@
     box-shadow: none!important;
 }
 
-.dark .filters,.black .queue {
+.dark .filters {
     background-color: #32323f;
 }
 
+.dark .filters h3 {
+    color: #fff;
+}
+
 .dark .queue {
+    background-color: #32323f;
     border-color: #0e0e10;
 }
 
-.dark button {
+.dark button:not(.ant-switch) {
     background-color: #32323f!important;
     color: #fff!important;
 }
@@ -40,7 +45,10 @@
     color: #fff!important;
 }
 
-.dark button:disabled,.black button:disabled:hover:not(.ant-switch),.black button[disabled],.black button[disabled]:hover:not(.ant-switch) {
+.dark button:disabled,
+.black button:disabled:hover:not(.ant-switch),
+.black button[disabled],
+.black button[disabled]:hover:not(.ant-switch) {
     background-color: #40404e!important;
     color: #fff!important;
 }
@@ -51,4 +59,9 @@
 
 .dark p {
     color: #fff;
+}
+
+
+.dark .brasilboardd > a {
+	color: #fff;
 }
