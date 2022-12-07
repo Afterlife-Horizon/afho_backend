@@ -16,6 +16,18 @@ interface testCallback {
 	(err: any, status: any, data: any): any;
 }
 
+const fetchInfo = async (callback: testCallback) => {
+	await axios
+		.get("/api/fetch")
+		.then((res) => {
+			// console.log(res);
+			callback(null, res.status, res.data);
+		})
+		.catch((err) => {
+			callback(err, err.response.status, err.response.data);
+		});
+};
+
 const Music = (props: any) => {
 	const [loading, setLoading] = useState(true);
 	const [user, setUser] = useState({
@@ -37,6 +49,7 @@ const Music = (props: any) => {
 	const [colorScheme, setColorScheme] = useState("");
 	const [searchParams] = useSearchParams();
 	useEffect(() => {
+		setLoading(true);
 		const code = searchParams.get("code");
 
 		const access_token = localStorage.getItem("access_token");
@@ -104,9 +117,68 @@ const Music = (props: any) => {
 					localStorage.clear();
 					return window.location.replace("/login");
 				}
-				setLoading(false);
 				setInfo("Logged in!");
 				setUser({ ...data, isAdmin: false });
+			});
+
+			fetchInfo((err, status, data) => {
+				setLoading(false);
+				if (err) return console.error(err);
+				const queue = data.queue[0];
+				let tmpIsRequester = false;
+				if (queue && queue?.tracks[0]) {
+					setSong({
+						name: queue.tracks[0].title,
+						artist: queue.tracks[0].channel.name,
+						filters: queue.effects,
+						requester: queue.tracks[0].requester,
+						url: "https://www.youtube.com/watch?v=" + queue.tracks[0].id,
+						formatedprog: data.formatedprog,
+						duration: queue.tracks[0].durationFormatted,
+						cover_src: queue.tracks[0].thumbnail.url,
+					});
+					setIsPaused(queue.paused);
+					setQueue(queue.tracks.slice(0));
+					setSongProgress(Math.floor(100 * (data.prog / queue.tracks[0].duration)));
+					setHasChanged(queue.filtersChanged);
+					tmpIsRequester = user.username === queue.tracks[0].requester;
+				} else {
+					setHasChanged(false);
+					setSong({
+						name: "None",
+						artist: "",
+						requester: "None",
+						filters: {
+							bassboost: 0,
+							subboost: false,
+							mcompand: false,
+							haas: false,
+							gate: false,
+							karaoke: false,
+							flanger: false,
+							pulsator: false,
+							surrounding: false,
+							"3d": false,
+							vaporwave: false,
+							nightcore: false,
+							phaser: false,
+							normalizer: false,
+							speed: 1,
+							tremolo: false,
+							vibrato: false,
+							reverse: false,
+							treble: false,
+						},
+						url: "",
+						formatedprog: "00:00",
+						duration: "00:00",
+						cover_src: "https://freesvg.org/img/aiga_waiting_room_bg.png",
+					});
+					setQueue([]);
+				}
+				const isAdmin: boolean = data.admins.usernames.includes(user.username);
+				setUser((prev) => ({ ...prev, isAdmin: isAdmin }));
+				setIsRequester(tmpIsRequester);
 			});
 		}
 	}, []);
@@ -115,12 +187,20 @@ const Music = (props: any) => {
 
 	const [info, setInfo] = useState("");
 	const [infoboxColor, setInfoboxColor] = useState("white");
-	const [nextClicked, setNextClicked] = useState(false);
 	const [isPaused, setIsPaused] = useState(false);
 	const [queue, setQueue]: any[] = useState([]);
 	const [songProgress, setSongProgress] = useState(0);
 	const [hasChanged, setHasChanged] = useState(true);
 	const [isSongRequester, setIsRequester] = useState(true);
+
+	const [isDisconnecting, setIsDisconnecting] = useState(false);
+	const [isPausing, setIsPausing] = useState(false);
+	const [isStopping, setIsStopping] = useState(false);
+	const [isSkipping, setIsSkipping] = useState(false);
+	const [isAdding, setIsAdding] = useState(false);
+	const [isAddingFirst, setIsAddingFirst] = useState(false);
+	const [isShuffling, setIsShuffling] = useState(false);
+	const [isClearing, setIsClearing] = useState(false);
 
 	const [song, setSong] = useState({
 		name: "None",
@@ -159,17 +239,6 @@ const Music = (props: any) => {
 	useEffect(() => {
 		const repeatedFetchInterval = setInterval(() => {
 			if (searchParams.get("code")) window.location.replace("/");
-			const fetchInfo = async (callback: testCallback) => {
-				await axios
-					.get("/api/fetch")
-					.then((res) => {
-						// console.log(res);
-						callback(null, res.status, res.data);
-					})
-					.catch((err) => {
-						callback(err, err.response.status, err.response.data);
-					});
-			};
 
 			fetchInfo((err, status, data) => {
 				if (err) return console.error(err);
@@ -229,8 +298,12 @@ const Music = (props: any) => {
 				setUser((prev) => ({ ...prev, isAdmin: isAdmin }));
 				setIsRequester(tmpIsRequester);
 				setIntervalReset((prev) => !prev);
+				setIsClearing(false);
+				setIsSkipping(false);
+				setIsAddingFirst(false);
+				setIsShuffling(false);
 			});
-		}, 3000);
+		}, 1000);
 
 		return () => {
 			clearInterval(repeatedFetchInterval);
@@ -243,6 +316,7 @@ const Music = (props: any) => {
 
 	const handleNextClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
+		setIsSkipping(true);
 		const skipSong = async (callback: testCallback) => {
 			await axios
 				.post("/api/skip", { user: user.username })
@@ -256,10 +330,12 @@ const Music = (props: any) => {
 		};
 
 		if (!queue || queue.length < 2) {
+			setIsSkipping(false);
 			setInfo("No song to skip to!");
 			return setInfoboxColor("orange");
 		}
 		skipSong((err, status, data) => {
+			setIsSkipping(false);
 			if (err) {
 				if (status !== 500) setInfo(data);
 				else setInfo("An error occured");
@@ -269,14 +345,11 @@ const Music = (props: any) => {
 			setInfo("Skipped!");
 			setInfoboxColor("green");
 		});
-
-		if (nextClicked) setNextClicked(false);
-		else setNextClicked(true);
 	};
 
 	const handlePauseClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
-
+		setIsPausing(true);
 		const pauseSong = async (callback: testCallback) => {
 			await axios
 				.post("/api/pause", { user: user.username })
@@ -301,12 +374,14 @@ const Music = (props: any) => {
 		};
 
 		if (!queue || queue.length < 1) {
+			setIsPausing(false);
 			setInfo("No song playing!");
 			return setInfoboxColor("orange");
 		}
 
 		if (isPaused) {
 			unPauseSong((err, status, data) => {
+				setIsPausing(false);
 				if (err) {
 					if (status !== 500) setInfo(data);
 					else setInfo("An error occured");
@@ -317,6 +392,7 @@ const Music = (props: any) => {
 			});
 		} else {
 			pauseSong((err, status, data) => {
+				setIsPausing(false);
 				if (err) {
 					if (status !== 500) setInfo(data);
 					else setInfo("An error occured");
@@ -331,7 +407,7 @@ const Music = (props: any) => {
 
 	const handleStopClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
-
+		setIsStopping(true);
 		const stopSong = async (callback: testCallback) => {
 			await axios
 				.post("/api/stop", { user: user.username })
@@ -345,16 +421,19 @@ const Music = (props: any) => {
 		};
 
 		if (!user.isAdmin) {
+			setIsStopping(false);
 			setInfo("You need to be admin!");
 			return setInfoboxColor("orange");
 		}
 
 		if (!queue || queue.length < 1) {
+			setIsStopping(false);
 			setInfo("No song playing!");
 			return setInfoboxColor("orange");
 		}
 
 		stopSong((err, status, data) => {
+			setIsStopping(false);
 			if (err) {
 				if (status !== 500) setInfo(data);
 				else setInfo("An error occured");
@@ -368,7 +447,7 @@ const Music = (props: any) => {
 
 	const handleDisconnectClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
-
+		setIsDisconnecting(true);
 		const disconnectBot = async (callback: testCallback) => {
 			await axios
 				.get("/api/disconnect")
@@ -382,11 +461,13 @@ const Music = (props: any) => {
 		};
 
 		if (!user.isAdmin) {
+			setIsDisconnecting(false);
 			setInfo("You need to be admin!");
 			return setInfoboxColor("orange");
 		}
 
 		disconnectBot((err, status, data) => {
+			setIsDisconnecting(false);
 			if (err) {
 				if (status !== 500) setInfo(data);
 				else setInfo("An error occured");
@@ -433,16 +514,16 @@ const Music = (props: any) => {
 						cover={<img className="nowplaying-img" alt="example" src={song.cover_src} />}
 						actions={[
 							<button disabled={!user.isAdmin} className="next" onClick={handleDisconnectClicked}>
-								DISCONNECT
+								{isDisconnecting ? <div className="small-spinner"></div> : "DISCONNECT"}
 							</button>,
 							<button disabled={!user.isAdmin} className="next" onClick={handleStopClicked}>
-								STOP
+								{isStopping ? <div className="small-spinner"></div> : "STOP"}
 							</button>,
 							<button disabled={checkRequester} className="next" onClick={handlePauseClicked}>
-								{isPaused ? "UNPAUSE" : "PAUSE"}
+								{isPausing ? <div className="small-spinner"></div> : (isPaused ? "UNPAUSE" : "PAUSE")}
 							</button>,
 							<button disabled={checkRequester} className="next" onClick={handleNextClicked}>
-								SKIP
+								{isSkipping ? <div className="small-spinner"></div> : "SKIP"}
 							</button>,
 						]}>
 						<Meta
@@ -475,7 +556,22 @@ const Music = (props: any) => {
 						{info}
 					</div>
 				</div>
-				<Queue song={song} queue={queue} user={user} setInfo={setInfo} setInfoboxColor={setInfoboxColor} isSongRequester={checkRequester} />
+				<Queue 
+				song={song} 
+				queue={queue} 
+				user={user} 
+				setInfo={setInfo} 
+				setInfoboxColor={setInfoboxColor} 
+				isSongRequester={checkRequester}
+				isAdding={isAdding}
+				setIsAdding={setIsAdding}
+				isAddingFirst={isAddingFirst}
+				setIsAddingFirst={setIsAddingFirst}
+				isShuffling={isShuffling}
+				setIsShuffling={setIsShuffling}
+				isClearing={isClearing}
+				setIsClearing={setIsClearing}
+				/>
 				<Filters filters={song.filters} hasChanged={hasChanged} user={user} setInfo={setInfo} setInfoboxColor={setInfoboxColor} />
 			</div>
 		)}

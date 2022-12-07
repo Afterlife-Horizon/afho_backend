@@ -171,30 +171,41 @@ div.queue-item-name > span {
 	align-self: flex-end;
 }
 
+.queue-adder {
+	display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
 .queue-adder > button {
-	width: 25%;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 	border-left: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .queue-adder > button:hover {
-	width: 25%;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 	border-left: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.queueInput {
+	grid-column-end: 5;
+    grid-column-start: 1;
 }
 
 .last-adder {
 	border-right: 1px solid rgba(0, 0, 0, 0.06) !important;
 }
 
+.queue-pages {
+	display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
 .queue-pages > button {
-	width: 25%;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 	border-left: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .queue-pages > button:hover {
-	width: 25%;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 	border-left: 1px solid rgba(0, 0, 0, 0.06);
 }
@@ -236,6 +247,13 @@ div.queue-item-name > span {
 	margin: 2rem;
 	justify-items: center;
 	max-width: 25%;
+}
+
+.next {
+	display: flex !important;
+	justify-content: center;
+	justify-items: center;
+	align-items: center;
 }
 
 @media only screen and (max-width: 1600px) {

@@ -81,7 +81,7 @@
 
 .spinner {
     width: 64px;
-    height: 64px;
+    height:64px;
     border: 8px solid;
     border-color: #3d5af1 transparent #3d5af1 transparent;
     border-radius: 50%;
@@ -89,6 +89,21 @@
 }
 
 .dark .spinner {
+    border-color: #adbbff transparent #adbbff transparent !important;
+}
+
+.small-spinner {
+    align-self: center;
+    justify-self: center;
+    width: 1.55rem;
+    height: 1.55rem;
+    border: 3px solid;
+    border-color: #3d5af1 transparent #3d5af1 transparent;
+    border-radius: 50%;
+    animation: spin-anim 1.2s linear infinite;
+}
+
+.dark .small-spinner {
     border-color: #adbbff transparent #adbbff transparent !important;
 }
 

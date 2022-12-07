@@ -101,6 +101,7 @@ const Queue = (props: any) => {
 
 	const handleAdd = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
+		props.setIsAdding(true);
 		const addSong = async (callback: testCallback) => {
 			await axios
 				.post(
@@ -120,10 +121,12 @@ const Queue = (props: any) => {
 		};
 
 		if (link === "") {
+			props.setIsAdding(false);
 			props.setInfo("Please add a link or a song name before adding it!");
 			return props.setInfoboxColor("orange");
 		}
 		addSong((err, status, data) => {
+			props.setIsAdding(false);
 			setLink("");
 			console.log(data);
 			if (err) {
@@ -140,6 +143,7 @@ const Queue = (props: any) => {
 
 	const handleAddFirst = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
+		props.setIsAddingFirst(true);
 		console.log("add first", link);
 		const AddFirst = async (callback: testCallback) => {
 			await axios
@@ -160,10 +164,12 @@ const Queue = (props: any) => {
 		};
 
 		if (!props.queue || props.queue.length < 2) {
+			props.setIsAddingFirst(false);
 			props.setInfo('Please use "Add" button! There is no current queue!');
 			return props.setInfoboxColor("orange");
 		}
 		if (link === "") {
+			props.setIsAddingFirst(false);
 			props.setInfo("Please add a link or a song name before adding it!");
 			return props.setInfoboxColor("orange");
 		}
@@ -182,6 +188,7 @@ const Queue = (props: any) => {
 
 	const handleShuffle = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
+		props.setIsShuffling(true);
 		const shuffleSongs = async (callback: testCallback) => {
 			await axios
 				.post("/api/shuffle", { user: props.user.username })
@@ -195,6 +202,7 @@ const Queue = (props: any) => {
 		};
 
 		if (!props.queue || props.queue.length < 3) {
+			props.setIsShuffling(false);
 			props.setInfo("No songs to shuffle!");
 			return props.setInfoboxColor("orange");
 		}
@@ -212,6 +220,7 @@ const Queue = (props: any) => {
 
 	const handleClear = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
+		props.setIsClearing(true);
 		const clearSongs = async (callback: testCallback) => {
 			await axios
 				.post("/api/clearqueue", { user: props.user.username })
@@ -225,11 +234,13 @@ const Queue = (props: any) => {
 		};
 
 		if (!props.user.isAdmin) {
+			props.setIsClearing(false);
 			props.setInfo("You need to be admin!");
 			return props.setInfoboxColor("orange");
 		}
 
 		if (!props.queue || props.queue.length < 2) {
+			props.setIsClearing(false);
 			props.setInfo("Nothing to clear!");
 			return props.setInfoboxColor("orange");
 		}
@@ -248,24 +259,23 @@ const Queue = (props: any) => {
 	return (
 		<div className="queue">
 			<div className="queue-adder">
-				<Input placeholder="Song name / Link" value={link} onChange={(event: any) => setLink(event.target.value)} />
-				<button onClick={handleAdd}>ADD</button>
-				<button onClick={handleAddFirst}>ADD FIRST</button>
-
-				<button disabled={!props.user.isAdmin} onClick={handleShuffle}>
-					SHUFFLE
+				<Input placeholder="Song name / Link" className="queueInput" value={link} onChange={(event: any) => setLink(event.target.value)} />
+				<button onClick={handleAdd} className={"next"}>{props.isAdding ? <div className="small-spinner"></div> : "ADD"}</button>
+				<button onClick={handleAddFirst} className={"next"}>{props.isAddingFirst ? <div className="small-spinner"></div> : "ADD FIRST"}</button>
+				<button disabled={!props.user.isAdmin} onClick={handleShuffle} className={"next"}>
+					{props.isShuffling ? <div className="small-spinner"></div> : "SHUFFLE"}
 				</button>
-				<button disabled={!props.user.isAdmin} className="last-adder" onClick={handleClear}>
-					CLEAR
+				<button disabled={!props.user.isAdmin} className="last-adder next" onClick={handleClear}>
+					{props.isClearing ? <div className="small-spinner"></div> : "CLEAR"}
 				</button>
 			</div>
 			{maxPage === -1 ? null : (
 				<div className="queue-pages">
-					<button onClick={() => setPage(1)}>{"⏮"}</button>
-					<button onClick={() => setPage((prev) => (prev > 1 ? prev - 1 : 1))}>{"⏪"}</button>
-					<button onClick={() => setPage((prev) => (prev < maxPage + 1 ? prev + 1 : maxPage + 1))}>{"⏩"}</button>
+					<button onClick={() => setPage(1)}>{"|<<"}</button>
+					<button onClick={() => setPage((prev) => (prev > 1 ? prev - 1 : 1))}>{"<"}</button>
+					<button onClick={() => setPage((prev) => (prev < maxPage + 1 ? prev + 1 : maxPage + 1))}>{">"}</button>
 					<button className="last-adder" onClick={() => setPage(maxPage + 1)}>
-						{"⏭"}
+						{">>|"}
 					</button>
 				</div>
 			)}
