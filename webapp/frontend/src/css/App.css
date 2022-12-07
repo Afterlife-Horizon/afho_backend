@@ -3,7 +3,8 @@
     color: #fff;
 }
 
-.dark .ant-card-meta-description,.black .ant-card-meta-title {
+.dark .ant-card-meta-description,
+.dark .ant-card-meta-title {
     color: #fff;
 }
 
@@ -46,9 +47,9 @@
 }
 
 .dark button:disabled,
-.black button:disabled:hover:not(.ant-switch),
-.black button[disabled],
-.black button[disabled]:hover:not(.ant-switch) {
+.dark button:disabled:hover:not(.ant-switch),
+.dark button[disabled],
+.dark button[disabled]:hover:not(.ant-switch) {
     background-color: #40404e!important;
     color: #fff!important;
 }
