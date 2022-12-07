@@ -10,11 +10,11 @@
 }
 
 .light {
-	prefers-color-scheme: light;
+	color-scheme: light;
 }
 
 .black {
-	prefers-color-scheme: dark;
+	color-scheme: dark;
 }
 
 .music > div .music > form {
