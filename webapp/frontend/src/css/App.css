@@ -1,54 +1,54 @@
-.black {
+.dark {
     background-color: #0e0e10;
     color: #fff;
 }
 
-.black .ant-card-meta-description,.black .ant-card-meta-title {
+.dark .ant-card-meta-description,.black .ant-card-meta-title {
     color: #fff;
 }
 
-.black .ant-card-actions {
+.dark .ant-card-actions {
     border-top: 1px solid #0e0e10;
 }
 
-.black .ant-card-actions>li:not(:last-child) {
+.dark .ant-card-actions>li:not(:last-child) {
     border-right: none;
 }
 
-.black .nowplaying .ant-card {
+.dark .nowplaying .ant-card {
     background-color: #32323f;
     border: none;
     border-top: 1px solid #0e0e10;
     box-shadow: none!important;
 }
 
-.black .filters,.black .queue {
+.dark .filters,.black .queue {
     background-color: #32323f;
 }
 
-.black .queue {
+.dark .queue {
     border-color: #0e0e10;
 }
 
-.black button {
+.dark button {
     background-color: #32323f!important;
     color: #fff!important;
 }
 
-.black button:hover {
+.dark button:hover {
     background-color: #258a85!important;
     color: #fff!important;
 }
 
-.black button:disabled,.black button:disabled:hover:not(.ant-switch),.black button[disabled],.black button[disabled]:hover:not(.ant-switch) {
+.dark button:disabled,.black button:disabled:hover:not(.ant-switch),.black button[disabled],.black button[disabled]:hover:not(.ant-switch) {
     background-color: #40404e!important;
     color: #fff!important;
 }
 
-.black button:not(.ant-switch) {
+.dark button:not(.ant-switch) {
     border: none;
 }
 
-.black p {
+.dark p {
     color: #fff;
 }
