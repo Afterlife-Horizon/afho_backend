@@ -33,7 +33,7 @@ const Music = (props: any) => {
 		username: "",
 		isAdmin: false,
 	});
-	const [colorScheme, setColorScheme] = useState("light");
+	const [colorScheme, setColorScheme] = useState("");
 	const [searchParams] = useSearchParams();
 	useEffect(() => {
 		const code = searchParams.get("code");
@@ -411,8 +411,9 @@ const Music = (props: any) => {
 		<div className={classes}>
 			<div className="nowplaying">
 				<div className="nowplaying-card ant-card brasilboardd">
-					<a href={"/brasilboard"}>Go to BrasilBoard!</a>
-					<button onClick={() => setColorScheme(prev => prev === "" ? "dark" : "")}>set color</button>
+					
+					<button><a href={"/brasilboard"}>BRASILBOARD</a></button>
+					<button onClick={() => setColorScheme(prev => prev === "" ? "dark" : "")}>CHANGE THEME</button>
 				</div>
 				<Card
 					className="nowplaying-card"

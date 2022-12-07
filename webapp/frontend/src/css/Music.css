@@ -42,6 +42,7 @@
 
 .nowplaying-card {
 	max-width: 100% !important;
+	padding-top: 2rem !important;
 }
 
 button:not(.ant-switch) {
@@ -218,6 +219,12 @@ div.queue-item-name > span {
 	justify-items: center;
 	align-items: center;
 	max-width: 30vw !important;
+	display: flex;
+	flex-direction: row;
+}
+
+.brasilboardd > * {
+	flex-basis: 50%;
 }
 
 .requesterdiv {
