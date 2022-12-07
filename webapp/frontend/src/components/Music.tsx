@@ -233,6 +233,11 @@ const Music = (props: any) => {
 		};
 	}, [intervalReset]);
 
+	useEffect(() => {
+		var colorScheme = getComputedStyle(document.body,':after').content;
+		if (colorScheme === 'd') return setColorScheme('dark');
+	}, [])
+
 	const handleNextClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 		const skipSong = async (callback: testCallback) => {
@@ -405,25 +410,6 @@ const Music = (props: any) => {
 			setInfoboxColor("red");
 		}
 	};
-	
-	function getPreferredColorScheme() {
-	if (window.matchMedia) {
-		if(window.matchMedia('(prefers-color-scheme: dark)').matches){
-		return 'dark';
-		} else {
-		return 'light';
-		}
-	}
-	return 'light';
-	}
-	
-	if(window.matchMedia){
-	var colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-	colorSchemeQuery.addEventListener('change', () => {
-		const prefColorScheme = getPreferredColorScheme();
-		setColorScheme(prefColorScheme === "light" ? "" : "dark");
-	});
-	}
 
 	let checkRequester = !user.isAdmin && !isSongRequester;
 	return (
