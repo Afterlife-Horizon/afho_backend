@@ -23,6 +23,10 @@
         border-top: 1px solid #0e0e10;
     }
     
+    .filters {
+        background-color: #32323f;
+    }
+
     .queue {
         background-color: #32323f;
         border-color: #0e0e10;
