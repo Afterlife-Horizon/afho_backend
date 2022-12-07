@@ -234,8 +234,9 @@ const Music = (props: any) => {
 	}, [intervalReset]);
 
 	useEffect(() => {
-		var colorScheme = getComputedStyle(document.body,':after').content;
-		if (colorScheme === 'd') return setColorScheme('dark');
+		if(window.matchMedia && window.matchMedia("(prefers-color-scheme:dark)").matches) {
+			setColorScheme("dark");
+		  }
 	}, [])
 
 	const handleNextClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
