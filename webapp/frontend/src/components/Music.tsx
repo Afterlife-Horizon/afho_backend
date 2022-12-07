@@ -230,7 +230,7 @@ const Music = (props: any) => {
 				setIsRequester(tmpIsRequester);
 				setIntervalReset((prev) => !prev);
 			});
-		}, 1000);
+		}, 3000);
 
 		return () => {
 			clearInterval(repeatedFetchInterval);
