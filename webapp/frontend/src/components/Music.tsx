@@ -243,6 +243,7 @@ const Music = (props: any) => {
 
 	const handleNextClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
+		setLoading(true);
 		const skipSong = async (callback: testCallback) => {
 			await axios
 				.post("/api/skip", { user: user.username })
@@ -260,6 +261,7 @@ const Music = (props: any) => {
 			return setInfoboxColor("orange");
 		}
 		skipSong((err, status, data) => {
+			setLoading(false);
 			if (err) {
 				if (status !== 500) setInfo(data);
 				else setInfo("An error occured");
@@ -276,7 +278,7 @@ const Music = (props: any) => {
 
 	const handlePauseClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
-
+		setLoading(true);
 		const pauseSong = async (callback: testCallback) => {
 			await axios
 				.post("/api/pause", { user: user.username })
@@ -307,6 +309,7 @@ const Music = (props: any) => {
 
 		if (isPaused) {
 			unPauseSong((err, status, data) => {
+				setLoading(false);
 				if (err) {
 					if (status !== 500) setInfo(data);
 					else setInfo("An error occured");
@@ -317,6 +320,7 @@ const Music = (props: any) => {
 			});
 		} else {
 			pauseSong((err, status, data) => {
+				setLoading(false);
 				if (err) {
 					if (status !== 500) setInfo(data);
 					else setInfo("An error occured");
@@ -331,7 +335,7 @@ const Music = (props: any) => {
 
 	const handleStopClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
-
+		setLoading(true);
 		const stopSong = async (callback: testCallback) => {
 			await axios
 				.post("/api/stop", { user: user.username })
@@ -355,6 +359,7 @@ const Music = (props: any) => {
 		}
 
 		stopSong((err, status, data) => {
+			setLoading(false);
 			if (err) {
 				if (status !== 500) setInfo(data);
 				else setInfo("An error occured");
@@ -368,7 +373,7 @@ const Music = (props: any) => {
 
 	const handleDisconnectClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
-
+		setLoading(true);
 		const disconnectBot = async (callback: testCallback) => {
 			await axios
 				.get("/api/disconnect")
@@ -387,6 +392,7 @@ const Music = (props: any) => {
 		}
 
 		disconnectBot((err, status, data) => {
+			setLoading(false);
 			if (err) {
 				if (status !== 500) setInfo(data);
 				else setInfo("An error occured");
@@ -400,6 +406,7 @@ const Music = (props: any) => {
 
 	const handleLogout = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
+		setLoading(true);
 		try {
 			localStorage.removeItem("access_token");
 			localStorage.removeItem("token_type");
