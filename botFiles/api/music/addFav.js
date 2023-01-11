@@ -21,7 +21,7 @@ module.exports = function (client) {
 			const vid = await YouTube.searchOne(url);
 			if (!vid) return res.status(400).json({ error: "No video found" });
 			const newFav = {
-				title: vid.title,
+				name: vid.title,
 				url: vid.url,
 			};
 
