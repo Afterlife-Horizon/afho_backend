@@ -16,7 +16,7 @@ interface testCallback {
 	(err: any, status: any, data: any): any;
 }
 
-const fetchInfo = async (callback: testCallback) => {
+async function fetchInfo(callback: testCallback) {
 	await axios
 		.get("/api/fetch")
 		.then((res) => {
@@ -26,7 +26,7 @@ const fetchInfo = async (callback: testCallback) => {
 		.catch((err) => {
 			callback(err, err.response.status, err.response.data);
 		});
-};
+}
 
 const Music = (props: any) => {
 	const [loading, setLoading] = useState(true);
@@ -46,6 +46,7 @@ const Music = (props: any) => {
 		username: "",
 		isAdmin: false,
 	});
+	const [favs, setFavs] = useState([]);
 	const [colorScheme, setColorScheme] = useState("");
 	const [searchParams] = useSearchParams();
 	useEffect(() => {
@@ -54,7 +55,8 @@ const Music = (props: any) => {
 
 		const access_token = localStorage.getItem("access_token");
 
-		if ((!code || code === "") && !access_token) return window.location.replace("/login");
+		if ((!code || code === "") && !access_token)
+			return window.location.replace("/login");
 		if (!access_token) {
 			const getUser = async (callback: testCallback) => {
 				await axios
@@ -139,7 +141,9 @@ const Music = (props: any) => {
 					});
 					setIsPaused(queue.paused);
 					setQueue(queue.tracks.slice(0));
-					setSongProgress(Math.floor(100 * (data.prog / queue.tracks[0].duration)));
+					setSongProgress(
+						Math.floor(100 * (data.prog / queue.tracks[0].duration))
+					);
 					setHasChanged(queue.filtersChanged);
 					tmpIsRequester = user.username === queue.tracks[0].requester;
 				} else {
@@ -257,7 +261,9 @@ const Music = (props: any) => {
 					});
 					setIsPaused(queue.paused);
 					setQueue(queue.tracks.slice(0));
-					setSongProgress(Math.floor(100 * (data.prog / queue.tracks[0].duration)));
+					setSongProgress(
+						Math.floor(100 * (data.prog / queue.tracks[0].duration))
+					);
 					setHasChanged(queue.filtersChanged);
 					tmpIsRequester = user.username === queue.tracks[0].requester;
 				} else {
@@ -311,8 +317,23 @@ const Music = (props: any) => {
 	}, [intervalReset]);
 
 	useEffect(() => {
-		setColorScheme(isDarkTheme ? "dark" : "")
-	}, [isDarkTheme])
+		async function fetchUserfavs() {
+			await axios
+				.post("/api/favs", { userId: user.id })
+				.then((res) => {
+					setFavs(res.data.favs);
+				})
+				.catch((err) => {
+					console.error(err);
+					setInfo("Error while fetching your favorites.");
+				});
+		}
+		fetchUserfavs;
+	}, [user]);
+
+	useEffect(() => {
+		setColorScheme(isDarkTheme ? "dark" : "");
+	}, [isDarkTheme]);
 
 	const handleNextClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
@@ -445,7 +466,9 @@ const Music = (props: any) => {
 		});
 	};
 
-	const handleDisconnectClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
+	const handleDisconnectClicked = (
+		event: React.MouseEvent<HTMLButtonElement>
+	) => {
 		event.preventDefault();
 		setIsDisconnecting(true);
 		const disconnectBot = async (callback: testCallback) => {
@@ -498,85 +521,141 @@ const Music = (props: any) => {
 	let checkRequester = !user.isAdmin && !isSongRequester;
 	return (
 		<>
-		{loading ? (
-		<div className="loader-container">
-        	<div className="spinner"></div>
-		</div>
-		) : (
-		<div className={classes}>
-				<div className="nowplaying">
-					<div className="nowplaying-card ant-card brasilboardd">
-						<a href={"/brasilboard"}><button>BRASILBOARD</button></a>
-						<button onClick={() => setColorScheme(prev => prev === "" ? "dark" : "")}>CHANGE THEME</button>
-					</div>
-					<Card
-						className="nowplaying-card"
-						cover={<img className="nowplaying-img" alt="example" src={song.cover_src} />}
-						actions={[
-							<button disabled={!user.isAdmin} className="next" onClick={handleDisconnectClicked}>
-								{isDisconnecting ? <div className="small-spinner"></div> : "DISCONNECT"}
-							</button>,
-							<button disabled={!user.isAdmin} className="next" onClick={handleStopClicked}>
-								{isStopping ? <div className="small-spinner"></div> : "STOP"}
-							</button>,
-							<button disabled={checkRequester} className="next" onClick={handlePauseClicked}>
-								{isPausing ? <div className="small-spinner"></div> : (isPaused ? "UNPAUSE" : "PAUSE")}
-							</button>,
-							<button disabled={checkRequester} className="next" onClick={handleNextClicked}>
-								{isSkipping ? <div className="small-spinner"></div> : "SKIP"}
-							</button>,
-						]}>
-						<Meta
-							title={
-								<a href={song.url} target="_blank" rel="noopener noreferrer">
-									{song.name}
-								</a>
-							}
-							description={
-								<div>
-									<div>{song.artist}</div>
-									<progress id="sgprog" max="100" value={songProgress}>
-										{songProgress + "%"}
-									</progress>
-									<div>
-										{song.formatedprog} / {song.duration}
-									</div>
-									<div>Requester: {song.requester}</div>
-								</div>
-							}
-						/>
-					</Card>
-					<Card className="nowplaying-card">
-						<Meta avatar={<Avatar src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} />} title={`${user.username}#${user.discriminator}`} />
-					</Card>
-					<div className="nowplaying-card ant-card">
-						<button onClick={handleLogout}>LOG OUT</button>
-					</div>
-					<div style={{ border: `1px solid ${infoboxColor}` }} className="nowplaying-card ant-card infobox">
-						{info}
-					</div>
+			{loading ? (
+				<div className="loader-container">
+					<div className="spinner"></div>
 				</div>
-				<Queue 
-				song={song} 
-				queue={queue} 
-				user={user} 
-				setInfo={setInfo} 
-				setInfoboxColor={setInfoboxColor} 
-				isSongRequester={checkRequester}
-				isAdding={isAdding}
-				setIsAdding={setIsAdding}
-				isAddingFirst={isAddingFirst}
-				setIsAddingFirst={setIsAddingFirst}
-				isShuffling={isShuffling}
-				setIsShuffling={setIsShuffling}
-				isClearing={isClearing}
-				setIsClearing={setIsClearing}
-				/>
-				<Filters filters={song.filters} hasChanged={hasChanged} user={user} setInfo={setInfo} setInfoboxColor={setInfoboxColor} />
-			</div>
-		)}
+			) : (
+				<div className={classes}>
+					<div className="nowplaying">
+						<div className="nowplaying-card ant-card brasilboardd">
+							<a href={"/brasilboard"}>
+								<button>BRASILBOARD</button>
+							</a>
+							<button
+								onClick={() =>
+									setColorScheme((prev) => (prev === "" ? "dark" : ""))
+								}
+							>
+								CHANGE THEME
+							</button>
+						</div>
+						<Card
+							className="nowplaying-card"
+							cover={
+								<img
+									className="nowplaying-img"
+									alt="example"
+									src={song.cover_src}
+								/>
+							}
+							actions={[
+								<button
+									disabled={!user.isAdmin}
+									className="next"
+									onClick={handleDisconnectClicked}
+								>
+									{isDisconnecting ? (
+										<div className="small-spinner"></div>
+									) : (
+										"DISCONNECT"
+									)}
+								</button>,
+								<button
+									disabled={!user.isAdmin}
+									className="next"
+									onClick={handleStopClicked}
+								>
+									{isStopping ? <div className="small-spinner"></div> : "STOP"}
+								</button>,
+								<button
+									disabled={checkRequester}
+									className="next"
+									onClick={handlePauseClicked}
+								>
+									{isPausing ? (
+										<div className="small-spinner"></div>
+									) : isPaused ? (
+										"UNPAUSE"
+									) : (
+										"PAUSE"
+									)}
+								</button>,
+								<button
+									disabled={checkRequester}
+									className="next"
+									onClick={handleNextClicked}
+								>
+									{isSkipping ? <div className="small-spinner"></div> : "SKIP"}
+								</button>,
+							]}
+						>
+							<Meta
+								title={
+									<a href={song.url} target="_blank" rel="noopener noreferrer">
+										{song.name}
+									</a>
+								}
+								description={
+									<div>
+										<div>{song.artist}</div>
+										<progress id="sgprog" max="100" value={songProgress}>
+											{songProgress + "%"}
+										</progress>
+										<div>
+											{song.formatedprog} / {song.duration}
+										</div>
+										<div>Requester: {song.requester}</div>
+									</div>
+								}
+							/>
+						</Card>
+						<Card className="nowplaying-card">
+							<Meta
+								avatar={
+									<Avatar
+										src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
+									/>
+								}
+								title={`${user.username}#${user.discriminator}`}
+							/>
+						</Card>
+						<div className="nowplaying-card ant-card">
+							<button onClick={handleLogout}>LOG OUT</button>
+						</div>
+						<div
+							style={{ border: `1px solid ${infoboxColor}` }}
+							className="nowplaying-card ant-card infobox"
+						>
+							{info}
+						</div>
+					</div>
+					<Queue
+						song={song}
+						queue={queue}
+						user={user}
+						setInfo={setInfo}
+						setInfoboxColor={setInfoboxColor}
+						isSongRequester={checkRequester}
+						isAdding={isAdding}
+						setIsAdding={setIsAdding}
+						isAddingFirst={isAddingFirst}
+						setIsAddingFirst={setIsAddingFirst}
+						isShuffling={isShuffling}
+						setIsShuffling={setIsShuffling}
+						isClearing={isClearing}
+						setIsClearing={setIsClearing}
+					/>
+					<Filters
+						filters={song.filters}
+						hasChanged={hasChanged}
+						user={user}
+						setInfo={setInfo}
+						setInfoboxColor={setInfoboxColor}
+					/>
+				</div>
+			)}
 		</>
-		
 	);
 };
 
