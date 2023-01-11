@@ -25,6 +25,7 @@ const Favs: React.FC<Iprops> = (props) => {
 		})
 			.then((res) => res.json())
 			.then((data) => {
+				console.log(data);
 				props.setFavs(data.data.favs);
 			})
 			.catch((err) => console.log(err));
