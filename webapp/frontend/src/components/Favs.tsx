@@ -7,21 +7,6 @@ interface Iprops {
 	userId: string;
 }
 
-async function deleteFav(userId: string, index: number) {
-	await fetch("/api/delFav", {
-		method: "DELETE",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({ userId, index }),
-	})
-		.then((res) => res.json())
-		.then((data) => {
-			console.log(data);
-		})
-		.catch((err) => console.log(err));
-}
-
 async function playFav(fav: { name: string; url: string }) {
 	return;
 }
@@ -37,6 +22,20 @@ const Favs: React.FC<Iprops> = (props) => {
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({ userId: props.userId, url: favAdd }),
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				props.setFavs(data.data.data.favs);
+			})
+			.catch((err) => console.log(err));
+	}
+	async function deleteFav(userId: string, index: number) {
+		await fetch("/api/delFav", {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ userId, index }),
 		})
 			.then((res) => res.json())
 			.then((data) => {

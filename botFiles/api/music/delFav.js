@@ -20,13 +20,13 @@ module.exports = function (client) {
 
 			let favs = client.favs[req.body.userId];
 			if (!favs) {
-				return res.status(400).json({ msg: "nothing to delete" });
+				return res.status(400).json({ error: "nothing to delete" });
 			}
 
 			if (index === 0 || favs.length === 1) {
 				client.favs[req.body.userId]?.pop();
 				writeJsonFile(favsPath, JSON.stringify(client.favs));
-				return res.status(200).json({ msg: "OK" });
+				return res.status(200).json({ data: client.favs[req.body.userId] });
 			}
 			favs.pop(index);
 			client.favs[req.body.userId] = favs;
