@@ -9,7 +9,7 @@ module.exports = function (client) {
 		process.env.WORKPATH,
 		"./config/TestUserFavs.json"
 	);
-	return router.post("/", async (req, res) => {
+	return router.delete("/", async (req, res) => {
 		try {
 			const userId = req.body.userId;
 			const url = req.body.index;
