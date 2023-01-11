@@ -7,13 +7,13 @@ interface Iprops {
 	userId: string;
 }
 
-async function deleteFav(index: number) {
+async function deleteFav(userId: string, index: number) {
 	await fetch("/api/delFav", {
 		method: "DELETE",
 		headers: {
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({ index }),
+		body: JSON.stringify({ userId, index }),
 	})
 		.then((res) => res.json())
 		.then((data) => {
