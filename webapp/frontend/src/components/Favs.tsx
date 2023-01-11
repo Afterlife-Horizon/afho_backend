@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 interface Iprops {
+	setFavs: React.Dispatch<React.SetStateAction<never[]>>;
 	favs: Array<{ name: string; url: string }>;
 	userId: string;
 }
@@ -34,7 +35,7 @@ const Favs: React.FC<Iprops> = (props) => {
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				console.log(data);
+				props.setFavs(data.data.favs);
 			})
 			.catch((err) => console.log(err));
 	}

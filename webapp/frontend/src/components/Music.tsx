@@ -631,7 +631,7 @@ const Music = (props: any) => {
 							{info}
 						</div>
 					</div>
-					<Favs favs={favs} userId={user.id} />
+					<Favs favs={favs} userId={user.id} setFavs={setFavs} />
 					<Queue
 						song={song}
 						queue={queue}

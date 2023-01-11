@@ -34,7 +34,7 @@ module.exports = function (client) {
 			favs.push(newFav);
 			client.favs[req.body.userId] = favs;
 			writeJsonFile(favsPath, JSON.stringify(client.favs));
-			res.status(200).json({ msg: "OK" });
+			res.status(200).json({ data: client.favs[req.body.userId] });
 		} catch (err) {
 			console.log(err);
 			res.status(500).json({ error: err.message });
