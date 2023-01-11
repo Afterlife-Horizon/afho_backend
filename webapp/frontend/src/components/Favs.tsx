@@ -6,7 +6,7 @@ interface Iprops {
 }
 
 async function deleteFav(index: number) {
-	await fetch("/api/delFavs", {
+	await fetch("/api/delFav", {
 		method: "DELETE",
 		headers: {
 			"Content-Type": "application/json",
@@ -25,7 +25,7 @@ const Favs: React.FC<Iprops> = (props) => {
 
 	async function addFav() {
 		if (favAdd === "") return;
-		await fetch("/api/addFavs", {
+		await fetch("/api/addFav", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
