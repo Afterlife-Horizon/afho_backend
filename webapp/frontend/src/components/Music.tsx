@@ -647,7 +647,16 @@ const Music = (props: any) => {
 						isClearing={isClearing}
 						setIsClearing={setIsClearing}
 					/>
-					<Favs favs={favs} userId={user.id} setFavs={setFavs} />
+					<Favs
+						queue={queue}
+						setInfo={setInfo}
+						setInfoboxColor={setInfoboxColor}
+						setIsAdding={setIsAdding}
+						favs={favs}
+						userId={user.id}
+						username={user.username}
+						setFavs={setFavs}
+					/>
 					<Filters
 						filters={song.filters}
 						hasChanged={hasChanged}

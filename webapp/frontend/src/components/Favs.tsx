@@ -3,12 +3,13 @@ import "../css/Favs.css";
 
 interface Iprops {
 	setFavs: React.Dispatch<React.SetStateAction<never[]>>;
+	setIsAdding: React.Dispatch<React.SetStateAction<boolean>>;
+	setInfo: React.Dispatch<React.SetStateAction<string>>;
+	setInfoboxColor: React.Dispatch<React.SetStateAction<string>>;
+	queue: Array<any>;
 	favs: Array<{ name: string; url: string }>;
 	userId: string;
-}
-
-async function playFav(fav: { name: string; url: string }) {
-	return;
+	username: string;
 }
 
 const Favs: React.FC<Iprops> = (props) => {
@@ -42,6 +43,30 @@ const Favs: React.FC<Iprops> = (props) => {
 				props.setFavs(data.data);
 			})
 			.catch((err) => console.log(err));
+	}
+	async function playFav(fav: { name: string; url: string }) {
+		await fetch("/api/play", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ songs: fav.url, user: props.username }),
+		})
+			.then((res) => res.json())
+			.then((data) => {
+				props.setIsAdding(false);
+				if (data.err) {
+					if (data.status !== 500) props.setInfo(data);
+					else props.setInfo("An error occured");
+					props.setInfoboxColor("red");
+					return console.error(data.err);
+				}
+				props.setInfoboxColor("green");
+				if (props.queue.length === 0) return props.setInfo("Added to queue!");
+				props.setInfo(
+					"Added after " + props.queue[props.queue.length - 1].title
+				);
+			});
 	}
 
 	if (props.userId === "") return null;
