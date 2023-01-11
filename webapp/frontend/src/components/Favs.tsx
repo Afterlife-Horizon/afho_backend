@@ -49,7 +49,7 @@ const Favs: React.FC<Iprops> = (props) => {
 				onChange={(e) => setFavAdd(e.target.value)}
 			/>
 			<button onClick={() => addFav()}>Add</button>
-			{props.favs.map((fav, index) => (
+			{props.favs?.map((fav, index) => (
 				<div>
 					<h3>{fav.name}</h3>
 					<button onClick={() => deleteFav(index)}>Delete</button>
