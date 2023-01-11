@@ -329,8 +329,8 @@ const Music = (props: any) => {
 					setInfo("Error while fetching your favorites.");
 				});
 		}
-		fetchUserfavs();
-	}, [user.username]);
+		if (user.id !== "") fetchUserfavs();
+	}, [user.id]);
 
 	useEffect(() => {
 		setColorScheme(isDarkTheme ? "dark" : "");
