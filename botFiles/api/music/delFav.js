@@ -23,12 +23,11 @@ module.exports = function (client) {
 			if (typeof index !== "number" || index > favs.length || index < 0)
 				return res.status(400).json({ error: "invalid index" });
 
-			if (index === 0 || favs.length === 1) {
-				client.favs[req.body.userId]?.pop();
-				writeJsonFile(favsPath, JSON.stringify(client.favs));
-				return res.status(200).json({ data: client.favs[req.body.userId] });
+			if (index === 0) {
+				favs.shift();
+			} else {
+				favs = favs.slice(0, index).concat(favs.slice(index + 1));
 			}
-			favs.pop(index);
 			client.favs[req.body.userId] = favs;
 			writeJsonFile(favsPath, JSON.stringify(client.favs));
 			res.status(200).json({ data: client.favs[req.body.userId] });
