@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const path = require("path");
+const { default: YouTube } = require("youtube-sr");
 const { writeJsonFile } = require("../../util/commonFuncs");
 
 module.exports = function (client) {
@@ -11,12 +12,18 @@ module.exports = function (client) {
 	return router.post("/", async (req, res) => {
 		try {
 			const userId = req.body.userId;
-			const newFav = req.body.newFav;
+			const url = req.body.url;
 			if (!client.ready) return res.status(406).send("Loading!");
 
 			if (!userId) return res.status(400).json({ error: "No userId" });
-			if (!newFav || !newFav.name || !newFav.url)
-				return res.status(400).json({ error: "No newFav" });
+			if (!url) return res.status(400).json({ error: "No url" });
+
+			const vid = await YouTube.searchOne(url);
+			if (!vid) return res.status(400).json({ error: "No video found" });
+			const newFav = {
+				title: vid.title,
+				url: vid.url,
+			};
 
 			let favs = client.favs[req.body.userId];
 			if (!favs) {

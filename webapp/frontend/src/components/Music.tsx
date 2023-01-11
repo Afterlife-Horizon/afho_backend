@@ -11,6 +11,7 @@ import "antd/dist/antd.css";
 // ------------ Components ------------
 import Queue from "./Queue";
 import Filters from "./Filters";
+import Favs from "./Favs";
 const { Meta } = Card;
 interface testCallback {
 	(err: any, status: any, data: any): any;
@@ -630,6 +631,7 @@ const Music = (props: any) => {
 							{info}
 						</div>
 					</div>
+					<Favs favs={favs} userId={user.id} />
 					<Queue
 						song={song}
 						queue={queue}
