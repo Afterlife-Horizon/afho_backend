@@ -631,7 +631,6 @@ const Music = (props: any) => {
 							{info}
 						</div>
 					</div>
-					<Favs favs={favs} userId={user.id} setFavs={setFavs} />
 					<Queue
 						song={song}
 						queue={queue}
@@ -648,6 +647,7 @@ const Music = (props: any) => {
 						isClearing={isClearing}
 						setIsClearing={setIsClearing}
 					/>
+					<Favs favs={favs} userId={user.id} setFavs={setFavs} />
 					<Filters
 						filters={song.filters}
 						hasChanged={hasChanged}
