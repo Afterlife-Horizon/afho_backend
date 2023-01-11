@@ -93,6 +93,7 @@ const musicFilters = require("./api/music/filters");
 const musicFetch = require("./api/music/fetch");
 const musicGetFavs = require("./api/music/getFavs");
 const musicAddFav = require("./api/music/addFav");
+const musicRemoveFav = require("./api/music/delFav");
 
 // ------------ login ------------
 const login = require("./api/login/login");
@@ -122,6 +123,7 @@ app
 	.use("/api/fetch", musicFetch(client))
 	.use("/api/getFavs", musicGetFavs(client))
 	.use("/api/addFav", musicAddFav(client))
+	.use("/api/delFav", musicRemoveFav(client))
 	.use("/api/login", login())
 	.use("/api/loginaccess", loginAccess())
 	.use(connectHistoryApiFallback({ verbose: false }))
