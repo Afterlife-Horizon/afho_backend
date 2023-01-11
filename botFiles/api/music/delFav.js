@@ -12,7 +12,7 @@ module.exports = function (client) {
 	return router.delete("/", async (req, res) => {
 		try {
 			const userId = req.body.userId;
-			const url = req.body.index;
+			const index = req.body.index;
 			if (!client.ready) return res.status(406).send("Loading!");
 
 			if (!userId) return res.status(400).json({ error: "No userId" });
