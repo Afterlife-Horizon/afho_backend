@@ -322,8 +322,7 @@ const Music = (props: any) => {
 			await axios
 				.post("/api/getFavs", { userId: user.id })
 				.then((data) => {
-					console.log(data);
-					setFavs(data.data.favs);
+					setFavs(data.data.data.favs);
 				})
 				.catch((err) => {
 					console.error(err);
