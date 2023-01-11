@@ -62,7 +62,9 @@ const Favs: React.FC<Iprops> = (props) => {
 					<div className="">
 						<p>{fav.name}</p>
 						<button onClick={() => playFav(fav)}>PLAY</button>
-						<button onClick={() => deleteFav(index)}>DELETE</button>
+						<button onClick={() => deleteFav(props.userId, index)}>
+							DELETE
+						</button>
 					</div>
 				))}
 			</div>
