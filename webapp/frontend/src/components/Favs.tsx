@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "../css/Favs.css";
 
 interface Iprops {
 	setFavs: React.Dispatch<React.SetStateAction<never[]>>;
