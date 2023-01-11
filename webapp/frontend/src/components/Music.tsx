@@ -321,8 +321,9 @@ const Music = (props: any) => {
 		async function fetchUserfavs() {
 			await axios
 				.post("/api/getFavs", { userId: user.id })
-				.then((res) => {
-					setFavs(res.data.favs);
+				.then((data) => {
+					console.log(data);
+					setFavs(data.data.favs);
 				})
 				.catch((err) => {
 					console.error(err);
