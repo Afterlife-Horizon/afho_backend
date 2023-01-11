@@ -1,0 +1,39 @@
+.favs {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	margin: 0 auto;
+	padding: 0 1rem;
+}
+
+.favs h1 {
+	color: #000;
+}
+
+.favs p {
+	color: #000;
+}
+
+.favsList {
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.favsAdd {
+	display: flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+	justify-content: center;
+}
+
+.favsAdd input {
+	width: 85%;
+	height: 1rem;
+}
+
+.favsAdd button {
+	width: 15%;
+	height: 1rem;
+}

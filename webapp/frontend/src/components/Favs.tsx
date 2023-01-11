@@ -21,6 +21,10 @@ async function deleteFav(index: number) {
 		.catch((err) => console.log(err));
 }
 
+async function playFav(fav: { name: string; url: string }) {
+	return;
+}
+
 const Favs: React.FC<Iprops> = (props) => {
 	const [favAdd, setFavAdd] = useState("");
 
@@ -35,27 +39,32 @@ const Favs: React.FC<Iprops> = (props) => {
 		})
 			.then((res) => res.json())
 			.then((data) => {
-				props.setFavs(data.data.favs);
+				props.setFavs(data.data.data.favs);
 			})
 			.catch((err) => console.log(err));
 	}
 
 	if (props.userId === "") return null;
 	return (
-		<div>
-			<h1>Favs</h1>
-			<input
-				type="text"
-				placeholder="Add song by url"
-				onChange={(e) => setFavAdd(e.target.value)}
-			/>
-			<button onClick={() => addFav()}>Add</button>
-			{props.favs?.map((fav, index) => (
-				<div>
-					<h3>{fav.name}</h3>
-					<button onClick={() => deleteFav(index)}>Delete</button>
-				</div>
-			))}
+		<div className="favs">
+			<h2>Favs</h2>
+			<div className="favsAdd">
+				<input
+					type="text"
+					placeholder="Add song by url"
+					onChange={(e) => setFavAdd(e.target.value)}
+				/>
+				<button onClick={() => addFav()}>ADD</button>
+			</div>
+			<div className="favsList">
+				{props.favs?.map((fav, index) => (
+					<div className="">
+						<p>{fav.name}</p>
+						<button onClick={() => playFav(fav)}>PLAY</button>
+						<button onClick={() => deleteFav(index)}>DELETE</button>
+					</div>
+				))}
+			</div>
 		</div>
 	);
 };
