@@ -15,13 +15,13 @@ module.exports = function (client) {
 			if (!client.ready) return res.status(406).send("Loading!");
 
 			if (!userId) return res.status(400).json({ error: "No userId" });
-			if (typeof index !== "number" || index > favs.length || index < 0)
-				return res.status(400).json({ error: "invalid index" });
-
 			let favs = client.favs[req.body.userId];
 			if (!favs) {
 				return res.status(400).json({ error: "nothing to delete" });
 			}
+
+			if (typeof index !== "number" || index > favs.length || index < 0)
+				return res.status(400).json({ error: "invalid index" });
 
 			if (index === 0 || favs.length === 1) {
 				client.favs[req.body.userId]?.pop();
