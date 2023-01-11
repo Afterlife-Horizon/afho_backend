@@ -328,7 +328,7 @@ const Music = (props: any) => {
 					setInfo("Error while fetching your favorites.");
 				});
 		}
-		fetchUserfavs;
+		fetchUserfavs();
 	}, [user]);
 
 	useEffect(() => {
