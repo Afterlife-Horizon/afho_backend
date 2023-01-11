@@ -319,7 +319,7 @@ const Music = (props: any) => {
 	useEffect(() => {
 		async function fetchUserfavs() {
 			await axios
-				.post("/api/favs", { userId: user.id })
+				.post("/api/getFavs", { userId: user.id })
 				.then((res) => {
 					setFavs(res.data.favs);
 				})
@@ -329,7 +329,7 @@ const Music = (props: any) => {
 				});
 		}
 		fetchUserfavs();
-	}, [user]);
+	}, [user.username]);
 
 	useEffect(() => {
 		setColorScheme(isDarkTheme ? "dark" : "");
