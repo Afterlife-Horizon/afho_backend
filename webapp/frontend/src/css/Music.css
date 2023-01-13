@@ -121,7 +121,6 @@ button[disabled]:hover:not(.ant-switch) {
 	text-align: center;
 	justify-items: center;
 	align-items: center;
-	max-width: 30vw !important;
 }
 
 .brasilboardd {
@@ -129,7 +128,6 @@ button[disabled]:hover:not(.ant-switch) {
 	text-align: center;
 	justify-items: center;
 	align-items: center;
-	max-width: 30vw !important;
 	display: flex;
 	flex-direction: row;
 }
