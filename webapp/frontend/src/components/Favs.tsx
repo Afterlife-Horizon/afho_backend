@@ -94,7 +94,7 @@ const Favs: React.FC<Iprops> = (props) => {
 				<Input
 					className="queueInput"
 					type="text"
-					placeholder="Add song by url"
+					placeholder="Search for a song or playlist (URL or Name)"
 					onChange={(e) => setFavAdd(e.target.value)}
 				/>
 				<button onClick={() => addFav()}>ADD</button>

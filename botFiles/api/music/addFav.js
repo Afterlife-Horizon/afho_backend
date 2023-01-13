@@ -18,8 +18,27 @@ module.exports = function (client) {
 			if (!userId) return res.status(400).json({ error: "No userId" });
 			if (!url) return res.status(400).json({ error: "No url" });
 
-			const vid = await YouTube.searchOne(url);
+			const youtubRegex =
+				/^(https?:\/\/)?(www\.)?(m\.|music\.)?(youtube\.com|youtu\.?be)\/.+$/gi;
+			const playlistRegex = /^.*(list=)([^#\&\?]*).*/gi;
+			const songRegex = /^.*(watch\?v=)([^#\&\?]*).*/gi;
+
+			const isYoutube = youtubRegex.exec(url);
+			const isYoutubeSong = songRegex.exec(url);
+			const isYoutubePlaylist = playlistRegex.exec(url);
+
+			let vid = null;
+			if (isYoutube && isYoutubeSong && !isYoutubePlaylist) {
+				vid = await YouTube.getVideo(url);
+			} else if (isYoutube && isYoutubePlaylist && isYoutubeSong) {
+				song = await YouTube.getVideo(track);
+			} else if (isYoutube && isYoutubePlaylist && !isYoutubeSong) {
+				vid = await YouTube.getPlaylist(url);
+			} else {
+				song = await YouTube.searchOne(track);
+			}
 			if (!vid) return res.status(400).json({ error: "No video found" });
+
 			const newFav = {
 				name: vid.title,
 				url: vid.url,
