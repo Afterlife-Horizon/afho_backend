@@ -31,7 +31,7 @@ module.exports = function (client) {
 			if (isYoutube && isYoutubeSong && !isYoutubePlaylist) {
 				vid = await YouTube.getVideo(url);
 			} else if (isYoutube && isYoutubePlaylist && isYoutubeSong) {
-				song = await YouTube.getVideo(track);
+				song = await YouTube.getVideo(url);
 			} else if (isYoutube && isYoutubePlaylist && !isYoutubeSong) {
 				vid = await YouTube.getPlaylist(url);
 			} else {
