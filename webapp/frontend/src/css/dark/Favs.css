@@ -1,3 +1,7 @@
+.dark .favs {
+	background-color: #32323f;
+	border-color: #0e0e10;
+}
 .dark .favs h3 {
 	color: aliceblue;
 }
