@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import axios from "axios";
 
 // ------------ CSS Files ------------
+import "../css/Queue.css";
 import "../css/dark/Queue.css";
 
 interface testCallback {
