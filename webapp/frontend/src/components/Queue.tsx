@@ -2,6 +2,7 @@
 import { Divider, Input } from "antd";
 import React, { useState } from "react";
 import axios from "axios";
+import { Image } from "antd";
 
 // ------------ CSS Files ------------
 import "../css/Queue.css";
@@ -349,6 +350,9 @@ const Queue = (props: any) => {
 										>
 											skip to
 										</button>
+									</div>
+									<div>
+										<Image src={track.thumbnail.url} width={"10rem"} />
 									</div>
 									<div className="queue-item-name">
 										<a
