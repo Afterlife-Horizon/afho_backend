@@ -26,6 +26,10 @@
 	max-width: 25vw;
 }
 
+.nowplaying {
+	min-width: 100%;
+}
+
 .nowplaying .ant-card {
 	box-shadow: 2px 2px 2px 1px rgba(0, 0, 66, 0.1);
 }
