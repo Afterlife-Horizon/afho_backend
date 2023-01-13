@@ -1,0 +1,54 @@
+.dark {
+	background-color: #0e0e10;
+	color: #fff;
+}
+
+.dark .ant-card-meta-description,
+.dark .ant-card-meta-title {
+	color: #fff;
+}
+
+.dark .ant-card-actions {
+	border-top: 1px solid #0e0e10;
+}
+
+.dark .ant-card-actions > li:not(:last-child) {
+	border-right: none;
+}
+
+.dark button:not(.ant-switch) {
+	background-color: #32323f !important;
+	color: #fff !important;
+}
+
+.dark button:hover {
+	background-color: #258a85 !important;
+	color: #fff !important;
+}
+
+.dark button:disabled,
+.dark button:disabled:hover:not(.ant-switch),
+.dark button[disabled],
+.dark button[disabled]:hover:not(.ant-switch) {
+	background-color: #40404e !important;
+	color: #fff !important;
+}
+
+.dark button:not(.ant-switch) {
+	border: none;
+}
+
+.dark p,
+.dark h2 {
+	color: #fff;
+}
+
+.dark .loader-container {
+	background-color: #0e0e10 !important;
+}
+.dark .spinner {
+	border-color: #adbbff transparent #adbbff transparent !important;
+}
+.dark .small-spinner {
+	border-color: #adbbff transparent #adbbff transparent !important;
+}

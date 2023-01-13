@@ -1,6 +1,10 @@
+// ------------ Packages ------------
 import { Divider, Input } from "antd";
 import React, { useState } from "react";
 import axios from "axios";
+
+// ------------ CSS Files ------------
+import "../css/dark/Queue.css";
 
 interface testCallback {
 	(err: any, status: any, data: any): any;
@@ -8,9 +12,14 @@ interface testCallback {
 
 const Queue = (props: any) => {
 	const [page, setPage] = useState(1);
-	let maxPage = props.queue.length > 6 ? Math.ceil((props.queue.length - 1) / 5) : -1;
+	let maxPage =
+		props.queue.length > 6 ? Math.ceil((props.queue.length - 1) / 5) : -1;
 	if (page > maxPage + 2) setPage(maxPage + 2);
-	else if (page !== 1 && props.queue.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0) setPage((prev) => prev - 1);
+	else if (
+		page !== 1 &&
+		props.queue.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0
+	)
+		setPage((prev) => prev - 1);
 	let j = 0;
 
 	const [link, setLink] = useState("");
@@ -259,21 +268,54 @@ const Queue = (props: any) => {
 	return (
 		<div className="queue">
 			<div className="queue-adder">
-				<Input placeholder="Song name / Link" className="queueInput" value={link} onChange={(event: any) => setLink(event.target.value)} />
-				<button onClick={handleAdd} className={"next"}>{props.isAdding ? <div className="small-spinner"></div> : "ADD"}</button>
-				<button onClick={handleAddFirst} className={"next"}>{props.isAddingFirst ? <div className="small-spinner"></div> : "ADD FIRST"}</button>
-				<button disabled={!props.user.isAdmin} onClick={handleShuffle} className={"next"}>
-					{props.isShuffling ? <div className="small-spinner"></div> : "SHUFFLE"}
+				<Input
+					placeholder="Song name / Link"
+					className="queueInput"
+					value={link}
+					onChange={(event: any) => setLink(event.target.value)}
+				/>
+				<button onClick={handleAdd} className={"next"}>
+					{props.isAdding ? <div className="small-spinner"></div> : "ADD"}
 				</button>
-				<button disabled={!props.user.isAdmin} className="last-adder next" onClick={handleClear}>
+				<button onClick={handleAddFirst} className={"next"}>
+					{props.isAddingFirst ? (
+						<div className="small-spinner"></div>
+					) : (
+						"ADD FIRST"
+					)}
+				</button>
+				<button
+					disabled={!props.user.isAdmin}
+					onClick={handleShuffle}
+					className={"next"}
+				>
+					{props.isShuffling ? (
+						<div className="small-spinner"></div>
+					) : (
+						"SHUFFLE"
+					)}
+				</button>
+				<button
+					disabled={!props.user.isAdmin}
+					className="last-adder next"
+					onClick={handleClear}
+				>
 					{props.isClearing ? <div className="small-spinner"></div> : "CLEAR"}
 				</button>
 			</div>
 			{maxPage === -1 ? null : (
 				<div className="queue-pages">
 					<button onClick={() => setPage(1)}>{"|<<"}</button>
-					<button onClick={() => setPage((prev) => (prev > 1 ? prev - 1 : 1))}>{"<"}</button>
-					<button onClick={() => setPage((prev) => (prev < maxPage + 1 ? prev + 1 : maxPage + 1))}>{">"}</button>
+					<button onClick={() => setPage((prev) => (prev > 1 ? prev - 1 : 1))}>
+						{"<"}
+					</button>
+					<button
+						onClick={() =>
+							setPage((prev) => (prev < maxPage + 1 ? prev + 1 : maxPage + 1))
+						}
+					>
+						{">"}
+					</button>
 					<button className="last-adder" onClick={() => setPage(maxPage + 1)}>
 						{">>|"}
 					</button>
@@ -283,34 +325,48 @@ const Queue = (props: any) => {
 				page: {page} / {maxPage === -1 ? 1 : maxPage}
 			</div>
 			<ul>
-				{props.queue.slice((page - 1) * 5 + 1, page * 5 + 1).map((track: any) => {
-					j++;
-					return (
-						<li className="queue-item" key={"queuedSong" + String((page - 1) * 5 + j)}>
-							<div className="queue-list-item">
-								<div>
-									<button disabled={props.checkRequester} onClick={handleRemove((page - 1) * 5 + j)}>
-										remove
-									</button>
-									<button disabled={!props.user.isAdmin} onClick={handleskipto((page - 1) * 5 + j)}>
-										skip to
-									</button>
+				{props.queue
+					.slice((page - 1) * 5 + 1, page * 5 + 1)
+					.map((track: any) => {
+						j++;
+						return (
+							<li
+								className="queue-item"
+								key={"queuedSong" + String((page - 1) * 5 + j)}
+							>
+								<div className="queue-list-item">
+									<div>
+										<button
+											disabled={props.checkRequester}
+											onClick={handleRemove((page - 1) * 5 + j)}
+										>
+											remove
+										</button>
+										<button
+											disabled={!props.user.isAdmin}
+											onClick={handleskipto((page - 1) * 5 + j)}
+										>
+											skip to
+										</button>
+									</div>
+									<div className="queue-item-name">
+										<a
+											href={"https://www.youtube.com/watch?v=" + track.id}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											{"  " + track.title}
+										</a>
+										<div className="requesterdiv">
+											Requested by: {track.requester}
+										</div>
+									</div>
 								</div>
-								<div className="queue-item-name">
-									<a
-										href={"https://www.youtube.com/watch?v=" + track.id}
-										target="_blank"
-										rel="noopener noreferrer">
-										{"  " + track.title}
-									</a>
-									<div className="requesterdiv">Requested by: {track.requester}</div>
-								</div>
-							</div>
 
-							{j !== 5 ? <Divider /> : null}
-						</li>
-					);
-				})}
+								{j !== 5 ? <Divider /> : null}
+							</li>
+						);
+					})}
 			</ul>
 		</div>
 	);

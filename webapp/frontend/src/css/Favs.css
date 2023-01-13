@@ -29,10 +29,6 @@
 	padding: 0;
 }
 
-.dark .favsList h3 {
-	color: aliceblue;
-}
-
 .favsAdd {
 	display: flex;
 	flex-wrap: wrap;

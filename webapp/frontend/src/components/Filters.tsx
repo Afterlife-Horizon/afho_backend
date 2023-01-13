@@ -1,14 +1,18 @@
+// ------------ Packages ------------
 import { Switch, Input } from "antd";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "../css/Filters.css";
 const _ = require("lodash");
+
+// ------------ CSS Files ------------
+import "../css/Filters.css";
+import "../css/dark/Filters.css";
 
 interface testCallback {
 	(err: any, status: any, data: any): any;
 }
 
-const Filters = (props: any) => {
+const Filters: React.FC<any> = (props) => {
 	const [inputValues, setInputValues] = useState({
 		bassboost: "",
 		speed: "",
@@ -68,7 +72,10 @@ const Filters = (props: any) => {
 		return (event: any) => {
 			event.preventDefault();
 			setEffects((prev) => ({ ...prev, [filter]: event.target.value }));
-			setInputValues((prev: any) => ({ ...prev, [filter]: event.target.value }));
+			setInputValues((prev: any) => ({
+				...prev,
+				[filter]: event.target.value,
+			}));
 			// console.log(effects);
 		};
 	};
@@ -133,9 +140,12 @@ const Filters = (props: any) => {
 	};
 
 	const [isChecked, setIsChecked]: any[] = useState(
-		_.flow([Object.entries, (arr: any) => arr.filter(([, value]: any[]) => typeof value === "boolean"), Object.fromEntries])(
-			props.filters
-		)
+		_.flow([
+			Object.entries,
+			(arr: any) =>
+				arr.filter(([, value]: any[]) => typeof value === "boolean"),
+			Object.fromEntries,
+		])(props.filters)
 	);
 
 	useEffect(() => {
@@ -143,7 +153,8 @@ const Filters = (props: any) => {
 			setIsChecked(
 				_.flow([
 					Object.entries,
-					(arr: any) => arr.filter(([, value]: any[]) => typeof value === "boolean"),
+					(arr: any) =>
+						arr.filter(([, value]: any[]) => typeof value === "boolean"),
 					Object.fromEntries,
 				])(props.filters)
 			);
@@ -154,7 +165,12 @@ const Filters = (props: any) => {
 	return (
 		<form className="filters">
 			<h3>Filters</h3>
-			<Input disabled={!props.user.isAdmin} type="submit" value="Submit" onClick={handlefilterSubmitted} />
+			<Input
+				disabled={!props.user.isAdmin}
+				type="submit"
+				value="Submit"
+				onClick={handlefilterSubmitted}
+			/>
 
 			<ul>
 				{filters.map((filter) => {
@@ -170,7 +186,11 @@ const Filters = (props: any) => {
 										onChange={handleChangeFilterWithValues(filter)}
 									/>
 								) : (
-									<Switch key={filter} checked={isChecked[filter]} onChange={handleChangeFilter(filter)} />
+									<Switch
+										key={filter}
+										checked={isChecked[filter]}
+										onChange={handleChangeFilter(filter)}
+									/>
 								)}
 							</div>
 						</li>

@@ -4,15 +4,17 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSearchParams } from "react-router-dom";
 
-// ------------ CSS Files ------------
-import "../css/Music.css";
-import "antd/dist/antd.css";
-
 // ------------ Components ------------
 import Queue from "./Queue";
 import Filters from "./Filters";
 import Favs from "./Favs";
 const { Meta } = Card;
+
+// ------------ CSS Files ------------
+import "antd/dist/antd.css";
+import "../css/Music.css";
+import "../css/dark/Music.css";
+
 interface testCallback {
 	(err: any, status: any, data: any): any;
 }

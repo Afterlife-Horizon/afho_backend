@@ -10,6 +10,7 @@ import LevelBoard from "./LevelBoard";
 
 // ------------ CSS Files ------------
 import "../css/App.css";
+import "../css/dark/App.css";
 
 const App: React.FC = () => {
 	return (

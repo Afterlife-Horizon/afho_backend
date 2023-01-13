@@ -1,6 +1,10 @@
+// ------------ Packages ------------
 import React, { useState } from "react";
 import { Divider, Input } from "antd";
+
+// ------------ CSS Files ------------
 import "../css/Favs.css";
+import "../css/dark/Favs.css";
 
 interface Iprops {
 	setFavs: React.Dispatch<React.SetStateAction<never[]>>;
