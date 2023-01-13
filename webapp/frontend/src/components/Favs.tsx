@@ -45,6 +45,7 @@ const Favs: React.FC<Iprops> = (props) => {
 				props.setFavs(data.data);
 			})
 			.catch((err) => console.log(err));
+		setFavAdd("");
 	}
 	async function deleteFav(userId: string, index: number) {
 		await fetch("/api/delFav", {
