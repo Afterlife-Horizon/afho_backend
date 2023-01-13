@@ -8,13 +8,13 @@ import { useSearchParams } from "react-router-dom";
 import Queue from "./Queue";
 import Filters from "./Filters";
 import Favs from "./Favs";
-const { Meta } = Card;
 
 // ------------ CSS Files ------------
 import "antd/dist/antd.css";
 import "../css/Music.css";
 import "../css/dark/Music.css";
 
+const { Meta } = Card;
 interface testCallback {
 	(err: any, status: any, data: any): any;
 }

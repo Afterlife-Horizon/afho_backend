@@ -2,12 +2,12 @@
 import React, { useEffect, useState } from "react";
 import { Switch, Input } from "antd";
 import axios from "axios";
-const _ = require("lodash");
 
 // ------------ CSS Files ------------
 import "../css/Filters.css";
 import "../css/dark/Filters.css";
 
+const _ = require("lodash");
 interface testCallback {
 	(err: any, status: any, data: any): any;
 }
