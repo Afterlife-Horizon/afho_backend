@@ -1,6 +1,6 @@
 // ------------ Packages ------------
-import { Card, Avatar } from "antd";
 import React, { useEffect, useState } from "react";
+import { Card, Avatar } from "antd";
 import axios from "axios";
 import { useSearchParams } from "react-router-dom";
 
