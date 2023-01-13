@@ -92,6 +92,27 @@ const Favs: React.FC<Iprops> = (props) => {
 				/>
 				<button onClick={() => addFav()}>ADD</button>
 			</div>
+			{maxPage === -1 ? null : (
+				<div className="queue-pages">
+					<button onClick={() => setPage(1)}>{"|<<"}</button>
+					<button onClick={() => setPage((prev) => (prev > 1 ? prev - 1 : 1))}>
+						{"<"}
+					</button>
+					<button
+						onClick={() =>
+							setPage((prev) => (prev < maxPage + 1 ? prev + 1 : maxPage + 1))
+						}
+					>
+						{">"}
+					</button>
+					<button className="last-adder" onClick={() => setPage(maxPage + 1)}>
+						{">>|"}
+					</button>
+				</div>
+			)}
+			<div>
+				page: {page} / {maxPage === -1 ? 1 : maxPage}
+			</div>
 			<ul className="favsList">
 				<h3>Favorites</h3>
 				{props.favs

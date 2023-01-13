@@ -5,8 +5,8 @@
 	margin-inline: auto;
 	gap: 3rem;
 	width: 100%;
+	align-items: start;
 	justify-content: center;
-	align-items: center;
 	justify-items: center;
 }
 
@@ -14,11 +14,6 @@
 	border: 1px solid black;
 	border-radius: 5px;
 	width: 100%;
-}
-
-.nowplaying {
-	padding: 0.5rem;
-	margin-inline: auto;
 }
 
 .ant-card-cover {
@@ -224,7 +219,6 @@ div.queue-item-name > span {
 }
 
 .brasilboardd {
-	margin-bottom: 2rem !important;
 	padding: 1rem !important;
 	text-align: center;
 	justify-items: center;
