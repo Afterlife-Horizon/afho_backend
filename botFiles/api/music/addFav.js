@@ -35,7 +35,7 @@ module.exports = function (client) {
 			} else if (isYoutube && isYoutubePlaylist && !isYoutubeSong) {
 				vid = await YouTube.getPlaylist(url);
 			} else {
-				song = await YouTube.searchOne(url);
+				vid = await YouTube.searchOne(url);
 			}
 			if (!vid) return res.status(400).json({ error: "No video found" });
 
