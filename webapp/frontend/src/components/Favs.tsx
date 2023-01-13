@@ -17,11 +17,11 @@ const Favs: React.FC<Iprops> = (props) => {
 	const [favAdd, setFavAdd] = useState("");
 	const [page, setPage] = useState(1);
 	let maxPage =
-		props.queue.length > 6 ? Math.ceil((props.queue.length - 1) / 5) : -1;
+		props.favs.length > 6 ? Math.ceil((props.favs.length - 1) / 5) : -1;
 	if (page > maxPage + 2) setPage(maxPage + 2);
 	else if (
 		page !== 1 &&
-		props.queue.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0
+		props.favs.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0
 	)
 		setPage((prev) => prev - 1);
 	let j = 0;
