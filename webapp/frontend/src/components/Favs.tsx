@@ -120,36 +120,34 @@ const Favs: React.FC<Iprops> = (props) => {
 				page: {page} / {maxPage === -1 ? 1 : maxPage}
 			</div>
 			<ul className="favsList">
-				{props.favs
-					.slice((page - 1) * 5 + 1, page * 5 + 1)
-					.map((fav, index) => {
-						j++;
-						return (
-							<li
-								className="queue-item"
-								key={"favSong" + String((page - 1) * 5 + j)}
-							>
-								<div className="queue-list-item">
-									<div>
-										<button onClick={() => playFav(fav)}>PLAY</button>
-										<button onClick={() => deleteFav(props.userId, index)}>
-											DELETE
-										</button>
-									</div>
-									<div>
-										<Image src={fav.thumbnail} width={"2rem"} />
-									</div>
-									<div className="queue-item-name">
-										<a href={fav.url} target="_blank" rel="noopener noreferrer">
-											{"  " + fav.name}
-										</a>
-									</div>
+				{props.favs.slice((page - 1) * 5, page * 5 + 1).map((fav, index) => {
+					j++;
+					return (
+						<li
+							className="queue-item"
+							key={"favSong" + String((page - 1) * 5 + j)}
+						>
+							<div className="queue-list-item">
+								<div>
+									<button onClick={() => playFav(fav)}>PLAY</button>
+									<button onClick={() => deleteFav(props.userId, index)}>
+										DELETE
+									</button>
 								</div>
+								<div>
+									<Image src={fav.thumbnail} width={"10rem"} />
+								</div>
+								<div className="queue-item-name">
+									<a href={fav.url} target="_blank" rel="noopener noreferrer">
+										{"  " + fav.name}
+									</a>
+								</div>
+							</div>
 
-								{j !== 5 ? <Divider /> : null}
-							</li>
-						);
-					})}
+							{j !== 5 ? <Divider /> : null}
+						</li>
+					);
+				})}
 			</ul>
 		</div>
 	);
