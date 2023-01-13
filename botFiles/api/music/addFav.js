@@ -23,6 +23,7 @@ module.exports = function (client) {
 			const newFav = {
 				name: vid.title,
 				url: vid.url,
+				thumbnail: vid.thumbnail.url,
 			};
 
 			let favs = client.favs[req.body.userId];

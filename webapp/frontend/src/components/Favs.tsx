@@ -1,6 +1,7 @@
 // ------------ Packages ------------
 import React, { useState } from "react";
 import { Divider, Input } from "antd";
+import { Image } from "antd";
 
 // ------------ CSS Files ------------
 import "../css/Favs.css";
@@ -12,7 +13,7 @@ interface Iprops {
 	setInfo: React.Dispatch<React.SetStateAction<string>>;
 	setInfoboxColor: React.Dispatch<React.SetStateAction<string>>;
 	queue: Array<any>;
-	favs: Array<{ name: string; url: string }>;
+	favs: Array<{ name: string; url: string; thumbnail: string }>;
 	userId: string;
 	username: string;
 }
@@ -134,6 +135,9 @@ const Favs: React.FC<Iprops> = (props) => {
 										<button onClick={() => deleteFav(props.userId, index)}>
 											DELETE
 										</button>
+									</div>
+									<div>
+										<Image src={fav.thumbnail} width={"2rem"} />
 									</div>
 									<div className="queue-item-name">
 										<a href={fav.url} target="_blank" rel="noopener noreferrer">
