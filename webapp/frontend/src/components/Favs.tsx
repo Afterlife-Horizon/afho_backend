@@ -83,6 +83,7 @@ const Favs: React.FC<Iprops> = (props) => {
 	if (props.userId === "") return null;
 	return (
 		<div className="favs">
+			<h3>Favorites</h3>
 			<div className="favsAdd">
 				<Input
 					className="queueInput"
@@ -114,7 +115,6 @@ const Favs: React.FC<Iprops> = (props) => {
 				page: {page} / {maxPage === -1 ? 1 : maxPage}
 			</div>
 			<ul className="favsList">
-				<h3>Favorites</h3>
 				{props.favs
 					.slice((page - 1) * 5 + 1, page * 5 + 1)
 					.map((fav, index) => {

@@ -13,6 +13,12 @@
 	border-color: #0e0e10;
 }
 
+.favs h3 {
+	color: #000;
+	font-size: x-large;
+	text-align: center;
+}
+
 .favs p {
 	color: #000;
 }
@@ -25,12 +31,6 @@
 
 .dark .favsList h3 {
 	color: aliceblue;
-}
-
-.favsList h3 {
-	color: #000;
-	font-size: x-large;
-	text-align: center;
 }
 
 .favsAdd {
