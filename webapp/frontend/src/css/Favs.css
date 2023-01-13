@@ -4,7 +4,10 @@
 	flex-direction: column;
 	justify-content: center;
 	margin: 0 auto;
-	padding: 0 1rem;
+	padding: 0.5rem 1rem;
+	border: 1px solid rgba(0, 0, 0, 0.06);
+	border-radius: 5px;
+	box-shadow: 2px 2px 2px 1px rgba(0, 0, 66, 0.1);
 	width: 100%;
 	background-color: #32323f;
 	border-color: #0e0e10;
@@ -20,8 +23,14 @@
 	padding: 0;
 }
 
+.dark .favsList h3 {
+	color: aliceblue;
+}
+
 .favsList h3 {
 	color: #000;
+	font-size: x-large;
+	text-align: center;
 }
 
 .favsAdd {
