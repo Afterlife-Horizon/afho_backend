@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Divider, Input } from "antd";
 import "../css/Favs.css";
 
 interface Iprops {
@@ -14,6 +15,16 @@ interface Iprops {
 
 const Favs: React.FC<Iprops> = (props) => {
 	const [favAdd, setFavAdd] = useState("");
+	const [page, setPage] = useState(1);
+	let maxPage =
+		props.queue.length > 6 ? Math.ceil((props.queue.length - 1) / 5) : -1;
+	if (page > maxPage + 2) setPage(maxPage + 2);
+	else if (
+		page !== 1 &&
+		props.queue.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0
+	)
+		setPage((prev) => prev - 1);
+	let j = 0;
 
 	async function addFav() {
 		if (favAdd === "") return;
@@ -72,26 +83,45 @@ const Favs: React.FC<Iprops> = (props) => {
 	if (props.userId === "") return null;
 	return (
 		<div className="favs">
-			<h2>Favs</h2>
 			<div className="favsAdd">
-				<input
+				<Input
+					className="queueInput"
 					type="text"
 					placeholder="Add song by url"
 					onChange={(e) => setFavAdd(e.target.value)}
 				/>
 				<button onClick={() => addFav()}>ADD</button>
 			</div>
-			<div className="favsList">
-				{props.favs?.map((fav, index) => (
-					<div className="">
-						<p>{fav.name}</p>
-						<button onClick={() => playFav(fav)}>PLAY</button>
-						<button onClick={() => deleteFav(props.userId, index)}>
-							DELETE
-						</button>
-					</div>
-				))}
-			</div>
+			<ul className="favsList">
+				<h3>Favorites</h3>
+				{props.favs
+					.slice((page - 1) * 5 + 1, page * 5 + 1)
+					.map((fav, index) => {
+						j++;
+						return (
+							<li
+								className="queue-item"
+								key={"favSong" + String((page - 1) * 5 + j)}
+							>
+								<div className="queue-list-item">
+									<div>
+										<button onClick={() => playFav(fav)}>PLAY</button>
+										<button onClick={() => deleteFav(props.userId, index)}>
+											DELETE
+										</button>
+									</div>
+									<div className="queue-item-name">
+										<a href={fav.url} target="_blank" rel="noopener noreferrer">
+											{"  " + fav.name}
+										</a>
+									</div>
+								</div>
+
+								{j !== 5 ? <Divider /> : null}
+							</li>
+						);
+					})}
+			</ul>
 		</div>
 	);
 };

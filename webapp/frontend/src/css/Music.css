@@ -1,12 +1,13 @@
 .music {
-	display: flex;
-	flex-flow: row;
-	flex-wrap: wrap;
-	flex: 1 1 30%;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
 	padding: 1rem;
 	margin-inline: auto;
 	gap: 3rem;
 	width: 100%;
+	justify-content: center;
+	align-items: center;
+	justify-items: center;
 }
 
 .music > div .music > form {
@@ -17,7 +18,6 @@
 
 .nowplaying {
 	padding: 0.5rem;
-	min-width: 30vw;
 	margin-inline: auto;
 }
 
@@ -104,7 +104,7 @@ button[disabled]:hover:not(.ant-switch) {
 	padding: 0.5rem;
 	border: 1px solid rgba(0, 0, 0, 0.06);
 	border-radius: 5px;
-	width: 35%;
+	width: 100%;
 	margin-inline: auto;
 	box-shadow: 2px 2px 2px 1px rgba(0, 0, 66, 0.1);
 }
@@ -173,7 +173,7 @@ div.queue-item-name > span {
 
 .queue-adder {
 	display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
 .queue-adder > button {
@@ -188,7 +188,7 @@ div.queue-item-name > span {
 
 .queueInput {
 	grid-column-end: 5;
-    grid-column-start: 1;
+	grid-column-start: 1;
 }
 
 .last-adder {
@@ -197,7 +197,7 @@ div.queue-item-name > span {
 
 .queue-pages {
 	display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
 .queue-pages > button {

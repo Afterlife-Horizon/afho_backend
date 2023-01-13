@@ -5,6 +5,7 @@
 	justify-content: center;
 	margin: 0 auto;
 	padding: 0 1rem;
+	width: 100%;
 }
 
 .favs h1 {
@@ -13,13 +14,6 @@
 
 .favs p {
 	color: #000;
-}
-
-.favsList {
-	display: flex;
-	flex-wrap: wrap;
-	flex-direction: column;
-	justify-content: center;
 }
 
 .favsAdd {
