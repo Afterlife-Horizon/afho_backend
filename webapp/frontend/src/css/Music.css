@@ -140,7 +140,7 @@ button[disabled]:hover:not(.ant-switch) {
 
 .requesterdiv {
 	align-items: center;
-	margin: 2rem;
+	margin: 0rem 2rem;
 	justify-items: center;
 	max-width: 25%;
 }
