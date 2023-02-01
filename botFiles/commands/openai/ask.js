@@ -9,7 +9,7 @@ module.exports = {
     async execute(interaction) {
 
         const configuration = new Configuration({
-            apiKey: interaction.client.config.openaiKey,
+            apiKey: "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",
           });
           const openai = new OpenAIApi(configuration);
         
