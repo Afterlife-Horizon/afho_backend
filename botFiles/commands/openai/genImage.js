@@ -5,8 +5,8 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('image')
         .setDescription('generate an image with openai!')
-        .addStringOption(option => option.setName('request').setDescription('the image you want to generate').setRequired(true)
-        .addStringOption(option => option.setName('size').setDescription('the size of the image (1024x1024)').setRequired(false))),
+        .addStringOption(option => option.setName('request').setDescription('the image you want to generate').setRequired(true))
+        .addStringOption(option => option.setName('size').setDescription('the size of the image (1024x1024)')),
     async execute(interaction) {
 
         const configuration = new Configuration({
