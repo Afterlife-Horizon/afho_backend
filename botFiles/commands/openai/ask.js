@@ -14,6 +14,7 @@ module.exports = {
           const openai = new OpenAIApi(configuration);
         
 
+        interaction.reply({ content: 'Thinking...' });
         const completion = await openai.createCompletion({
             model: "text-davinci-003",
             prompt: interaction.options.getString('question'),
@@ -22,10 +23,10 @@ module.exports = {
           });
 
           if (completion.data.choices[0].text.length > 2000) {
-            return interaction.reply({ content: truncateString(completion.data.choices[0].text, 2000)});
+            return interaction.editReply({ content: truncateString(completion.data.choices[0].text, 2000)});
           }
 
-        interaction.reply({ content: completion.data.choices[0].text });
+          interaction.editReply({ content: completion.data.choices[0].text });
     },
 };
 
