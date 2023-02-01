@@ -28,6 +28,7 @@
 		"libsodium-wrappers": "^0.7.10",
 		"lodash": "^4.17.21",
 		"mysql": "^2.18.1",
+		"openai": "^3.1.0",
 		"undici": "^5.11.0",
 		"youtube-sr": "^4.3.4",
 		"ytdl-core": "https://github.com/matteopolak/node-ytdl-core.git#d6b56cd67aaa38c22966b98f7b36ad3db4c90192"
