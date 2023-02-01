@@ -19,7 +19,7 @@ module.exports = {
         const response = await openai.createImage({
             prompt: interaction.options.getString('request'),
             n: 1,
-            size: interaction.options.getString('size') || '1024x1024',
+            size: interaction.options.getString('size') || '256x256',
           });
 
           interaction.editReply({ content: response.data.data[0].url });
