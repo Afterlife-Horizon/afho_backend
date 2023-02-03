@@ -101,10 +101,6 @@ const musicRemoveFav = require("./api/music/delFav");
 const login = require("./api/login/login");
 const loginAccess = require("./api/login/loginAccess");
 
-var privateKey = fs.readFileSync('sslcert/server.key');
-var certificate = fs.readFileSync('sslcert/server.crt');
-var credentials = {key: privateKey, cert: certificate};
-
 const app = express();
 const port = process.env.PORT || 4000;
 app
@@ -138,8 +134,13 @@ app
 		console.log(`Listening on port ${port}`.toUpperCase().white.bgGreen.bold)
 	);
 
-var httpServer = http.createServer(app);
-var httpsServer = https.createServer(credentials, app);
+const credentials = {
+	key: fs.readFileSync('/home/nico/.ssh/AFHO.key'), 
+	cert: fs.readFileSync('/home/nico/.ssh/AFHO.crt')
+};
+
+const httpServer = http.createServer(app);
+const httpsServer = https.createServer(credentials, app);
 httpServer.listen(80, () => {
 	console.log("HTTP Server running on port 80");
 	});
