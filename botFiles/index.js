@@ -130,9 +130,6 @@ app
 	.use("/api/loginaccess", loginAccess())
 	.use(connectHistoryApiFallback({ verbose: false }))
 	.use(express.static(path.join(__dirname, "../webapp/frontend/build")))
-	.listen(port, () =>
-		console.log(`Listening on port ${port}`.toUpperCase().white.bgGreen.bold)
-	);
 
 const credentials = {
 	key: fs.readFileSync('/home/nico/.ssh/AFHO.key'), 
