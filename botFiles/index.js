@@ -5,6 +5,8 @@ require("dotenv").config();
 const fs = require("node:fs");
 const path = require("node:path");
 const express = require("express");
+var http = require('http');
+var https = require('https');
 const connectHistoryApiFallback = require("connect-history-api-fallback");
 
 // --------- importing discord.js / Init ---------
@@ -99,6 +101,10 @@ const musicRemoveFav = require("./api/music/delFav");
 const login = require("./api/login/login");
 const loginAccess = require("./api/login/loginAccess");
 
+var privateKey = fs.readFileSync('sslcert/server.key');
+var certificate = fs.readFileSync('sslcert/server.crt');
+var credentials = {key: privateKey, cert: certificate};
+
 const app = express();
 const port = process.env.PORT || 4000;
 app
@@ -131,6 +137,17 @@ app
 	.listen(port, () =>
 		console.log(`Listening on port ${port}`.toUpperCase().white.bgGreen.bold)
 	);
+
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
+httpServer.listen(80, () => {
+	console.log("HTTP Server running on port 80");
+	});
+httpsServer.listen(443, () => {
+	console.log("HTTPS Server running on port 443");
+	});
+
+
 
 // --------- Loging in bot ---------
 client.login(client.config.token);
