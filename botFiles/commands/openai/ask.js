@@ -22,11 +22,11 @@ module.exports = {
             max_tokens: 4096,
           });
 
-          if (completion.data.choices[0].text.length > 2000) {
-            return interaction.editReply({ content: truncateString(completion.data.choices[0].text, 1993) + '\n...'});
+          if (completion.data.choices[0].message.content.length > 2000) {
+            return interaction.editReply({ content: truncateString(completion.data.choices[0].message.content, 1993) + '...'});
           }
 
-          interaction.editReply({ content: completion.data.choices[0].text });
+          interaction.editReply({ content: completion.data.choices[0].message.content });
     },
 };
 
