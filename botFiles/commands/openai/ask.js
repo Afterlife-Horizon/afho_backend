@@ -16,14 +16,14 @@ module.exports = {
 
         interaction.reply({ content: 'Thinking...' });
         const completion = await openai.createCompletion({
-            model: "text-davinci-003",
+            model: "gpt-3.5-turbo",
             prompt: interaction.options.getString('question'),
             temperature: 0.6,
-            max_tokens: 4000,
+            max_tokens: 4096,
           });
 
           if (completion.data.choices[0].text.length > 2000) {
-            return interaction.editReply({ content: truncateString(completion.data.choices[0].text, 2000)});
+            return interaction.editReply({ content: truncateString(completion.data.choices[0].text, 1993) + '\n...'});
           }
 
           interaction.editReply({ content: completion.data.choices[0].text });
