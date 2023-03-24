@@ -4,12 +4,17 @@ const connection = (database) => {
     const user = process.env.DB_USER || "";
     const password = process.env.DB_PASSWORD || "";
 
-    return mysql.createPool({
-        host: host,
-        user: user,
-        password: password,
-        database: database,
-    });
+    try {
+        return mysql.createPool({
+            host: host,
+            user: user,
+            password: password,
+            database: database,
+        });
+    }
+    catch (error) {
+        console.error(error);
+    }
 };
 module.exports = database => {
     connection(database);
