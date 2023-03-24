@@ -1,1 +1,7 @@
-[{"id":"333249431656988673","username":"Zeroisis","xp":32,"lvl":2},{"id":"196349082954891265","username":"Ploups","xp":8,"lvl":1},{"id":"189050255617032192","username":"Hulkanof","xp":4,"lvl":1},{"id":"177438713410879488","username":"Therero","xp":7,"lvl":1},{"id":"688472881147150339","username":"SummerSkye","xp":1,"lvl":0}]
+[
+	{ "id": "333249431656988673", "username": "Zeroisis", "xp": 32, "lvl": 2 },
+	{ "id": "196349082954891265", "username": "Ploups", "xp": 8, "lvl": 1 },
+	{ "id": "189050255617032192", "username": "Hulkanof", "xp": 4, "lvl": 1 },
+	{ "id": "177438713410879488", "username": "Therero", "xp": 7, "lvl": 1 },
+	{ "id": "688472881147150339", "username": "SummerSkye", "xp": 1, "lvl": 0 }
+]

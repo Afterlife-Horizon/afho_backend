@@ -43,14 +43,6 @@ const fetchInfo = async (callback: testCallback) => {
 const LevelBoard: React.FC = () => {
 	const [counts, setCounts] = useState<userXp>([]);
 
-	useEffect(() => {
-		fetchInfo((err, status, data) => {
-			if (err) return;
-			if (status !== 200) return;
-			setCounts(data);
-		});
-	}, []);
-
 	const [intervalReset, setIntervalReset] = useState(false);
 	useEffect(() => {
 		const repeatedFetchInterval = setInterval(() => {
