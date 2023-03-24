@@ -3,7 +3,7 @@ const router = express.Router();
 
 module.exports = function (client) {
     return (
-        router.get("/", async (req, res) => {
+        router.post("/", async (req, res) => {
             if (!client.currentChannel) return res.status(406).send("not connected!");
 
             try {

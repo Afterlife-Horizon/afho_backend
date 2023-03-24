@@ -27,6 +27,7 @@ const NowplayingCard : React.FC = () => {
             body: JSON.stringify({ user: user?.username })
         });
 
+		setIsSkipping(false);
         if (res.status === 200) {
             const data = await res.json();
             if (data.success) {
@@ -41,7 +42,6 @@ const NowplayingCard : React.FC = () => {
             setInfo("An error occured");
             setInfoboxColor("red");
         }
-        setIsSkipping(false);
 	};
 
 	const handlePauseClicked = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -61,6 +61,7 @@ const NowplayingCard : React.FC = () => {
                 body: JSON.stringify({ user: user?.username })
             });
 
+			setIsPausing(false);
             if (res.status === 200) {
                 const data = await res.json();
                 if (data.success) {
@@ -82,6 +83,7 @@ const NowplayingCard : React.FC = () => {
                 body: JSON.stringify({ user: user?.username })
             });
 
+			setIsPausing(false);
             if (res.status === 200) {
                 const data = await res.json();
                 if (data.success) {
@@ -97,7 +99,6 @@ const NowplayingCard : React.FC = () => {
                 setInfoboxColor("red");
             }
 		}
-        setIsPausing(false);
 	};
 
 	const handleStopClicked = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -122,6 +123,7 @@ const NowplayingCard : React.FC = () => {
             body: JSON.stringify({ user: user?.username })
         });
 
+		setIsStopping(false);
         if (res.status === 200) {
             const data = await res.json();
             if (data.success) {
@@ -136,7 +138,6 @@ const NowplayingCard : React.FC = () => {
             setInfo("An error occured");
             setInfoboxColor("red");
         }
-        setIsStopping(false);
 	};
 
 	const handleDisconnectClicked = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -155,6 +156,7 @@ const NowplayingCard : React.FC = () => {
             body: JSON.stringify({ user: user.username })
         });
 
+		setIsDisconnecting(false);
         if (res.status === 200) {
             const data = await res.json();
             if (data.success) {
@@ -169,7 +171,6 @@ const NowplayingCard : React.FC = () => {
             setInfo("An error occured");
             setInfoboxColor("red");
         }
-        setIsDisconnecting(false);
 	};
 
 	const handleLogout = (event: React.MouseEvent<HTMLButtonElement>) => {

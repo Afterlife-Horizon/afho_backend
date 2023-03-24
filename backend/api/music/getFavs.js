@@ -20,10 +20,10 @@ module.exports = function (client) {
 				writeJsonFile(favsPath, JSON.stringify(client.favs));
 				favs = [];
 			}
-			res.status(200).json({ data: { favs } });
+			res.status(200).json({ favs });
 		} catch (err) {
 			console.log(err);
-			res.status(500).json({ error: err.message });
+			res.status(500).send("Internal Server Error");
 		}
 	});
 };

@@ -1,4 +1,4 @@
-type user = {
+type apiUser = {
     id: string;
     username: string;
     accent_color: string;
@@ -12,6 +12,9 @@ type user = {
     mfa_enabled: boolean;
     premium_type: number;
     public_flags: number;
+}
+
+interface user extends apiUser {
     isAdmin: boolean;
 }
 
@@ -134,7 +137,11 @@ type queueItem = {
     volume: number;
 };
 
-type favs = any[];
+type fav = {
+    name: string;
+    url: string;
+    thumbnail: string;
+}
 
 type admin = {
     [0]: discordUser

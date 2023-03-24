@@ -116,7 +116,6 @@ app
 	.use("/api/shuffle", musicShuffle(client))
 	.use("/api/skipto", musicSkipto(client))
 	.use("/api/remove", musicRemove(client))
-	.use("/api/disconnect", musicRemove(client))
 	.use("/api/disconnect", musicDisconnect(client))
 	.use("/api/play", musicPlay(client))
 	.use("/api/playfirst", musicPlayFirst(client))

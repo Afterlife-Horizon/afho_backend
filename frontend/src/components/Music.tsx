@@ -1,5 +1,5 @@
 // ------------ Packages ------------
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import MusicContext from "../context/MusicContext";
@@ -14,23 +14,10 @@ import "antd/dist/antd.css";
 import "../css/Music.css";
 import "../css/dark/Music.css";
 import NowplayingCard from "./NowplayingCard";
-import axios from "axios";
-
-interface testCallback {
-	(err: any, status: any, data: any): any;
-}
-
-async function fetchInfo(callback: testCallback) {
-	await axios
-		.get("/api/fetch")
-		.then((res) => {
-			// console.log(res);
-			callback(null, res.status, res.data);
-		})
-		.catch((err) => {
-			callback(err, err.response.status, err.response.data);
-		});
-}
+import getApiToken from "../utils/getApiToken";
+import getUserInfo from "../utils/getUserInfo";
+import getUserFavorites from "../utils/getUserFavorites";
+import getBotInfo from "../utils/getBotinfo";
 
 const Music = (props: any) => {
 	const [searchParams] = useSearchParams();
@@ -52,7 +39,7 @@ const Music = (props: any) => {
 		public_flags: 0,
 		isAdmin: false,
 	});
-	const [favs, setFavs] = useState<favs>([]);
+	const [favs, setFavs] = useState<fav[]>([]);
 	const [colorScheme, setColorScheme] = useState<string>("");
 	const classes = "music " + props.className + " " + colorScheme;
 
@@ -70,6 +57,7 @@ const Music = (props: any) => {
 	const [isShuffling, setIsShuffling] = useState<boolean>(false);
 	const [isClearing, setIsClearing] = useState<boolean>(false);
 	const [isLoading, setLoading] = useState<boolean>(false);
+	const [error, setError] = useState<string>("");
 	const [intervalReset, setIntervalReset] = useState<boolean>(false);
 
 	const [song, setSong] = useState<song>({
@@ -103,6 +91,81 @@ const Music = (props: any) => {
 		cover_src: "https://freesvg.org/img/aiga_waiting_room_bg.png",
 	});
 
+	async function fetchBotInfo() {
+		try {
+			const res = await getBotInfo();
+
+			setLoading(false);
+			
+			const queue = res.queue[0];
+			let tmpIsRequester = false;
+			if (queue && queue.tracks[0]) {
+				setSong({
+					name: queue.tracks[0].title,
+					artist: queue.tracks[0].channel.name,
+					filters: queue.effects,
+					requester: queue.tracks[0].requester.username,
+					url: "https://www.youtube.com/watch?v=" + queue.tracks[0].id,
+					formatedprog: res.formatedprog,
+					duration: queue.tracks[0].durationFormatted,
+					cover_src: queue.tracks[0].thumbnail.url,
+				});
+				setIsPaused(queue.paused);
+				setQueue(queue.tracks.slice(0));
+				setSongProgress(
+					Math.floor(100 * (res.prog / queue.tracks[0].duration))
+				);
+				setHasChanged(queue.filtersChanged);
+				tmpIsRequester = user.username === queue.tracks[0].requester.username;
+			} else {
+				setHasChanged(false);
+				setSong({
+					name: "None",
+					artist: "",
+					requester: "None",
+					filters: {
+						bassboost: 0,
+						subboost: false,
+						mcompand: false,
+						haas: false,
+						gate: false,
+						karaoke: false,
+						flanger: false,
+						pulsator: false,
+						surrounding: false,
+						"3d": false,
+						vaporwave: false,
+						nightcore: false,
+						phaser: false,
+						normalizer: false,
+						speed: 1,
+						tremolo: false,
+						vibrato: false,
+						reverse: false,
+						treble: false,
+					},
+					url: "",
+					formatedprog: "00:00",
+					duration: "00:00",
+					cover_src: "https://freesvg.org/img/aiga_waiting_room_bg.png",
+				});
+				setQueue([]);
+			}
+			const isAdmin: boolean = res.admins.usernames.includes(user.username);
+			setUser((prev) => ({ ...prev, isAdmin: isAdmin }));
+			setIsRequester(tmpIsRequester);
+			setIntervalReset((prev) => !prev);
+			setIsClearing(false);
+			setIsSkipping(false);
+			setIsAddingFirst(false);
+			setIsShuffling(false);
+		} catch (err) {
+			localStorage.clear();
+			setError("A probleme occured!");
+			return window.location.replace("/login");
+		}
+	}
+
 	useEffect(() => {
 		setLoading(true);
 		const code = searchParams.get("code");
@@ -112,200 +175,44 @@ const Music = (props: any) => {
 		if ((!code || code === "") && !access_token)
 			return window.location.replace("/login");
 		if (!access_token) {
-			const getUser = async (callback: testCallback) => {
-				await axios
-					.post(
-						"/api/login",
-						{ code: code },
-						{
-							headers: { "Content-Type": "application/json" },
-						}
-					)
-					.then((res) => {
-						callback(null, res.status, res.data);
-					})
-					.catch((err) => {
-						callback(err, err.response.status, err.response.data);
-					});
-			};
-
-			getUser((err, status, data) => {
-				if (err) return console.error(err);
-				else if (status !== 200) return;
-				localStorage.setItem("access_token", data.access_token);
-				localStorage.setItem("token_type", data.token_type);
-			});
+			async function fetchToken() {
+				try {
+					if (!code) return;
+					const token = await getApiToken(code);
+					localStorage.setItem("access_token", token.access_token);
+					localStorage.setItem("token_type", token.token_type);
+					return window.location.replace("/login");
+				} catch (err) {
+					console.error(err);
+					setError("A probleme occured!");
+				}
+			}
+			fetchToken();
 		} else {
-			const getUser = async (callback: testCallback) => {
-				await axios
-					.post(
-						"/api/loginaccess",
-						{
-							access_token: localStorage.getItem("access_token"),
-							token_type: localStorage.getItem("token_type"),
-						},
-						{
-							headers: { "Content-Type": "application/json" },
-						}
-					)
-					.then((res) => {
-						// console.log(res);
-						callback(null, res.status, res.data);
-					})
-					.catch((err) => {
-						callback(err, err.response.status, err.response.data);
-					});
-			};
-
-			getUser((err, status, data) => {
-				if (err) {
-					return setInfo("A probleme occured!");
-				} else if (status !== 200) {
-					setInfo("A probleme occured!");
+			async function fetchUserInfo() {
+				try {
+					const access_token = localStorage.getItem("access_token");
+					const token_type = localStorage.getItem("token_type");
+					if (!access_token || !token_type) return;
+					const res = await getUserInfo(access_token, token_type);
+					setUser({ ...res, isAdmin: false });
+					setInfo("Logged in!");
+				} catch (err) {
 					localStorage.clear();
-					return window.location.replace("/login");
-				} else if (status === 200 && !data.username) {
-					setInfo("A probleme occured!");
-					localStorage.clear();
+					setError("A probleme occured!");
 					return window.location.replace("/login");
 				}
-				setInfo("Logged in!");
-				setUser({ ...data, isAdmin: false });
-			});
+			}
+			fetchUserInfo();
 
-			fetchInfo((err, status, data) => {
-				setLoading(false);
-				if (err) return console.error(err);
-				const queue = data.queue[0];
-				let tmpIsRequester = false;
-				if (queue && queue.tracks[0]) {
-					setSong({
-						name: queue.tracks[0].title,
-						artist: queue.tracks[0].channel.name,
-						filters: queue.effects,
-						requester: queue.tracks[0].requester,
-						url: "https://www.youtube.com/watch?v=" + queue.tracks[0].id,
-						formatedprog: data.formatedprog,
-						duration: queue.tracks[0].durationFormatted,
-						cover_src: queue.tracks[0].thumbnail.url,
-					});
-					setIsPaused(queue.paused);
-					setQueue(queue.tracks.slice(0));
-					setSongProgress(
-						Math.floor(100 * (data.prog / queue.tracks[0].duration))
-					);
-					setHasChanged(queue.filtersChanged);
-					tmpIsRequester = user.username === queue.tracks[0].requester;
-				} else {
-					setHasChanged(false);
-					setSong({
-						name: "None",
-						artist: "",
-						requester: "None",
-						filters: {
-							bassboost: 0,
-							subboost: false,
-							mcompand: false,
-							haas: false,
-							gate: false,
-							karaoke: false,
-							flanger: false,
-							pulsator: false,
-							surrounding: false,
-							"3d": false,
-							vaporwave: false,
-							nightcore: false,
-							phaser: false,
-							normalizer: false,
-							speed: 1,
-							tremolo: false,
-							vibrato: false,
-							reverse: false,
-							treble: false,
-						},
-						url: "",
-						formatedprog: "00:00",
-						duration: "00:00",
-						cover_src: "https://freesvg.org/img/aiga_waiting_room_bg.png",
-					});
-					setQueue([]);
-				}
-				const isAdmin: boolean = data.admins.usernames.includes(user.username);
-				setUser((prev) => ({ ...prev, isAdmin: isAdmin }));
-				setIsRequester(tmpIsRequester);
-			});
+			fetchBotInfo();
 		}
 	}, []);
 
 	useEffect(() => {
 		const repeatedFetchInterval = setInterval(() => {
 			if (searchParams.get("code")) window.location.replace("/");
-
-			fetchInfo((err, status, data) => {
-				if (err) return console.error(err);
-				const queue = data.queue[0];
-				let tmpIsRequester = false;
-				if (queue && queue?.tracks[0]) {
-					setSong({
-						name: queue.tracks[0].title,
-						artist: queue.tracks[0].channel.name,
-						filters: queue.effects,
-						requester: queue.tracks[0].requester,
-						url: "https://www.youtube.com/watch?v=" + queue.tracks[0].id,
-						formatedprog: data.formatedprog,
-						duration: queue.tracks[0].durationFormatted,
-						cover_src: queue.tracks[0].thumbnail.url,
-					});
-					setIsPaused(queue.paused);
-					setQueue(queue.tracks.slice(0));
-					setSongProgress(
-						Math.floor(100 * (data.prog / queue.tracks[0].duration))
-					);
-					setHasChanged(queue.filtersChanged);
-					tmpIsRequester = user.username === queue.tracks[0].requester;
-				} else {
-					setHasChanged(false);
-					setSong({
-						name: "None",
-						artist: "",
-						requester: "None",
-						filters: {
-							bassboost: 0,
-							subboost: false,
-							mcompand: false,
-							haas: false,
-							gate: false,
-							karaoke: false,
-							flanger: false,
-							pulsator: false,
-							surrounding: false,
-							"3d": false,
-							vaporwave: false,
-							nightcore: false,
-							phaser: false,
-							normalizer: false,
-							speed: 1,
-							tremolo: false,
-							vibrato: false,
-							reverse: false,
-							treble: false,
-						},
-						url: "",
-						formatedprog: "00:00",
-						duration: "00:00",
-						cover_src: "https://freesvg.org/img/aiga_waiting_room_bg.png",
-					});
-					setQueue([]);
-				}
-				const isAdmin = data.admins.usernames.includes(user.username);
-				setUser((prev) => ({ ...prev, isAdmin: isAdmin }));
-				setIsRequester(tmpIsRequester);
-				setIntervalReset((prev) => !prev);
-				setIsClearing(false);
-				setIsSkipping(false);
-				setIsAddingFirst(false);
-				setIsShuffling(false);
-			});
+			fetchBotInfo();
 		}, 1000);
 
 		return () => {
@@ -314,18 +221,23 @@ const Music = (props: any) => {
 	}, [intervalReset]);
 
 	useEffect(() => {
-		async function fetchUserfavs() {
-			await axios
-				.post("/api/getFavs", { userId: user.id })
-				.then((data) => {
-					setFavs(data.data.data.favs);
-				})
-				.catch((err) => {
+		try {
+			if (user.id === "") return;
+
+			async function fetchUserfavs() {
+				try {
+					const res = await getUserFavorites(user.id);
+					setFavs(res.favs)
+				} catch (err) {
 					console.error(err);
-					setInfo("Error while fetching your favorites.");
-				});
+				}
+			}
+			fetchUserfavs();
 		}
-		if (user.id !== "") fetchUserfavs();
+		catch (err) {
+			console.error(err);
+			setError("A probleme occured!");
+		}
 	}, [user.id]);
 	
 	useEffect(() => {
@@ -370,6 +282,12 @@ const Music = (props: any) => {
 	if (isLoading) return (
 		<div className="loader-container">
 			<div className="spinner"></div>
+		</div>
+	);
+
+	if (error) return (
+		<div className="error-container">
+			<p>{error}</p>
 		</div>
 	);
 

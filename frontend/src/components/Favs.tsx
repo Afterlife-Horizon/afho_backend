@@ -117,7 +117,7 @@ const Favs: React.FC = () => {
 				page: {page} / {maxPage === -1 ? 1 : maxPage}
 			</div>
 			<ul className="favsList">
-				{favs?.slice((page - 1) * 5, page * 5 + 1).map((fav, index) => {
+				{favs.slice((page - 1) * 5, page * 5 + 1).map((fav, index: number) => {
 					j++;
 					return (
 						<li

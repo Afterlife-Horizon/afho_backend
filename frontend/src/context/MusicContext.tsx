@@ -28,8 +28,8 @@ interface IMusicContext {
     setIsClearing: React.Dispatch<React.SetStateAction<boolean>>;
     isSkipping: boolean;
     setIsSkipping: React.Dispatch<React.SetStateAction<boolean>>;
-    favs: favs;
-    setFavs: React.Dispatch<React.SetStateAction<favs>>;
+    favs: fav[];
+    setFavs: React.Dispatch<React.SetStateAction<fav[]>>;
     infoboxColor: string;
     setInfoboxColor: React.Dispatch<React.SetStateAction<string>>;
     colorScheme: string;

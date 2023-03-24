@@ -326,7 +326,7 @@ const Queue = () => {
 				page: {page} / {maxPage === -1 ? 1 : maxPage}
 			</div>
 			<ul>
-				{queue?.slice((page - 1) * 5 + 1, page * 5 + 1)
+				{queue.slice((page - 1) * 5 + 1, page * 5 + 1)
 					.map((track: any) => {
 						j++;
 						return (
