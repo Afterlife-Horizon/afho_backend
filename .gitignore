@@ -108,3 +108,5 @@ config.json
 devconfig.json
 DBConfig.json
 build/
+
+.ssh/

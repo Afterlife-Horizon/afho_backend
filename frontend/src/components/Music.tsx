@@ -177,8 +177,10 @@ const Music = (props: any) => {
 		if (!access_token) {
 			async function fetchToken() {
 				try {
-					if (!code) return;
+					if (!code) return window.location.replace("/login");
+					
 					const token = await getApiToken(code);
+					if (!token.access_token || !token.token_type) return window.location.replace("/login");
 					localStorage.setItem("access_token", token.access_token);
 					localStorage.setItem("token_type", token.token_type);
 					return window.location.replace("/login");
@@ -191,9 +193,8 @@ const Music = (props: any) => {
 		} else {
 			async function fetchUserInfo() {
 				try {
-					const access_token = localStorage.getItem("access_token");
 					const token_type = localStorage.getItem("token_type");
-					if (!access_token || !token_type) return;
+					if (!access_token || !token_type) return window.location.replace("/login");
 					const res = await getUserInfo(access_token, token_type);
 					setUser({ ...res, isAdmin: false });
 					setInfo("Logged in!");
