@@ -183,7 +183,7 @@ const Music = (props: any) => {
 					if (!token.access_token || !token.token_type) return window.location.replace("/login");
 					localStorage.setItem("access_token", token.access_token);
 					localStorage.setItem("token_type", token.token_type);
-					return window.location.replace("/login");
+					return window.location.replace("/");
 				} catch (err) {
 					console.error(err);
 					setError("A probleme occured!");
