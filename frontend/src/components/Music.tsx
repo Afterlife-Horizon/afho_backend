@@ -212,9 +212,10 @@ const Music = (props: any) => {
 
 	useEffect(() => {
 		const repeatedFetchInterval = setInterval(() => {
-			if (searchParams.get("code")) window.location.replace("/");
+			const code = searchParams.get("code");
+			if (code) window.location.replace("/?code=" + code);
 			fetchBotInfo();
-		}, 1000);
+		}, 2000);
 
 		return () => {
 			clearInterval(repeatedFetchInterval);
