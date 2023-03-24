@@ -1,6 +1,6 @@
 # Afterlife Horizon Bot Project
 
-_Discord bot disigned and only used for Afterlife Horizon discord server!_
+_Discord bot designed and only used for Afterlife Horizon discord server!_
 
 This bot is created and designed by myself.
 
