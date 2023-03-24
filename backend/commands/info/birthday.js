@@ -6,7 +6,7 @@ require('dotenv').config();
 
 // --------- importing database ---------
 const db = {
-    database: "AFHObot",
+    database: "afho",
 };
 require(process.env.WORKPATH + "DB/DB_functions")(db);
 
