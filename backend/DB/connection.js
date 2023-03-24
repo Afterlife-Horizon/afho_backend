@@ -1,6 +1,6 @@
 const mysql = require("mysql");
 const connection = (database) => {
-    const host = process.send.DB_ADRESS || "127.0.0.1";
+    const host = process.env.DB_ADRESS || "127.0.0.1";
     const user = process.env.DB_USER || "";
     const password = process.env.DB_PASSWORD || "";
 
