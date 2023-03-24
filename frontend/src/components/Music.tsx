@@ -179,7 +179,6 @@ const Music = (props: any) => {
 				try {
 				
 					const token = await getApiToken(code || "");
-					console.log(token)
 					if (!token.access_token || !token.token_type) return window.location.replace("/login");
 
 					localStorage.setItem("access_token", token.access_token);
