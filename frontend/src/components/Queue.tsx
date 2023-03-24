@@ -120,7 +120,6 @@ const Queue = () => {
 					}
 				)
 				.then((res) => {
-					console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
@@ -136,7 +135,6 @@ const Queue = () => {
 		addSong((err, status, data) => {
 			setIsAdding(false);
 			setLink("");
-			console.log(data);
 			if (err) {
 				if (status !== 500) setInfo(data);
 				else setInfo("An error occured");
@@ -152,7 +150,6 @@ const Queue = () => {
 	const handleAddFirst = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
 		setIsAddingFirst(true);
-		console.log("add first", link);
 		const AddFirst = async (callback: testCallback) => {
 			await axios
 				.post(
@@ -163,7 +160,6 @@ const Queue = () => {
 					}
 				)
 				.then((res) => {
-					console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
@@ -201,7 +197,6 @@ const Queue = () => {
 			await axios
 				.post("/api/shuffle", { user: user?.username })
 				.then((res) => {
-					// console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
@@ -233,7 +228,6 @@ const Queue = () => {
 			await axios
 				.post("/api/clearqueue", { user: user?.username })
 				.then((res) => {
-					// console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {

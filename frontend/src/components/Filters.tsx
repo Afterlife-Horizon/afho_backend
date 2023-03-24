@@ -80,7 +80,6 @@ const Filters: React.FC = () => {
 				...prev,
 				[filter]: event.target.value,
 			}));
-			// console.log(effects);
 		};
 	};
 
@@ -97,7 +96,6 @@ const Filters: React.FC = () => {
 					}
 				)
 				.then((res) => {
-					console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
@@ -139,7 +137,6 @@ const Filters: React.FC = () => {
 				reverse: false,
 				treble: false,
 			});
-			// console.log(data);
 		});
 	};
 
@@ -170,7 +167,7 @@ const Filters: React.FC = () => {
 		<form className="filters">
 			<h3>Filters</h3>
 			<Input
-				disabled={!user?.isAdmin}
+				disabled={!user.isAdmin}
 				type="submit"
 				value="Submit"
 				onClick={handlefilterSubmitted}

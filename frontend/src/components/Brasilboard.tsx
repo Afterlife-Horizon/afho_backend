@@ -158,7 +158,6 @@ const Brasilboard: React.FC = () => {
 					}
 				)
 				.then((res) => {
-					console.log(res);
 					callback(null, res.status, res.data);
 				})
 				.catch((err) => {
