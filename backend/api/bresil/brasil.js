@@ -38,7 +38,7 @@ module.exports = function (client) {
                         moveCount = rows[0].bresil_recieved + 1;
                     }
                     else {
-                        updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_recieved) VALUES (?, ?, 1)", [movedId, member.user.username], (err) => {
+                        updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_received) VALUES (?, ?, 1)", [movedId, member.user.username], (err) => {
                             if (err) {
                                 console.log(err);
                             }
