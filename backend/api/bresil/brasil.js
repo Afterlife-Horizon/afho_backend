@@ -75,22 +75,22 @@ module.exports = function (client) {
                     .setTitle(`💨Brasiled`)
                     .addFields(
                         {
-                            name: `Mover`,
+                            name: `Mover: `,
                             value: `<@${interaction.user.id}>`,
                             inline: false,
                         },
                         {
-                            name: `Moved`,
+                            name: `Moved: `,
                             value: `<@${member.user.id}> to <#${brasilChannelId}> !`,
                             inline: false,
                         },
                         {
-                            name: `${member} moved `,
+                            name: `count:`,
                             value: `${moveCount} times!`,
                             inline: false,
                         },
                         {
-                            name: `${interaction.member} moved people`,
+                            name: `moved people: `,
                             value: `${moverCount} times!`,
                             inline: false,
                         }

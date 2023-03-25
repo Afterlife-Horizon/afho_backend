@@ -47,7 +47,7 @@ module.exports = {
 					moveCount = rows[0].bresil_received + 1;
 				}
 				else {
-					updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_recieved) VALUES (?, ?, 1)", [memberid, member.user.username], (err) => {
+					updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_received) VALUES (?, ?, 1)", [memberid, member.user.username], (err) => {
 						if (err) {
 							console.log(err);
 						}
@@ -85,22 +85,22 @@ module.exports = {
 				.setTitle(`💨Brasiled`)
 				.addFields(
 					{
-						name: `Mover`,
+						name: `Mover: `,
 						value: `<@${interaction.user.id}>`,
 						inline: false,
 					},
 					{
-						name: `Moved`,
+						name: `Moved: `,
 						value: `<@${member.user.id}> to <#${brasilChannelId}> !`,
 						inline: false,
 					},
 					{
-						name: `${member} moved `,
+						name: `count:`,
 						value: `${moveCount} times!`,
 						inline: false,
 					},
 					{
-						name: `${interaction.member} moved people`,
+						name: `moved people: `,
 						value: `${moverCount} times!`,
 						inline: false,
 					}
