@@ -29,7 +29,7 @@ module.exports = function (client) {
                     if (err) {
                         console.log(err);
                     }
-                    else if(rows.size > 0) {
+                    else if(rows.length > 0) {
                         updateDB("afho", "UPDATE bot_bresil SET bresil_received = bresil_received + 1 WHERE id = ?", [movedId], (err) => {
                             if (err) {
                                 return console.log(err);
@@ -50,7 +50,7 @@ module.exports = function (client) {
                     if (err) {
                         console.log(err);
                     }
-                    else if (rows.size > 0) {
+                    else if (rows.length > 0) {
                         updateDB("afho", "UPDATE bot_bresil SET bresil_sent = bresil_sent + 1 WHERE id = ?", [moverId], (err) => {
                             if (err) {
                                 console.log(err);
