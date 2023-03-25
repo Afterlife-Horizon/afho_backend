@@ -2,7 +2,7 @@ require('dotenv').config();
 
 // --------- importing database ---------
 
-const { updateDB } = require("../DB/DB_functions");
+const { updateDB, selectFromDB } = require("../DB/DB_functions");
 
 
 const exp = 3;
@@ -16,9 +16,23 @@ module.exports = function (client) {
             if (message.author.bot) return;
             if (!message.guild) return;
             try {
-                updateDB("afho", "UPDATE bot_levels SET xp = xp + 1 WHERE id = ?", [message.author.id], (err) => {
+                selectFromDB("afho", "SELECT * FROM bot_levels WHERE id = ?", [message.author.id], (err, rows) => {
                     if (err) {
                         console.error(err);
+                    }
+                    else if (rows.length > 0) {
+                        updateDB("afho", "UPDATE bot_levels SET xp = xp + 1 WHERE id = ?", [message.author.id], (err) => {
+                            if (err) {
+                                console.error(err);
+                            }
+                        });
+                    }
+                    else {
+                        updateDB("afho", "INSERT INTO bot_levels(id, xp) VALUES (?, 1)", [message.author.id], (err) => {
+                            if (err) {
+                                console.error(err);
+                            }
+                        });
                     }
                 });
             }

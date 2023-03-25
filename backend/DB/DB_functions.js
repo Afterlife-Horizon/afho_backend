@@ -3,7 +3,6 @@ const dbConnection = require("./connection");
 
 const updateDB = (database, query, args, callback) => {
     const conn = dbConnection(database);
-    console.log(conn);
     conn.getConnection((connErr, connection) => {
         if (connErr) {
             connection.release();
