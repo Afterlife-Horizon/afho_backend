@@ -28,7 +28,7 @@ module.exports = function (client) {
                         });
                     }
                     else {
-                        updateDB("afho", "INSERT INTO bot_levels(id, username, xp) VALUES (?, 1)", [message.author.username, message.author.id], (err) => {
+                        updateDB("afho", "INSERT INTO bot_levels(id, username, xp) VALUES (?,, ? 1)", [message.author.id, message.author.username], (err) => {
                             if (err) {
                                 console.error(err);
                             }
