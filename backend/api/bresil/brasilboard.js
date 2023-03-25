@@ -45,6 +45,8 @@ module.exports = function (client) {
                     };
                 });
 
+                console.log(sendData.sort(compareData));
+
                 res.json(sendData.sort(compareData));
             }
             catch (err) {
