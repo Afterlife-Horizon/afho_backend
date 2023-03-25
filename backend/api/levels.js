@@ -9,7 +9,7 @@ function compareData(count1, count2) {
 
 
 const { selectFromDB } = require("../DB/DB_functions");
-const getLvlFromXp = require("../functions/getLvlFromXp");
+const getLevelFromXp = require("../functions/getLevelFromXp");
 
 module.exports = function (client) {
     return (
@@ -27,7 +27,7 @@ module.exports = function (client) {
                             levels.push({ 
                                 id: row.id, 
                                 xp: row.xp, 
-                                lvl: getLvlFromXp(row.xp) 
+                                lvl: getLevelFromXp(row.xp) 
                             });
                         });
                     }
