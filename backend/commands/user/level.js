@@ -1,7 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const path = require('path');
-const fsPromises = require('fs/promises');
 require('dotenv').config();
+
+const { selectFromDB } = require(process.env.WORKPATH + "DB/DB_functions");
+
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,15 +16,28 @@ module.exports = {
         try {
             const messageMember = interaction.options.getString('member');
             const memberid = messageMember.replace(/\D/g, '');
-            const filePath = path.resolve(process.env.WORKPATH, `config/levels.json`);
-            const data = await fsPromises.readFile(filePath);
-            const levels = JSON.parse(data);
-            let lvl = levels.filter(m => m.id === memberid)[0]?.lvl;
-            let xp = levels.filter(m => m.id === memberid)[0]?.xp;
 
-            if (!lvl || !xp) return interaction.reply({ content: `<@${memberid}> has not sent any messages yet!` });
-
-            await interaction.reply({ content: `<@${memberid}>is **level ${lvl}** with **${xp} messages** sent!` });
+            selectFromDB('afho', 'SELECT xp FROM levels WHERE id = ?', [memberid], (err, rows) => {
+                if (err != null) {
+                    interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+                }
+                else if (rows.length > 0) {
+                    const embed = new EmbedBuilder()
+                        .setTitle(`Level of <@${memberid}>`)
+                        .setDescription(`Level: ${rows[0].lvl}\nXP: ${rows[0].xp}`)
+                        .setColor(0x00AE86)
+                        .setTimestamp();
+                    interaction.reply({ embeds: [embed] });
+                }
+                else {
+                    const embed = new EmbedBuilder()
+                        .setTitle(`Level of <@${memberid}>`)
+                        .setDescription(`Level: 0\nXP: 0`)
+                        .setColor(0x00AE86)
+                        .setTimestamp();
+                    interaction.reply({ embeds: [embed] });
+                }
+            });
         }
         catch (err) {
             console.error(err);
