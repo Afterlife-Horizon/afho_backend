@@ -37,10 +37,11 @@ module.exports = function (client) {
                 const members = guild.members.cache.filter(m => ids.includes(m.id));
     
                 const sendData = members.map(m => {
+                    const bresil = bresils.find(move => move.id === m.id);
                     return {
-                        user: m, 
-                        received: bresils.bresil_received, 
-                        sent: bresils.bresil_sent 
+                        user: m,
+                        received: bresil.bresil_received, 
+                        sent: bresil.bresil_sent 
                     };
                 });
 
