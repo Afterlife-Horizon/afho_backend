@@ -34,18 +34,15 @@ module.exports = function (client) {
                 const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
     
                 await guild.members.fetch();
-                const members = guild.members.cache.filter(m => ids.includes(m.id));
     
-                const sendData = members.map(m => {
-                    const bresil = bresils.find(move => move.id === m.id);
+                const sendData = bresils.map(bresil => {
+                    const member = guild.members.cache.find(mem => mem.id === bresil.id);
                     return {
-                        user: m,
+                        user: member,
                         received: bresil.bresil_received, 
                         sent: bresil.bresil_sent 
                     };
                 });
-
-                console.log(sendData.sort(compareData));
 
                 res.json(sendData.sort(compareData));
             }
