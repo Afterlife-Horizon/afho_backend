@@ -25,7 +25,6 @@ const updateDB = (database, query, args, callback) => {
 
 const selectFromDB = (database, query, args, callback) => {
     const conn = dbConnection(database);
-    console.log(conn);
     conn.getConnection((connErr, connection) => {
         if (connErr) {
             return callback(connErr, []);
