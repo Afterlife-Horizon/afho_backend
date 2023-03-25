@@ -4,9 +4,9 @@ require('dotenv').config();
 const db = {
     database: "afho",
 };
-require(process.env.WORKPATH + "DB/DB_functions")(db);
+const conn = require(process.env.WORKPATH + "DB/DB_functions")(db);
 
-const { updateDB } = db;
+const { updateDB } = conn;
 
 const exp = 3;
 const getLevel = xp => {

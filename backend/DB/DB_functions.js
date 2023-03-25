@@ -2,7 +2,8 @@ const _ = require('lodash');
 const dbConnection = require("./connection");
 
 const updateDB = (database, query, args, callback) => {
-    dbConnection(database).getConnection((connErr, connection) => {
+    const conn = dbConnection(database);
+    conn.getConnection((connErr, connection) => {
         if (connErr) {
             connection.release();
             return callback(connErr);
@@ -23,7 +24,8 @@ const updateDB = (database, query, args, callback) => {
 };
 
 const selectFromDB = (database, query, args, callback) => {
-    dbConnection(database).getConnection((connErr, connection) => {
+    const conn = dbConnection(database);
+    conn.getConnection((connErr, connection) => {
         if (connErr) {
             return callback(connErr, []);
         }
