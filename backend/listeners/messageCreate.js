@@ -19,7 +19,7 @@ module.exports = function (client) {
             if (message.author.bot) return;
             if (!message.guild) return;
             try {
-                updateDB("afho", "UPDATE users SET xp = xp + 1 WHERE id = ?", [message.author.id], (err) => {
+                updateDB("UPDATE users SET xp = xp + 1 WHERE id = ?", [message.author.id], (err) => {
                     if (err) {
                         console.error(err);
                     }
