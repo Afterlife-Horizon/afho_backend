@@ -17,8 +17,9 @@ module.exports = {
             const messageMember = interaction.options.getString('member');
             const memberid = messageMember.replace(/\D/g, '');
 
-            selectFromDB('afho', 'SELECT xp FROM levels WHERE id = ?', [memberid], (err, rows) => {
+            selectFromDB('afho', 'SELECT xp FROM bot_levels WHERE id = ?', [memberid], (err, rows) => {
                 if (err != null) {
+                    console.log(`[LOG] Database error!\n ${err}`.red);
                     interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
                 }
                 else if (rows.length > 0) {
