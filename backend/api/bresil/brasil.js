@@ -35,7 +35,7 @@ module.exports = function (client) {
                                 return console.log(err);
                             }
                         })
-                        moveCount = rows[0].bresil_recieved + 1;
+                        moveCount = rows[0].bresil_received + 1;
                     }
                     else {
                         updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_received) VALUES (?, ?, 1)", [movedId, member.user.username], (err) => {
