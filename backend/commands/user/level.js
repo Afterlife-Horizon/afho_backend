@@ -2,7 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 require('dotenv').config();
 
 const { selectFromDB } = require(process.env.WORKPATH + "DB/DB_functions");
-
+const getLevelFromXp = require(process.env.WORKPATH + "functions/getLevelFromXp");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -25,7 +25,7 @@ module.exports = {
                 else if (rows.length > 0) {
                     const embed = new EmbedBuilder()
                         .setTitle(`Level of <@${memberid}>`)
-                        .setDescription(`Level: ${rows[0].lvl}\nXP: ${rows[0].xp}`)
+                        .setDescription(`Level: ${getLevelFromXp(rows[0].xp)}\nXP: ${rows[0].xp}`)
                         .setColor(0x00AE86)
                         .setTimestamp();
                     interaction.reply({ embeds: [embed] });

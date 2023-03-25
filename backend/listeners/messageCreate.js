@@ -4,12 +4,6 @@ require('dotenv').config();
 
 const { updateDB, selectFromDB } = require("../DB/DB_functions");
 
-
-const exp = 3;
-const getLevel = xp => {
-    return Math.floor(Math.pow((xp / exp), 1 / exp));
-}
-
 module.exports = function (client) {
     return (
         client.on("messageCreate", async (message) => {
