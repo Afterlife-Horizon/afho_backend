@@ -39,8 +39,8 @@ module.exports = function (client) {
                     const member = guild.members.cache.find(mem => mem.user.id === bresil.id);
                     return {
                         user: member,
-                        received: bresil.bresil_received, 
-                        sent: bresil.bresil_sent 
+                        bresil_received: bresil.bresil_received, 
+                        bresil_sent: bresil.bresil_sent 
                     };
                 });
 
