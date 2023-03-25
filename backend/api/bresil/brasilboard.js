@@ -15,13 +15,12 @@ module.exports = function (client) {
             try {
                 const ids = [];
                 const bresils = [];
-                selectFromDB("afho", "SELECT * FROM bot_levels", [], (err, rows) => {
+                selectFromDB("afho", "SELECT * FROM bot_bresil", [], (err, rows) => {
                     if (err) {
                         console.error(err);
                     }
                     else if (rows.length > 0) {
                         rows.forEach(row => {
-                            console.log(row);
                             ids.push(row.id);
                             bresils.push({ 
                                 id: row.id,
