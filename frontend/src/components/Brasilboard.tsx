@@ -6,7 +6,6 @@ import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import "../css/brasilboard.css";
-
 interface testCallback {
 	(err: any, status: any, data: any): any;
 }
@@ -40,8 +39,7 @@ type user = {
 	avatarURL: string | null;
 	displayAvatarURL: string;
 };
-
-type COUNTS = { user: user; counter: number }[];
+type COUNTS = { user: user; bresil_received: number, bresil_sent: number }[];
 
 const fetchConnectedUsers = async (callback: testCallback) => {
 	await axios
@@ -58,7 +56,6 @@ const fetchInfo = async (callback: testCallback) => {
 	await axios
 		.get("/api/brasilBoard")
 		.then((res) => {
-			// console.log(res);
 			callback(null, res.status, res.data);
 		})
 		.catch((err) => {
@@ -109,7 +106,6 @@ const Brasilboard: React.FC = () => {
 						}
 					)
 					.then((res) => {
-						// console.log(res);
 						callback(null, res.status, res.data);
 					})
 					.catch((err) => {
@@ -239,7 +235,7 @@ const Brasilboard: React.FC = () => {
 						</button>
 					</div>
 				)}
-				<AdvBrasil data={counts} />
+				<AdvBrasil data={counts} setData={setCounts} />
 			</Box>
 		</div>
 	);

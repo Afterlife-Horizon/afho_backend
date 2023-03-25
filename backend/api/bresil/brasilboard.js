@@ -4,8 +4,8 @@ const path = require('node:path');
 const fsPromises = require('fs/promises');
 
 function compareData(count1, count2) {
-    if (count1.counter > count2.counter) return -1;
-    else if (count1.counter < count2.counter) return 1;
+    if (count1.bresil_received > count2.bresil_received) return -1;
+    else if (count1.bresil_received < count2.bresil_received) return 1;
     return 0;
 }
 
@@ -13,11 +13,23 @@ module.exports = function (client) {
     return ( 
         router.get("/", async (req, res) => {
             try {
-                const filePath = path.resolve(process.env.WORKPATH, `config/movecounts.json`);
-                const data = await fsPromises.readFile(filePath);
-    
-                const moveCounts = await JSON.parse(data);
-                const ids = moveCounts.map(m => m.id);
+                const ids = [];
+                const bresils = [];
+                selectFromDB("afho", "SELECT * FROM bot_levels", [], (err, rows) => {
+                    if (err) {
+                        console.error(err);
+                    }
+                    else if (rows.length > 0) {
+                        rows.forEach(row => {
+                            ids.push(row.id);
+                            bresils.push({ 
+                                id: row.id,
+                                bresil_received: row.bresil_received,
+                                bresil_sent: row.bresil_sent,
+                            });
+                        });
+                    }
+                });
     
                 const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
     
@@ -25,8 +37,11 @@ module.exports = function (client) {
                 const members = guild.members.cache.filter(m => ids.includes(m.id));
     
                 const sendData = members.map(m => {
-                    const count = moveCounts.find(move => move.id === m.id);
-                    return { user: m, counter: count.counter };
+                    return {
+                        user: m, 
+                        received: bresils.bresil_received, 
+                        sent: bresils.bresil_sent 
+                    };
                 });
 
                 res.json(sendData.sort(compareData));

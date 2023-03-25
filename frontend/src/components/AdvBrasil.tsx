@@ -24,8 +24,19 @@ type user = {
 	displayAvatarURL: string;
 };
 
+type COUNTS = {
+	user: user;
+	bresil_received: number,
+	bresil_sent: number
+}[];
+
 interface props {
-	data: { user: user; counter: number }[];
+	setData: React.Dispatch<React.SetStateAction<COUNTS>>;
+	data: { 
+		user: user; 
+		bresil_received: number,
+		bresil_sent: number,
+	}[];
 }
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -49,7 +60,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 	},
 }));
 
-const AdvBrasil: React.FC<props> = ({ data }) => {
+const AdvBrasil: React.FC<props> = ({ setData, data }) => {
 	function stringOfRank(rank: number) {
 		switch (rank) {
 			case 1:
@@ -63,6 +74,23 @@ const AdvBrasil: React.FC<props> = ({ data }) => {
 		}
 	}
 
+	function handleSortClicked(type: number) {
+		return () => {
+			data.sort((a, b) => {
+				if (type === 1) {
+					return b.bresil_received - a.bresil_received;
+				} else if(type === 2) {
+					return b.bresil_sent - a.bresil_sent;
+				}
+				else {
+					return 0;
+				}
+			});
+
+			setData([...data]);
+		};
+	}
+
 	return (
 		<TableContainer component={Paper} sx={{ maxHeight: "80vh" }}>
 			<Table stickyHeader>
@@ -70,7 +98,8 @@ const AdvBrasil: React.FC<props> = ({ data }) => {
 					<StyledTableRow>
 						<StyledTableCell />
 						<StyledTableCell>USER</StyledTableCell>
-						<StyledTableCell align="right">COUNT</StyledTableCell>
+						<StyledTableCell onClick={handleSortClicked(1)} align="right">COUNT</StyledTableCell>
+						<StyledTableCell onClick={handleSortClicked(2)} align="right">GIVEN</StyledTableCell>
 					</StyledTableRow>
 				</TableHead>
 				<TableBody>
@@ -85,7 +114,8 @@ const AdvBrasil: React.FC<props> = ({ data }) => {
 									{u.user.nickname ? u.user.nickname : u.user.displayName}
 								</div>
 							</StyledTableCell>
-							<StyledTableCell align="right">{u.counter}</StyledTableCell>
+							<StyledTableCell align="right">{u.bresil_received}</StyledTableCell>
+							<StyledTableCell align="right">{u.bresil_sent}</StyledTableCell>
 						</StyledTableRow>
 					))}
 				</TableBody>
