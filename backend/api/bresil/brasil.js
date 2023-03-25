@@ -38,7 +38,7 @@ module.exports = function (client) {
                         moveCount = rows[0].bresil_recieved + 1;
                     }
                     else {
-                        updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_recieved) VALUES (?, ?, 1)", [movedId, member.username], (err) => {
+                        updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_recieved) VALUES (?, ?, 1)", [movedId, member.user.username], (err) => {
                             if (err) {
                                 console.log(err);
                             }
@@ -59,7 +59,7 @@ module.exports = function (client) {
                         moverCount = rows[0].bresil_sent + 1;
                     }
                     else {
-                        updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_sent) VALUES (?, ?, 1)", [moverId, mover.username], (err) => {
+                        updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_sent) VALUES (?, ?, 1)", [moverId, mover.user.username], (err) => {
                             if (err) {
                                 console.log(err);
                             }

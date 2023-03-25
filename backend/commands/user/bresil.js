@@ -44,10 +44,10 @@ module.exports = {
 							return console.log(err);
 						}
 					})
-					moveCount = rows[0].bresil_recieved + 1;
+					moveCount = rows[0].bresil_received + 1;
 				}
 				else {
-					updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_recieved) VALUES (?, ?, 1)", [memberid, member.username], (err) => {
+					updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_recieved) VALUES (?, ?, 1)", [memberid, member.user.username], (err) => {
 						if (err) {
 							console.log(err);
 						}
@@ -68,7 +68,7 @@ module.exports = {
 					moverCount = rows[0].bresil_sent + 1;
 				}
 				else {
-					updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_sent) VALUES (?, ?, 1)", [interaction.member.id, interaction.member.username], (err) => {
+					updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_sent) VALUES (?, ?, 1)", [interaction.member.id, interaction.member.user.username], (err) => {
 						if (err) {
 							console.log(err);
 						}
