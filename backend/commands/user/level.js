@@ -24,7 +24,7 @@ module.exports = {
                 }
                 else if (rows.length > 0) {
                     const embed = new EmbedBuilder()
-                        .setTitle(`Level of <@${memberid}>`)
+                        .setTitle(`Level of ${messageMember}`)
                         .setDescription(`Level: ${getLevelFromXp(rows[0].xp)}\nXP: ${rows[0].xp}`)
                         .setColor(0x00AE86)
                         .setTimestamp();
@@ -32,7 +32,7 @@ module.exports = {
                 }
                 else {
                     const embed = new EmbedBuilder()
-                        .setTitle(`Level of <@${memberid}>`)
+                        .setTitle(`Level of ${messageMember}`)
                         .setDescription(`Level: 0\nXP: 0`)
                         .setColor(0x00AE86)
                         .setTimestamp();

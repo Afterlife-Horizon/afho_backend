@@ -22,31 +22,50 @@ module.exports = function (client) {
                 if (!voiceChannel) return res.status(406).json({error: 'You are not in a channel!'});
                 if (!member) return res.status(406).json({error: 'Member is not in a channel!'});
 
-                const filePath = path.resolve(process.env.WORKPATH, `config/movecounts.json`);
-                const data = await fsPromises.readFile(filePath);
-                const moveCounts = JSON.parse(data);
-                let moveCount = moveCounts.filter(m => m.id === member.user.id)[0]?.counter;
-
-                if (!moveCount) {
-                    fs.writeFile(filePath, JSON.stringify([...moveCounts, { id: member.user.id.toString(), username: member.user.username, counter: 1 }]), 'utf8', (err) => {
-                        if (err) {
-                            console.log("An error occured while writing JSON Object to File.");
-                            return console.log(err);
-                        }
-                        console.log("JSON file has been saved.");
-                    });
-                }
-                else {
-                    moveCount += 1;
-                    const index = moveCounts.findIndex(m => m.username === member.user.username);
-                    moveCounts[index] = { id: member.user.id.toString(), username: member.user.username, counter: moveCount };
-                    fs.writeFile(filePath, JSON.stringify([...moveCounts]), 'utf8', (err) => {
-                        if (err) {
-                            console.log("An error occured while writing JSON Object to File.");
-                            return console.log(err);
-                        }
-                    });
-                }
+                const moveCount = 1;
+                const moverCount = 1;
+    
+                selectFromDB("afho", "SELECT * FROM bot_bresil WHERE id = ? ", [movedId], (err, rows) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    else if(rows.size > 0) {
+                        updateDB("afho", "UPDATE bot_bresil SET bresil_received = bresil_received + 1 WHERE id = ?", [movedId], (err) => {
+                            if (err) {
+                                return console.log(err);
+                            }
+                        })
+                        moveCount = rows[0].bresil_recieved + 1;
+                    }
+                    else {
+                        updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_recieved) VALUES (?, ?, 1)", [movedId, member.username], (err) => {
+                            if (err) {
+                                console.log(err);
+                            }
+                        })
+                    }
+                });
+    
+                selectFromDB("afho", "SELECT * FROM bot_bresil WHERE id = ?", [interaction.member.id], (err, rows) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    else if (rows.size > 0) {
+                        updateDB("afho", "UPDATE bot_bresil SET bresil_sent = bresil_sent + 1 WHERE id = ?", [moverId], (err) => {
+                            if (err) {
+                                console.log(err);
+                            }
+                        })
+                        moverCount = rows[0].bresil_sent + 1;
+                    }
+                    else {
+                        updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_sent) VALUES (?, ?, 1)", [moverId, mover.username], (err) => {
+                            if (err) {
+                                console.log(err);
+                            }
+                        })
+                    }
+                });
 
                 const brasilChannel = client.channels.cache.get(brasilChannelId);
                 await member.voice.setChannel(brasilChannel);
@@ -57,7 +76,7 @@ module.exports = function (client) {
                     .addFields(
                         {
                             name: `Mover`,
-                            value: `<@${mover.user.id}>`,
+                            value: `<@${interaction.user.id}>`,
                             inline: false,
                         },
                         {
@@ -66,10 +85,15 @@ module.exports = function (client) {
                             inline: false,
                         },
                         {
-                            name: `Move count`,
-                            value: `${moveCount ? moveCount : 1}`,
+                            name: `${member} moved `,
+                            value: `${moveCount} times!`,
                             inline: false,
                         },
+                        {
+                            name: `${interaction.member} moved people`,
+                            value: `${moverCount} times!`,
+                            inline: false,
+                        }
                     );
 
                 await logChannel.send({ embeds: [replyEmbed] });

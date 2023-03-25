@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const path = require("path");
 const fs = require("fs");
 const fsPromises = require("fs/promises");
+const { selectFromDB, updateDB } = require("../../DB/DB_functions");
 require("dotenv").config();
 
 module.exports = {
@@ -25,69 +26,55 @@ module.exports = {
 					content: `❌ You are not in a channel you wanker!`,
 				});
 
-			const guild = interaction.client.guilds.cache.find(
-				(g) => g.name === "Afterlife Horizon"
-			);
+			const guild = interaction.client.guilds.cache.find((g) => g.name === "Afterlife Horizon");
 			const member = await guild.members.fetch(memberid);
 			if (!member)
 				await interaction.reply({ content: `❌ Member is not in a channel!` });
 
-			const filePath = path.resolve(
-				process.env.WORKPATH,
-				`config/movecounts.json`
-			);
-			const data = await fsPromises.readFile(filePath);
-			const moveCounts = JSON.parse(data);
-			let moveCount = moveCounts.filter((m) => m.id === member.user.id)[0]
-				?.counter;
+			const moveCount = 1;
+			const moverCount = 1;
 
-			if (!moveCount) {
-				fs.writeFile(
-					filePath,
-					JSON.stringify([
-						...moveCounts,
-						{
-							id: member.user.id.toString(),
-							username: member.user.username,
-							counter: 1,
-						},
-					]),
-					"utf8",
-					(err) => {
+			selectFromDB("afho", "SELECT * FROM bot_bresil WHERE id = ? ", [memberid], (err, rows) => {
+				if (err) {
+					console.log(err);
+				}
+				else if(rows.size > 0) {
+					updateDB("afho", "UPDATE bot_bresil SET bresil_received = bresil_received + 1 WHERE id = ?", [memberid], (err) => {
 						if (err) {
-							console.log(
-								"An error occured while writing JSON Object to File."
-							);
 							return console.log(err);
 						}
-
-						console.log("JSON file has been saved.");
-					}
-				);
-			} else {
-				moveCount += 1;
-				const index = moveCounts.findIndex(
-					(m) => m.username === member.user.username
-				);
-				moveCounts[index] = {
-					id: member.user.id.toString(),
-					username: member.user.username,
-					counter: moveCount,
-				};
-				fs.writeFile(
-					filePath,
-					JSON.stringify([...moveCounts]),
-					"utf8",
-					(err) => {
+					})
+					moveCount = rows[0].bresil_recieved + 1;
+				}
+				else {
+					updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_recieved) VALUES (?, ?, 1)", [memberid, member.username], (err) => {
 						if (err) {
-							console.log(
-								"An error occured while writing JSON Object to File."
-							);
-							return console.log(err);
+							console.log(err);
 						}
-					}
-				);
-			}
+					})
+				}
+			});
+
+			selectFromDB("afho", "SELECT * FROM bot_bresil WHERE id = ?", [interaction.member.id], (err, rows) => {
+				if (err) {
+					console.log(err);
+				}
+				else if (rows.size > 0) {
+					updateDB("afho", "UPDATE bot_bresil SET bresil_sent = bresil_sent + 1 WHERE id = ?", [interaction.member.id], (err) => {
+						if (err) {
+							console.log(err);
+						}
+					})
+					moverCount = rows[0].bresil_sent + 1;
+				}
+				else {
+					updateDB("afho", "INSERT INTO bot_bresil (id, username, bresil_sent) VALUES (?, ?, 1)", [interaction.member.id, interaction.member.username], (err) => {
+						if (err) {
+							console.log(err);
+						}
+					})
+				}
+			})
 
 			const brasilChannel =
 				interaction.client.channels.cache.get(brasilChannelId);
@@ -108,8 +95,13 @@ module.exports = {
 						inline: false,
 					},
 					{
-						name: `Move count`,
-						value: `${moveCount ? moveCount : 1}`,
+						name: `${member} moved `,
+						value: `${moveCount} times!`,
+						inline: false,
+					},
+					{
+						name: `${interaction.member} moved people`,
+						value: `${moverCount} times!`,
 						inline: false,
 					}
 				);
