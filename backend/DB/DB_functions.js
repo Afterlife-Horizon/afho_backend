@@ -3,6 +3,7 @@ const dbConnection = require("./connection");
 
 const updateDB = (database, query, args, callback) => {
     const conn = dbConnection(database);
+    console.log(conn);
     conn.getConnection((connErr, connection) => {
         if (connErr) {
             connection.release();
@@ -25,6 +26,7 @@ const updateDB = (database, query, args, callback) => {
 
 const selectFromDB = (database, query, args, callback) => {
     const conn = dbConnection(database);
+    console.log(conn);
     conn.getConnection((connErr, connection) => {
         if (connErr) {
             return callback(connErr, []);
@@ -44,7 +46,7 @@ const selectFromDB = (database, query, args, callback) => {
     });
 };
 
-module.exports = db => {
-    db.updateDB = _.curry(updateDB)(db.database);
-    db.selectFromDB = _.curry(selectFromDB)(db.database);
-};
+module.exports = {
+    updateDB,
+    selectFromDB,
+}

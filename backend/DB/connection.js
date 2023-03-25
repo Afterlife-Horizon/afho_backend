@@ -13,6 +13,4 @@ const connection = (database) => {
 
     return conn;
 };
-module.exports = database => {
-    connection(database);
-};
+module.exports = connection;

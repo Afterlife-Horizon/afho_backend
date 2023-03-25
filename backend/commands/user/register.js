@@ -8,9 +8,7 @@ require('dotenv').config();
 const db = {
     database: "AFHO",
 };
-require(process.env.WORKPATH + "DB/DB_functions")(db);
-
-const { updateDB, selectFromDB } = db;
+const { updateDB, selectFromDB } = require(process.env.WORKPATH + "DB/DB_functions");
 
 module.exports = {
     // --------- command setup ---------
@@ -74,7 +72,7 @@ module.exports = {
         console.log("-------------------------------------------------------".yellow);
         let query = `SELECT * FROM users WHERE name = ? OR discord_tag = ?`;
         let args = [username, discordTag];
-        selectFromDB(query, args, (err, rows) => {
+        selectFromDB(db.database, query, args, (err, rows) => {
             if (err) {
                 console.error(err);
                 channel.send({ content: `there was an error!`, ephemeral: true });
@@ -88,7 +86,7 @@ module.exports = {
                 console.log("[DB] Inserting user:  ".yellow + username.blue + " into database AFHO(users)".yellow);
                 query = `INSERT INTO users(discordId, name, discord_tag, email, role, password, isAdmin, isSCPlayer) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
                 args = [dsId, username, discordTag, email, role, hashedPass, isAdmin, isScPlayer];
-                updateDB(query, args, (err) => {
+                updateDB(db.database, query, args, (err) => {
                     if (err) {
                         console.error(err);
                         channel.send({ content: `there was an error!`, ephemeral: true });
@@ -102,7 +100,7 @@ module.exports = {
 
                         query = `INSERT INTO images(type, path, user_id) VALUES (?, ?, (SELECT id FROM users WHERE users.name = ?))`;
                         args = ["", "", username];
-                        updateDB(query, args, (err) => {
+                        updateDB(db.database, query, args, (err) => {
                             if (err) {
                                 console.log(err);
                                 channel.send({ content: `there was an error!`, ephemeral: true });
@@ -127,7 +125,7 @@ const cleanOnError = (user) => {
     console.log("[DB] Cleaning database!".yellow);
     const query = `DELETE FROM ? WHERE name = ?`;
     const args = ["users", user];
-    updateDB(query, args, (err) => {
+    updateDB(db.database, query, args, (err) => {
         if (err) {
             console.error(err);
         }

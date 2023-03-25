@@ -8,9 +8,7 @@ require('dotenv').config();
 const db = {
     database: "afho",
 };
-require(process.env.WORKPATH + "DB/DB_functions")(db);
-
-const { updateDB, selectFromDB } = db;
+const { updateDB, selectFromDB } = require(process.env.WORKPATH + "DB/DB_functions");
 
 module.exports = {
     // --------- command setup ---------
@@ -34,7 +32,7 @@ module.exports = {
             console.log("[LOG] User used command addBirthday( ".yellow + date.format("DD/MM/YYYY").blue + " ): checking if user already has a birthday in the database!".yellow);
             const query = 'SELECT * FROM birthdays WHERE username = ? AND serverId = ?';
             const args = [username, serverId];
-            selectFromDB(query, args, (err, rows) => {
+            selectFromDB(db.database, query, args, (err, rows) => {
                 if (err != null) {
                     interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
                 }
@@ -42,7 +40,7 @@ module.exports = {
                     console.log("[LOG] user has one: Updating!".yellow);
                     const query2 = 'UPDATE birthdays SET birthdate = ? WHERE username = ? AND serverId = ?';
                     const args2 = [date.format("YYYY-MM-DD"), username, serverId];
-                    updateDB(query2, args2, (err) => {
+                    updateDB(db.database, query2, args2, (err) => {
                         if (err != null) {
                             console.log('[LOG] Database error!'.red);
                             interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
@@ -56,7 +54,7 @@ module.exports = {
                 else {
                     const query2 = 'INSERT INTO birthdays(username, birthdate, serverId) VALUES (?, ?, ?)';
                     const args2 = [username, date.format("YYYY-MM-DD"), serverId];
-                    updateDB(query2, args2, (err) => {
+                    updateDB(db.database, query2, args2, (err) => {
                         if (err != null) {
                             console.log('[LOG] Database error!'.red);
                             interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
