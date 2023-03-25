@@ -1,7 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const path = require('node:path');
-const fsPromises = require('fs/promises');
 
 function compareData(count1, count2) {
     if (count1.xp > count2.xp) return -1;
@@ -10,15 +8,30 @@ function compareData(count1, count2) {
 }
 
 
+const { selectFromDB } = require("../DB/DB_functions");
+const getLvlFromXp = require("../functions/getLvlFromXp");
+
 module.exports = function (client) {
     return (
         router.get("/", async (req, res) => {
             try {
-                const filePath = path.resolve(process.env.WORKPATH, `config/levels.json`);
-                const data = await fsPromises.readFile(filePath);
-
-                const levels = await JSON.parse(data);
-                const ids = levels.map(m => m.id);
+                const ids = [];
+                const levels = [];
+                selectFromDB("afho", "SELECT * FROM bot_levels", [], (err, rows) => {
+                    if (err) {
+                        console.error(err);
+                    }
+                    else if (rows.length > 0) {
+                        rows.forEach(row => {
+                            ids.push(row.id);
+                            levels.push({ 
+                                id: row.id, 
+                                xp: row.xp, 
+                                lvl: getLvlFromXp(row.xp) 
+                            });
+                        });
+                    }
+                });
 
                 const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
         
