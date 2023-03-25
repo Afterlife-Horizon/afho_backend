@@ -21,6 +21,7 @@ module.exports = function (client) {
                     }
                     else if (rows.length > 0) {
                         rows.forEach(row => {
+                            console.log(row);
                             ids.push(row.id);
                             bresils.push({ 
                                 id: row.id,
@@ -36,7 +37,7 @@ module.exports = function (client) {
                 await guild.members.fetch();
     
                 const sendData = bresils.map(bresil => {
-                    const member = guild.members.cache.find(mem => mem.id === bresil.id);
+                    const member = guild.members.cache.find(mem => mem.user.id === bresil.id);
                     return {
                         user: member,
                         received: bresil.bresil_received, 
