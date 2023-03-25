@@ -31,8 +31,8 @@ module.exports = {
 			if (!member)
 				await interaction.reply({ content: `❌ Member is not in a channel!` });
 
-			const moveCount = 1;
-			const moverCount = 1;
+			let moveCount = 1;
+			let moverCount = 1;
 
 			selectFromDB("afho", "SELECT * FROM bot_bresil WHERE id = ? ", [memberid], (err, rows) => {
 				if (err) {

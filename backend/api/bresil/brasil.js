@@ -22,8 +22,8 @@ module.exports = function (client) {
                 if (!voiceChannel) return res.status(406).json({error: 'You are not in a channel!'});
                 if (!member) return res.status(406).json({error: 'Member is not in a channel!'});
 
-                const moveCount = 1;
-                const moverCount = 1;
+                let moveCount = 1;
+                let moverCount = 1;
     
                 selectFromDB("afho", "SELECT * FROM bot_bresil WHERE id = ? ", [movedId], (err, rows) => {
                     if (err) {
