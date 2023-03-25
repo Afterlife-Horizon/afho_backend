@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const path = require('node:path');
-const fsPromises = require('fs/promises');
+
+const { selectFromDB } = require("../DB/DB_functions");
 
 function compareData(count1, count2) {
     if (count1.bresil_received > count2.bresil_received) return -1;
