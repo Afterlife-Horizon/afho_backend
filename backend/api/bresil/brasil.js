@@ -46,7 +46,7 @@ module.exports = function (client) {
                     }
                 });
     
-                selectFromDB("afho", "SELECT * FROM bot_bresil WHERE id = ?", [interaction.member.id], (err, rows) => {
+                selectFromDB("afho", "SELECT * FROM bot_bresil WHERE id = ?", [moverId], (err, rows) => {
                     if (err) {
                         console.log(err);
                     }
