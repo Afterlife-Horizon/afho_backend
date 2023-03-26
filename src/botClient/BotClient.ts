@@ -334,10 +334,12 @@ export default class BotClient extends Client {
                             },
                         });
                         oldConnection.subscribe(player);
+
+                        console.log("Playing song", songInfo)
     
-                        const resource = this.getResource(curQueue, songInfo.id, songInfo.seekTime || 0);
+                        const resource = this.getResource(curQueue, songInfo.id, songInfo.seekTime);
                         
-                        console.log("Playing resource", resource)
+                        // console.log("Playing resource", resource)
                         player.play(resource)
     
                         player.on(AudioPlayerStatus.Paused, () => {
