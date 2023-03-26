@@ -274,7 +274,7 @@ export default class BotClient extends Client {
                 fmt: 'mp3',
                 highWaterMark: 1 << 30,
                 liveBuffer: 20000,
-                dlChunkSize: 4096,
+                dlChunkSize: 0,
                 bitrate: 128,
                 quality: 'lowestaudio'
             } as downloadOptions;
@@ -355,14 +355,15 @@ export default class BotClient extends Client {
                             const queue = this.queues.get(channel.guildId);
                             if (!queue || !queue.tracks || queue.tracks.length == 0) 
                                 return this.sendQueueUpdate(channel.guildId);
+                            console.log("Idle, playing next song")
                             this.handleQueue(player, queue);
                         });
                         
                         player.on('error', error => {
-                            console.error(error);
                             const queue = this.queues.get(channel.guildId);
                             if (!queue || !queue.tracks || queue.tracks.length == 0) 
                                 return this.sendQueueUpdate(channel.guildId);
+                                console.log("Error, playing next song: ", error)
                             this.handleQueue(player, queue);
                         });
                         return res(songInfo);
@@ -482,6 +483,7 @@ export default class BotClient extends Client {
         if (queue && !queue.filtersChanged) {
             try {
                 player.stop();
+                console.log("Stopped player");
                 if (queue && queue.tracks && queue.tracks.length > 1) {
                     queue.previous = queue.tracks[0];
                     if (queue.trackloop && !queue.skipped) {
