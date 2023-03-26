@@ -1,4 +1,4 @@
-import { AudioPlayer, AudioPlayerStatus, AudioResource, NoSubscriberBehavior, VoiceConnectionStatus, createAudioPlayer, createAudioResource, entersState, getVoiceConnection, joinVoiceChannel } from "@discordjs/voice"
+import { AudioPlayer, AudioPlayerStatus, AudioResource, NoSubscriberBehavior, StreamType, VoiceConnectionStatus, createAudioPlayer, createAudioResource, entersState, getVoiceConnection, joinVoiceChannel } from "@discordjs/voice"
 import { Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel } from "discord.js"
 import { ICommand, IQueue, IESong, IFavorite } from "../types"
 import dcYtdl from "discord-ytdl-core"
@@ -10,6 +10,7 @@ import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
+import ytdl from "ytdl-core"
 
 export default class BotClient extends Client {
     currentChannel: VoiceChannel | null;
@@ -275,7 +276,7 @@ export default class BotClient extends Client {
                 dlChunkSize: 0,
                 seek: Math.floor(seekTime / 1000),
                 bitrate: queue.bitrate || 128,
-                quality: "highestaudio",
+                quality: "lowestaudio",
                 encoderArgs: Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200'],
             };
     
@@ -287,7 +288,8 @@ export default class BotClient extends Client {
                 };
             }
     
-            const resource = createAudioResource(dcYtdl(this.getYTLink(songInfoId), requestOpts), {
+            const resource = createAudioResource(ytdl(this.getYTLink(songInfoId), requestOpts), {
+                inputType: StreamType.Arbitrary,
                 inlineVolume: true,
             });
     
