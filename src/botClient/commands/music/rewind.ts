@@ -47,7 +47,7 @@ export default (client: BotClient) : ICommand => {
                 queue.filtersChanged = true;
                 // seek
                 state.subscription.player.stop();
-                state.subscription.player.play(client.getResource(queue, queue.tracks[0].id, newPos));
+                state.subscription.player.play(await client.getResource(queue, queue.tracks[0].id, newPos));
 
                 interaction.reply({ content: `⏪ **Rewinded for \`${arg}s\` to \`${client.formatDuration(newPos)}\`**!` }).catch((err) => console.log(err));
             }

@@ -54,7 +54,7 @@ export default (client: BotClient) : ICommand => {
                     time: 60_000,
                     max: 1,
                 });
-                collector.on("collect", (i : StringSelectMenuInteraction) => {
+                collector.on("collect", async (i : StringSelectMenuInteraction) => {
                     i.values.forEach(option => queue.effects[option] = !queue.effects[option]);
                     i.reply({
                         content: `Changed ${i.values.length} Filter(s) to:\n> *Will be applied with the next Skip*`,
@@ -72,7 +72,7 @@ export default (client: BotClient) : ICommand => {
                     queue.filtersChanged = true;
                     const curPos = playerState.resource.playbackDuration;
                     state.subscription?.player.stop();
-                    state.subscription?.player.play(client.getResource(queue, queue.tracks[0].id, curPos));
+                    state.subscription?.player.play(await client.getResource(queue, queue.tracks[0].id, curPos));
                 });
                 collector.on("end", () => {
                     Menu.setDisabled(true);

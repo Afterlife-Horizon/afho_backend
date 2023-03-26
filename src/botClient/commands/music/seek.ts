@@ -42,7 +42,7 @@ export default (client: BotClient) : ICommand => {
                 if (!state || !state.subscription) return interaction.reply(`👎 **Something went wrong**`).catch((err) => console.log(err));
 
                 state.subscription.player.stop();
-                state.subscription.player.play(client.getResource(queue, queue.tracks[0].id, newPos));
+                state.subscription.player.play(await client.getResource(queue, queue.tracks[0].id, newPos));
 
                 interaction.reply({ content: `⏩ **Seeked to \`${client.formatDuration(newPos)}\`**!` }).catch((err) => console.log(err));
             }
