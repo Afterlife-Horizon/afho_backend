@@ -104,7 +104,7 @@ const Music = (props: any) => {
 					name: queue.tracks[0].title,
 					artist: queue.tracks[0].channel.name,
 					filters: queue.effects,
-					requester: queue.tracks[0].requester.username,
+					requester: queue.tracks[0].requester,
 					url: "https://www.youtube.com/watch?v=" + queue.tracks[0].id,
 					formatedprog: res.formatedprog,
 					duration: queue.tracks[0].durationFormatted,
@@ -116,7 +116,7 @@ const Music = (props: any) => {
 					Math.floor(100 * (res.prog / queue.tracks[0].duration))
 				);
 				setHasChanged(queue.filtersChanged);
-				tmpIsRequester = user.username === queue.tracks[0].requester.username;
+				tmpIsRequester = user.username === queue.tracks[0].requester;
 			} else {
 				setHasChanged(false);
 				setSong({

@@ -112,7 +112,7 @@ type track = {
     live: boolean;
     nsfw: string;
     private: boolean;
-    requester: discordUser;
+    requester: string;
     thumbnail: thumbnail;
     title: string;
     shorts: boolean;
@@ -125,7 +125,7 @@ type track = {
 type queueItem = {
 	[x: number]: number;
     bitrate: number;
-    creator: discordUser;
+    creator: String;
     effects: effects;
     filtersChanged: boolean;
     paused: boolean;
