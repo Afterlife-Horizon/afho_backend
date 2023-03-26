@@ -17,7 +17,6 @@ const Favs: React.FC = () => {
 
 	const [favAdd, setFavAdd] = useState("");
 	const [page, setPage] = useState(1);
-	if (!favs) return <div></div>;
 	let maxPage = favs.length > 6 ? Math.ceil((favs.length - 1) / 5) : -1;
 	if (page > maxPage + 2) setPage(maxPage + 2);
 	else if (
