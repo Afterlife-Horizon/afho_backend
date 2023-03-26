@@ -48,7 +48,7 @@ export default function (client: BotClient) {
 				}
 			})
 
-			const favs : IFavorite[] = client.favs[req.body.userId];
+			const favs : IFavorite[] = client.favs[req.body.userId] || [];
 			favs.push(newFav);
 			client.favs[req.body.userId] = favs;
 
