@@ -354,8 +354,8 @@ export default class BotClient extends Client {
                         player.on(AudioPlayerStatus.Idle, () => {
                             const queue = this.queues.get(channel.guildId);
                             console.log("Idle, playing next song, queue: ", queue)
-                            if (!queue || !queue.tracks || queue.tracks.length == 0)
-                                return this.sendQueueUpdate(channel.guildId);
+                            // if (!queue || !queue.tracks || queue.tracks.length == 0)
+                            //     return this.sendQueueUpdate(channel.guildId);
                             console.log("Idle, playing next song")
                         });
                         
