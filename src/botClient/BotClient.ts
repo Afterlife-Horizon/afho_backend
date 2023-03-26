@@ -309,6 +309,8 @@ export default class BotClient extends Client {
             stream.unref();
     
             const resource = createAudioResource(stream.stdout!);
+
+            console.log("Created resource", resource)
     
             const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? (queue.volume / 100) : 1;
             resource.volume?.setVolume(volume);
@@ -335,6 +337,7 @@ export default class BotClient extends Client {
     
                         const resource = this.getResource(curQueue, songInfo.id, songInfo.seekTime || 0);
                         
+                        console.log("Playing resource", resource)
                         player.play(resource)
     
                         player.on(AudioPlayerStatus.Paused, () => {
