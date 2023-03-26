@@ -20,9 +20,7 @@ export default function delFav(client: BotClient) {
 				}
 			})
 
-			console.log("Before: " + client.favs[userId])
 			client.favs[userId] = client.favs[userId].filter((fav: IFavorite) => fav.name !== name);
-			console.log("After: " + client.favs[userId])
 
 			res.status(200).json({ data: client.favs[userId] });
 		} catch (err) {
