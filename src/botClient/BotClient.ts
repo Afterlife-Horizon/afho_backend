@@ -10,6 +10,7 @@ import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
 import { exec as ytdlexec } from 'youtube-dl-exec';
+import ytdl, { downloadOptions } from "ytdl-core"
 
 
 export default class BotClient extends Client {
@@ -269,17 +270,27 @@ export default class BotClient extends Client {
     
     
             const requestOpts = {
-                requestOptions: {},
-                filter: "audioonly",
-                highWaterMark: 1 << 62,
-                liveBuffer: 1 << 62,
-                dlChunkSize: 0,
-                seek: Math.floor(seekTime / 1000),
-                bitrate: queue.bitrate || 32,
-                quality: "lowestaudio",
-                encoderArgs: Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200'],
-            } ;
+                filter: 'audioonly',
+                fmt: 'mp3',
+                highWaterMark: 1 << 30,
+                liveBuffer: 20000,
+                dlChunkSize: 4096,
+                bitrate: 128,
+                quality: 'lowestaudio'
+            } as downloadOptions;
+            // {
+            //     requestOptions: {},
+            //     filter: "audioonly",
+            //     highWaterMark: 1 << 62,
+            //     liveBuffer: 1 << 62,
+            //     dlChunkSize: 0,
+            //     seek: Math.floor(seekTime / 1000),
+            //     bitrate: queue.bitrate || 32,
+            //     quality: "lowestaudio",
+            //     encoderArgs: Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200'],
+            // } ;
     
+
             if (this.config.YOUTUBE_LOGIN_COOKIE && this.config.YOUTUBE_LOGIN_COOKIE.length > 10) {
                 requestOpts.requestOptions = {
                     headers: {
@@ -288,29 +299,16 @@ export default class BotClient extends Client {
                 };
             }
 
-            const stream = ytdlexec(
-                this.getYTLink(songInfoId),
-                {
-                  output: '-',
-                  format:
-                    'bestaudio[ext=webm+acodec=opus+tbr>100]/bestaudio[ext=webm+acodec=opus]/bestaudio/best',
-                  limitRate: '1M',
-                  rmCacheDir: true,
-                  verbose: true,
-                },
-                { stdio: ['ignore', 'pipe', 'ignore'] }
-              );
+            
+            const resource = createAudioResource(
+                ytdl(this.getYTLink(songInfoId), requestOpts).once('error', (err) => {
+                console.error(err.message, '\n', err.stack);
+                }).once('end', () => {
+                    console.log(`Stream ended`);
+                })
+            );
 
-            stream.on('error', (err) => {
-                stream.kill('SIGTERM');
-                console.log('ERROR', 'Spawn failed!', err);
-            });
-
-            stream.unref();
-    
-            const resource = createAudioResource(stream.stdout!);
-
-            console.log("Created resource", resource)
+            // console.log("Created resource", resource)
     
             const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? (queue.volume / 100) : 1;
             resource.volume?.setVolume(volume);
@@ -335,7 +333,7 @@ export default class BotClient extends Client {
                         });
                         oldConnection.subscribe(player);
 
-                        console.log("Playing song", songInfo)
+                        // console.log("Playing song", songInfo)
     
                         const resource = this.getResource(curQueue, songInfo.id, songInfo.seekTime);
                         

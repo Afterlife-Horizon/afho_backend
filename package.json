@@ -37,7 +37,8 @@
 		"ts-loader": "^9.4.2",
 		"undici": "^5.11.0",
 		"youtube-dl-exec": "^2.4.0",
-		"youtube-sr": "^4.3.4"
+		"youtube-sr": "^4.3.4",
+		"ytdl-core": "^4.11.2"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^5.0.0",
