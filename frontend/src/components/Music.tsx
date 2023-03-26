@@ -229,7 +229,7 @@ const Music = (props: any) => {
 			async function fetchUserfavs() {
 				try {
 					const res = await getUserFavorites(user.id);
-					setFavs(res.favs)
+					setFavs(res.favorites)
 				} catch (err) {
 					console.error(err);
 				}
