@@ -10,6 +10,7 @@ import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
 import ytdl from "ytdl-core-discord"
+import { downloadOptions } from "ytdl-core"
 
 export default class BotClient extends Client {
     currentChannel: VoiceChannel | null;
@@ -269,7 +270,7 @@ export default class BotClient extends Client {
     
             const requestOpts = {
                 requestOptions: {},
-                fmt: "mp3",
+                filter: "audioonly",
                 highWaterMark: 1 << 62,
                 liveBuffer: 1 << 62,
                 dlChunkSize: 0,
@@ -277,7 +278,7 @@ export default class BotClient extends Client {
                 bitrate: queue.bitrate || 128,
                 quality: "lowestaudio",
                 encoderArgs: Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200'],
-            };
+            } as downloadOptions;
     
             if (this.config.YOUTUBE_LOGIN_COOKIE && this.config.YOUTUBE_LOGIN_COOKIE.length > 10) {
                 requestOpts.requestOptions = {
