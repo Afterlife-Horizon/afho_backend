@@ -351,19 +351,20 @@ export default class BotClient extends Client {
     
                         });
                         
-                        player.on(AudioPlayerStatus.Playing, () => {
+                        player.on(AudioPlayerStatus.Idle, () => {
+                            console.log("Idle, playing next song: ")
                             const queue = this.queues.get(channel.guildId);
-                            console.log("Plaing song", songInfo)
                             if (!queue || !queue.tracks || queue.tracks.length == 0)
                                 return this.sendQueueUpdate(channel.guildId);
                         });
                         
                         player.on('error', error => {
-                            const queue = this.queues.get(channel.guildId);
-                            // if (!queue || !queue.tracks || queue.tracks.length == 0) 
-                            //     return this.sendQueueUpdate(channel.guildId);
                             console.log("Error, playing next song: ", error)
-                            // this.handleQueue(player, queue);
+                            const queue = this.queues.get(channel.guildId);
+                            if (!queue || !queue.tracks || queue.tracks.length == 0) 
+                                return this.sendQueueUpdate(channel.guildId);
+                            
+                            this.handleQueue(player, queue);
                         });
 
                         console.log(player)
