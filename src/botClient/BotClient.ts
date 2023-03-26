@@ -1,7 +1,6 @@
 import { AudioPlayer, AudioPlayerStatus, AudioResource, NoSubscriberBehavior, StreamType, VoiceConnectionStatus, createAudioPlayer, createAudioResource, entersState, getVoiceConnection, joinVoiceChannel } from "@discordjs/voice"
 import { Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel } from "discord.js"
 import { ICommand, IQueue, IESong, IFavorite } from "../types"
-import dcYtdl from "discord-ytdl-core"
 import fs from "node:fs"
 import path from "node:path"
 
@@ -10,7 +9,7 @@ import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
-import ytdl from "ytdl-core"
+import ytdl from "ytdl-core-discord"
 
 export default class BotClient extends Client {
     currentChannel: VoiceChannel | null;
@@ -242,7 +241,7 @@ export default class BotClient extends Client {
             });
         };
 
-        this.getResource = (queue, songInfoId, seekTime = 0) => {
+        this.getResource = async (queue, songInfoId, seekTime = 0) => {
             let Qargs = "";
             const effects = queue.effects;
     
@@ -288,8 +287,8 @@ export default class BotClient extends Client {
                 };
             }
     
-            const resource = createAudioResource(ytdl(this.getYTLink(songInfoId), requestOpts), {
-                inputType: StreamType.Arbitrary,
+            const resource = createAudioResource(await ytdl(this.getYTLink(songInfoId), requestOpts), {
+                inputType: StreamType.Opus,
                 inlineVolume: true,
             });
     
