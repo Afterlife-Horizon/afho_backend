@@ -4,7 +4,9 @@
 	"description": "Discord bot for AFHO",
 	"main": "index.js",
 	"scripts": {
-		"lint": "eslint backend/",
+		"tsc": "npx tsc",
+		"tsc-dev": "ts-node-dev — respawn — pretty — transpile-only src/index.ts",
+		"lint": "eslint src/",
 		"start": "node backend/index.js",
 		"dev": "NODE_ENV=dev node backend/index.js",
 		"adddev": "METHOD=add NODE_ENV=dev node backend/deploy-commands.js",
@@ -15,14 +17,14 @@
 	"author": "Nicobonnardot3",
 	"license": "ISC",
 	"dependencies": {
-		"@discordjs/voice": "^0.11.0",
 		"@discordjs/opus": "^0.5.0",
+		"@discordjs/voice": "^0.11.0",
 		"bcrypt": "^5.1.0",
 		"colors": "^1.4.0",
 		"connect-history-api-fallback": "^2.0.0",
 		"dayjs": "^1.11.5",
 		"discord-ytdl-core": "^5.0.4",
-		"discord.js": "^14.5.0",
+		"discord.js": "^14.8.0",
 		"dotenv": "^16.0.2",
 		"express": "^4.18.1",
 		"ffmpeg-static": "^5.1.0",
@@ -30,11 +32,24 @@
 		"lodash": "^4.17.21",
 		"mysql": "^2.18.1",
 		"openai": "^3.1.0",
+		"source-map-loader": "^4.0.1",
+		"ts-loader": "^9.4.2",
 		"undici": "^5.11.0",
 		"youtube-sr": "^4.3.4",
 		"ytdl-core": "https://github.com/matteopolak/node-ytdl-core.git#d6b56cd67aaa38c22966b98f7b36ad3db4c90192"
 	},
 	"devDependencies": {
-		"eslint": "^8.24.0"
+		"@types/bcrypt": "^5.0.0",
+		"@types/connect-history-api-fallback": "^1.3.5",
+		"@types/express": "^4.17.17",
+		"@types/lodash": "^4.14.191",
+		"@types/mysql": "^2.15.21",
+		"@types/node": "^18.15.9",
+		"@typescript-eslint/eslint-plugin": "^5.56.0",
+		"@typescript-eslint/parser": "^5.56.0",
+		"eslint": "^8.36.0",
+		"ts-node": "^10.9.1",
+		"ts-node-dev": "^2.0.0",
+		"typescript": "^5.0.2"
 	}
 }

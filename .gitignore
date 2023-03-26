@@ -110,3 +110,5 @@ DBConfig.json
 build/
 
 .ssh/
+
+.dist/

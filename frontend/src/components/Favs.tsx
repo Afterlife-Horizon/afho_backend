@@ -43,13 +43,13 @@ const Favs: React.FC = () => {
 			.catch((err) => console.log(err));
 		setFavAdd("");
 	}
-	async function deleteFav(userId: string, index: number) {
+	async function deleteFav(userId: string, name: string) {
 		await fetch("/api/delFav", {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ userId, index }),
+			body: JSON.stringify({ userId, name }),
 		})
 			.then((res) => res.json())
 			.then((data) => {
@@ -117,7 +117,7 @@ const Favs: React.FC = () => {
 				page: {page} / {maxPage === -1 ? 1 : maxPage}
 			</div>
 			<ul className="favsList">
-				{favs.slice((page - 1) * 5, page * 5 + 1).map((fav, index: number) => {
+				{favs.slice((page - 1) * 5, page * 5 + 1).map((fav) => {
 					j++;
 					return (
 						<li
@@ -127,7 +127,7 @@ const Favs: React.FC = () => {
 							<div className="queue-list-item">
 								<div>
 									<button onClick={() => playFav(fav)}>PLAY</button>
-									<button onClick={() => deleteFav(userId, index)}>
+									<button onClick={() => deleteFav(userId, fav.name)}>
 										DELETE
 									</button>
 								</div>
