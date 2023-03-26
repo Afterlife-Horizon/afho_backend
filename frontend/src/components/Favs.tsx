@@ -1,6 +1,6 @@
 // ------------ Packages ------------
-import React, { useContext, useRef, useState } from "react";
-import { Divider, Input } from "antd";
+import React, { MutableRefObject, useContext, useRef, useState } from "react";
+import { Divider, Input, InputRef } from "antd";
 import { Image } from "antd";
 
 // ------------ CSS Files ------------
@@ -14,8 +14,6 @@ const Favs: React.FC = () => {
 	const { favs, setFavs, user, setIsAdding, setInfo, setInfoboxColor, queue } = useContext(MusicContext);
 	const userId = user?.id || "";
 	const username = user?.username;
-
-	const inputRef = useRef<HTMLInputElement>(null);
 
 	const [favAdd, setFavAdd] = useState("");
 	const [page, setPage] = useState(1);
@@ -44,7 +42,7 @@ const Favs: React.FC = () => {
 			.then((data) => {
 				setFavs(data.data);
 				setFavAdd("");
-				if (inputRef.current) inputRef.current.value = ""
+				// if (inputRef.current) inputRef.current.value = ""
 			})
 			.catch((err) => console.log(err));
 	}
@@ -93,11 +91,11 @@ const Favs: React.FC = () => {
 			<h3>Favorites</h3>
 			<div className="favsAdd">
 				<Input
-					ref={inputRef}
 					className="queueInput"
 					type="text"
 					placeholder="Search for a song or playlist (URL or Name)"
 					onChange={(e) => setFavAdd(e.target.value)}
+					value={favAdd}
 				/>
 				<button onClick={() => addFav()}>ADD</button>
 			</div>
