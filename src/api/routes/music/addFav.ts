@@ -41,7 +41,7 @@ export default function (client: BotClient) {
 				thumbnail: vid.thumbnail?.url,
 			};
 
-			client.dbClient.updateDB("INSERT INTO bot_favorites (userId, name, url, thumbnail) VALUES (?, ?, ?, ?)", [userId, newFav.name, newFav.url, newFav.thumbnail], (err) => {
+			client.dbClient.updateDB("INSERT INTO bot_favorites (user_id, name, url, thumbnail) VALUES (?, ?, ?, ?)", [userId, newFav.name, newFav.url, newFav.thumbnail], (err) => {
 				if (err) {
 					console.log(err);
 					return res.status(500).send("Internal Server Error");
