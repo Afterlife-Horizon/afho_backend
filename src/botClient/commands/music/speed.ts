@@ -42,7 +42,7 @@ export default (client: BotClient) : ICommand => {
             if (!playerState || !playerState.resource || !playerState.resource.volume) return interaction.reply(`👎 **Something went wrong**`).catch((err) => console.log(err));        
 
             const curPos = playerState.resource?.playbackDuration || 0;
-            // state.subscription.player.stop();
+            state.subscription.player.stop();
             state.subscription.player.play(await client.getResource(queue, queue.tracks[0].id, curPos));
 
             return interaction.reply(`🎚 **Successfully changed the Speed to \`${Math.floor(speed) / 100}x\` of the Original Speed (${speed}%)**`).catch((err) => console.log(err));

@@ -38,7 +38,7 @@ export default function (client) {
             
 
                 const curPos = playerState.resource.playbackDuration;
-                // state.subscription.player.stop();
+                state.subscription.player.stop();
                 state.subscription.player.play(client.getResource(queue, queue.tracks[0].id, curPos));
 
                 channel.send({

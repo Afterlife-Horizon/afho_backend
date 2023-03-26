@@ -6,6 +6,7 @@ export default function (client: BotClient) {
         // ------------ Checking channels voice state updates ------------
         client.on("voiceStateUpdate", async (oldState, newState) => {
 
+
             if (newState.id == client.user?.id) return;
 
             function stateChange(one, two) {

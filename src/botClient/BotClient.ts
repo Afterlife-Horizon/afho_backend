@@ -192,6 +192,10 @@ export default class BotClient extends Client {
         };
 
         this.joinVoiceChannel = async (channel) => {
+            const networkStateChangeHandler = (oldNetworkState: any, newNetworkState: any) => {
+                const newUdp = Reflect.get(newNetworkState, 'udp');
+                clearInterval(newUdp?.keepAliveInterval);
+            }
             return new Promise((res, rej) => {
                 const oldConnection = getVoiceConnection(channel.guild.id);
                 if (oldConnection) return rej("I'm already connected in: <#" + oldConnection.joinConfig.channelId + ">");
@@ -218,6 +222,14 @@ export default class BotClient extends Client {
                 newConnection.on(VoiceConnectionStatus.Destroyed, () => {
                     this.queues.delete(channel.guild.id);
                 });
+
+                newConnection.on('stateChange', (oldState, newState) => {
+                    const oldNetworking = Reflect.get(oldState, 'networking');
+                    const newNetworking = Reflect.get(newState, 'networking');
+                  
+                    oldNetworking?.off('stateChange', networkStateChangeHandler);
+                    newNetworking?.on('stateChange', networkStateChangeHandler);
+                  });
     
                 return res("Connected to the Voice Channel");
             });
@@ -482,7 +494,7 @@ export default class BotClient extends Client {
     public handleQueue = async (player: AudioPlayer, queue: IQueue) => {
         if (queue && !queue.filtersChanged ) { //&& !(player.state.status == AudioPlayerStatus.Playing)
             try {
-                // player.stop();
+                player.stop();
                 console.log("Stopped player");
                 if (queue && queue.tracks && queue.tracks.length > 1) {
                     queue.previous = queue.tracks[0];

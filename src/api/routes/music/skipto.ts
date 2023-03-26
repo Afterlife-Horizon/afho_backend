@@ -61,7 +61,7 @@ export default function (client: BotClient) {
             } 
 
     
-            // state.subscription.player.stop();
+            state.subscription.player.stop();
             res.status(200).send("OK");
             return textChannel.send(`⏭️ **Successfully skipped ${arg} Track(s)**`).catch((err: any) => console.log(err));
         })

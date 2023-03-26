@@ -47,7 +47,7 @@ export default (client: BotClient) : ICommand => {
                 }
                 const newPos = curPos + Number(arg) * 1000;
                 queue.filtersChanged = true;
-                // state.subscription.player.stop();
+                state.subscription.player.stop();
                 state.subscription.player.play(await client.getResource(queue, queue.tracks[0].id, newPos));
 
                 interaction.reply({ content: `⏩ **Forwarded for \`${arg}s\` to \`${client.formatDuration(newPos)}\`**!` }).catch((err) => console.log(err));
