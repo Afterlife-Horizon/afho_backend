@@ -9,7 +9,8 @@ import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
-const  youtubeDl =  require("youtube-dl-exec").raw;
+import { exec as ytdlexec } from 'youtube-dl-exec';
+
 
 export default class BotClient extends Client {
     currentChannel: VoiceChannel | null;
@@ -76,7 +77,7 @@ export default class BotClient extends Client {
      * @param seekTime time to seek to
      * @returns a discord audio resource
      */
-    getResource!: (queue: IQueue, songInfoId: any, seekTime: number) => Promise<AudioResource<unknown>>
+    getResource!: (queue: IQueue, songInfoId: any, seekTime: number) => AudioResource<null>
 
     /**
      * 
@@ -241,7 +242,7 @@ export default class BotClient extends Client {
             });
         };
 
-        this.getResource = async (queue, songInfoId, seekTime = 0) => {
+        this.getResource = (queue, songInfoId, seekTime = 0) => {
             let Qargs = "";
             const effects = queue.effects;
     
@@ -274,10 +275,10 @@ export default class BotClient extends Client {
                 liveBuffer: 1 << 62,
                 dlChunkSize: 0,
                 seek: Math.floor(seekTime / 1000),
-                bitrate: queue.bitrate || 128,
+                bitrate: queue.bitrate || 32,
                 quality: "lowestaudio",
                 encoderArgs: Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200'],
-            };
+            } ;
     
             if (this.config.YOUTUBE_LOGIN_COOKIE && this.config.YOUTUBE_LOGIN_COOKIE.length > 10) {
                 requestOpts.requestOptions = {
@@ -287,14 +288,20 @@ export default class BotClient extends Client {
                 };
             }
 
-            const stream = youtubeDl(this.getYTLink(songInfoId), {
-                o: '-',
-                q: '',
-                f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
-                r: '100K',
-            }, { stdio: ['ignore', 'pipe', 'ignore'] })
+            const stream = ytdlexec(
+                this.getYTLink(songInfoId),
+                {
+                  output: '-',
+                  format:
+                    'bestaudio[ext=webm+acodec=opus+tbr>100]/bestaudio[ext=webm+acodec=opus]/bestaudio/best',
+                  limitRate: '1M',
+                  rmCacheDir: true,
+                  verbose: true,
+                },
+                { stdio: ['ignore', 'pipe', 'ignore'] }
+              );
     
-            const resource = createAudioResource(stream.stdout);
+            const resource = createAudioResource(stream.stdout!);
     
             const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? (queue.volume / 100) : 1;
             resource.volume?.setVolume(volume);
@@ -303,7 +310,7 @@ export default class BotClient extends Client {
         };
 
         this.playSong = async (channel, songInfo) => {
-            return new Promise(async (res, rej) => {
+            return new Promise((res, rej) => {
                 const oldConnection = getVoiceConnection(channel.guildId);
                 if (oldConnection) {
                     if (oldConnection.joinConfig.channelId != channel.id) return rej("We aren't in the same channel!");
@@ -321,7 +328,7 @@ export default class BotClient extends Client {
     
                         const resource = this.getResource(curQueue, songInfo.id, songInfo.seekTime || 0);
                         
-                        player.play(await resource)
+                        player.play(resource)
     
                         player.on(AudioPlayerStatus.Paused, () => {
                             const queue = this.queues.get(channel.guildId)
@@ -469,26 +476,26 @@ export default class BotClient extends Client {
                     queue.previous = queue.tracks[0];
                     if (queue.trackloop && !queue.skipped) {
                         if (queue.paused) queue.paused = false;
-                        player.play(await this.getResource(queue, queue.tracks[0].id, 0));
+                        player.play(this.getResource(queue, queue.tracks[0].id, 0));
                     }
                     else if (queue.queueloop && !queue.skipped) {
                         const skipped = queue.tracks.shift();
                         if (!skipped) return;
                         queue.tracks.push(skipped);
                         if (queue.paused) queue.paused = false;
-                        player.play(await this.getResource(queue, queue.tracks[0].id, 0));
+                        player.play(this.getResource(queue, queue.tracks[0].id, 0));
                     }
                     else {
                         if (queue.skipped) queue.skipped = false;
                         if (queue.paused) queue.paused = false;
                         queue.tracks.shift();
-                        player.play(await this.getResource(queue, queue.tracks[0].id, 0));
+                        player.play(this.getResource(queue, queue.tracks[0].id, 0));
                     }
                 }
                 else if (queue && queue.tracks && queue.tracks.length <= 1) {
                     queue.previous = queue.tracks[0];
                     if (queue.trackloop || queue.queueloop && !queue.skipped) {
-                        player.play(await this.getResource(queue, queue.tracks[0].id, 0));
+                        player.play(this.getResource(queue, queue.tracks[0].id, 0));
                     }
                     else {
                         if (queue.skipped) queue.skipped = false;
