@@ -312,7 +312,7 @@ export default class BotClient extends Client {
     
             const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? (queue.volume / 100) : 1;
             resource.volume?.setVolume(volume);
-            resource.playbackDuration = seekTime;
+            // resource.playbackDuration = seekTime;
             return resource;
         };
 
