@@ -66,7 +66,6 @@ export default class ExpressClient {
             .use("/api/login", login())
             .use("/api/loginaccess", loginAccess())
             .use(connectHistoryApiFallback({ verbose: false }))
-            .use(express.static(path.join(__dirname, "../frontend/dist")));
-            console.log(__dirname, "../frontend/dist");
+            .use(express.static(path.join(__dirname, "../../frontend/dist")));
     }
 }
