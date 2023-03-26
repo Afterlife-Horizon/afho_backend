@@ -365,6 +365,8 @@ export default class BotClient extends Client {
                             console.log("Error, playing next song: ", error)
                             // this.handleQueue(player, queue);
                         });
+
+                        console.log(player)
                         return res(songInfo);
                     }
                     catch (e) {
