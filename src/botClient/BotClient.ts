@@ -1,6 +1,6 @@
 import { AudioPlayer, AudioPlayerStatus, AudioResource, NoSubscriberBehavior, VoiceConnectionStatus, createAudioPlayer, createAudioResource, entersState, getVoiceConnection, joinVoiceChannel } from "@discordjs/voice"
-import { Channel, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel } from "discord.js"
-import { ICommand, IQueue, IESong, CommandFunction, IFavorite } from "../types"
+import { Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel } from "discord.js"
+import { ICommand, IQueue, IESong, IFavorite } from "../types"
 import dcYtdl from "discord-ytdl-core"
 import fs from "node:fs"
 import path from "node:path"
@@ -137,7 +137,6 @@ export default class BotClient extends Client {
         this.dbClient = new DBClient();
     }
 
-    
     private initCommands() {
         const commandsPath = path.join(__dirname, "commands");
         fs.readdirSync(commandsPath).forEach((dir) => {
@@ -292,7 +291,7 @@ export default class BotClient extends Client {
                 inlineVolume: true,
             });
     
-            const volume = queue && queue.volume && queue.volume <= 150 && queue.volume >= 1 ? (queue.volume / 100) : 1;
+            const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? (queue.volume / 100) : 1;
             resource.volume?.setVolume(volume);
             resource.playbackDuration = seekTime;
             return resource;
@@ -347,6 +346,7 @@ export default class BotClient extends Client {
                         return res(songInfo);
                     }
                     catch (e) {
+                        console.error(e);
                         return rej(e);
                     }
                 }
