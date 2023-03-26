@@ -300,6 +300,13 @@ export default class BotClient extends Client {
                 },
                 { stdio: ['ignore', 'pipe', 'ignore'] }
               );
+
+            stream.on('error', (err) => {
+                stream.kill('SIGTERM');
+                console.log('ERROR', 'Spawn failed!', err);
+            });
+
+            stream.unref();
     
             const resource = createAudioResource(stream.stdout!);
     
