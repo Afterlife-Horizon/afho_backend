@@ -76,7 +76,7 @@ export default class BotClient extends Client {
      * @param seekTime time to seek to
      * @returns a discord audio resource
      */
-    getResource!: (queue: IQueue, songInfoId: any, seekTime: number) => Promise<AudioResource<null>>
+    getResource!: (queue: IQueue, songInfoId: any, seekTime: number) => Promise<AudioResource<unknown>>
 
     /**
      * 
