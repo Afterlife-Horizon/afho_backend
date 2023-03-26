@@ -282,25 +282,16 @@ export default class BotClient extends Client {
     
     
             const requestOpts = {
-                filter: 'audioonly',
-                fmt: 'mp3',
-                highWaterMark: 1 << 30,
-                liveBuffer: 20000,
+                requestOptions: {},
+                filter: "audioonly",
+                highWaterMark: 1 << 62,
+                liveBuffer: 1 << 62,
                 dlChunkSize: 0,
-                bitrate: 128,
-                quality: 'lowestaudio'
+                seek: Math.floor(seekTime / 1000),
+                bitrate: queue.bitrate || 128,
+                quality: "highestaudio",
+                encoderArgs: Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200'],
             } as downloadOptions;
-            // {
-            //     requestOptions: {},
-            //     filter: "audioonly",
-            //     highWaterMark: 1 << 62,
-            //     liveBuffer: 1 << 62,
-            //     dlChunkSize: 0,
-            //     seek: Math.floor(seekTime / 1000),
-            //     bitrate: queue.bitrate || 32,
-            //     quality: "lowestaudio",
-            //     encoderArgs: Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200'],
-            // } ;
     
 
             if (this.config.YOUTUBE_LOGIN_COOKIE && this.config.YOUTUBE_LOGIN_COOKIE.length > 10) {
@@ -313,18 +304,13 @@ export default class BotClient extends Client {
 
             
             const resource = createAudioResource(
-                ytdl(this.getYTLink(songInfoId), requestOpts).once('error', (err) => {
-                console.error(err.message, '\n', err.stack);
-                }).once('end', () => {
-                    console.log(`Stream ended`);
-                })
+                ytdl(this.getYTLink(songInfoId), requestOpts).once('error', (err) => console.error(err.message, '\n', err.stack))
             );
 
-            // console.log("Created resource", resource)
     
             const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? (queue.volume / 100) : 1;
             resource.volume?.setVolume(volume);
-            // resource.playbackDuration = seekTime;
+            resource.playbackDuration = seekTime;
             return resource;
         };
 
@@ -345,11 +331,9 @@ export default class BotClient extends Client {
                         });
                         oldConnection.subscribe(player);
 
-                        // console.log("Playing song", songInfo)
     
                         const resource = this.getResource(curQueue, songInfo.id, songInfo.seekTime);
                         
-                        // console.log("Playing resource", resource)
                         player.play(resource)
     
                         player.on(AudioPlayerStatus.Playing, () => {
@@ -492,10 +476,9 @@ export default class BotClient extends Client {
      * @param queue queue to use
      */
     public handleQueue = async (player: AudioPlayer, queue: IQueue) => {
-        if (queue && !queue.filtersChanged ) { //&& !(player.state.status == AudioPlayerStatus.Playing)
+        if (queue && !queue.filtersChanged ) {
             try {
                 player.stop();
-                console.log("Stopped player");
                 if (queue && queue.tracks && queue.tracks.length > 1) {
                     queue.previous = queue.tracks[0];
                     if (queue.trackloop && !queue.skipped) {
