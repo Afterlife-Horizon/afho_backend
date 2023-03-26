@@ -9,8 +9,7 @@ import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
-import ytdl from "ytdl-core-discord"
-import { downloadOptions } from "ytdl-core"
+const  youtubeDl =  require("youtube-dl-exec").raw;
 
 export default class BotClient extends Client {
     currentChannel: VoiceChannel | null;
@@ -278,7 +277,7 @@ export default class BotClient extends Client {
                 bitrate: queue.bitrate || 128,
                 quality: "lowestaudio",
                 encoderArgs: Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200'],
-            } as downloadOptions;
+            };
     
             if (this.config.YOUTUBE_LOGIN_COOKIE && this.config.YOUTUBE_LOGIN_COOKIE.length > 10) {
                 requestOpts.requestOptions = {
@@ -287,11 +286,15 @@ export default class BotClient extends Client {
                     },
                 };
             }
+
+            const stream = youtubeDl(this.getYTLink(songInfoId), {
+                o: '-',
+                q: '',
+                f: 'bestaudio[ext=webm+acodec=opus+asr=48000]/bestaudio',
+                r: '100K',
+            }, { stdio: ['ignore', 'pipe', 'ignore'] })
     
-            const resource = createAudioResource(await ytdl(this.getYTLink(songInfoId), requestOpts), {
-                inputType: StreamType.Opus,
-                inlineVolume: true,
-            });
+            const resource = createAudioResource(stream.stdout);
     
             const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? (queue.volume / 100) : 1;
             resource.volume?.setVolume(volume);
