@@ -71,7 +71,7 @@ export default (client: BotClient) : ICommand => {
                     
                     queue.filtersChanged = true;
                     const curPos = playerState.resource.playbackDuration;
-                    state.subscription?.player.stop();
+                    // state.subscription?.player.stop();
                     state.subscription?.player.play(await client.getResource(queue, queue.tracks[0].id, curPos));
                 });
                 collector.on("end", () => {

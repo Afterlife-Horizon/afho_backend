@@ -7,12 +7,12 @@
 		"tsc": "npx tsc",
 		"tsc-dev": "ts-node-dev — respawn — pretty — transpile-only src/index.ts",
 		"lint": "eslint src/",
-		"start": "node backend/index.js",
-		"dev": "NODE_ENV=dev node backend/index.js",
-		"adddev": "METHOD=add NODE_ENV=dev node backend/deploy-commands.js",
-		"deldev": "METHOD=delete NODE_ENV=dev node backend/deploy-commands.js",
-		"add": "METHOD=add NODE_ENV=prod node backend/deploy-commands.js",
-		"del": "METHOD=delete NODE_ENV=prod node backend/deploy-commands.js"
+		"start": "node dist/index.js",
+		"dev": "NODE_ENV=dev node dist/index.js",
+		"adddev": "METHOD=add NODE_ENV=dev node dist/deploy-commands.js",
+		"deldev": "METHOD=delete NODE_ENV=dev node dist/deploy-commands.js",
+		"add": "METHOD=add NODE_ENV=prod node dist/deploy-commands.js",
+		"del": "METHOD=delete NODE_ENV=prod node dist/deploy-commands.js"
 	},
 	"author": "Nicobonnardot3",
 	"license": "ISC",

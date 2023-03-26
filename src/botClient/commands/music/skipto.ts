@@ -50,7 +50,7 @@ export default (client: BotClient) : ICommand => {
             const state = oldConnection.state as VoiceConnectionReadyState;
             if (!state || !state.subscription) return interaction.reply(`👎 **Something went wrong**`).catch((err) => console.log(err));
             
-            state.subscription.player.stop();
+            // state.subscription.player.stop();
 
             return interaction.reply(`⏭️ **Successfully skipped ${arg} Track(s)**`).catch((err) => console.log(err));
         },
