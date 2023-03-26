@@ -480,9 +480,9 @@ export default class BotClient extends Client {
      * @param queue queue to use
      */
     public handleQueue = async (player: AudioPlayer, queue: IQueue) => {
-        if (queue && !queue.filtersChanged) {
+        if (queue && !queue.filtersChanged ) { //&& !(player.state.status == AudioPlayerStatus.Playing)
             try {
-                player.stop();
+                // player.stop();
                 console.log("Stopped player");
                 if (queue && queue.tracks && queue.tracks.length > 1) {
                     queue.previous = queue.tracks[0];
