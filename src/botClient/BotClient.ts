@@ -340,7 +340,7 @@ export default class BotClient extends Client {
                         // console.log("Playing resource", resource)
                         player.play(resource)
     
-                        player.on(AudioPlayerStatus.Paused, () => {
+                        player.on(AudioPlayerStatus.Playing, () => {
                             const queue = this.queues.get(channel.guildId)
                             if (queue && queue.filtersChanged) {
                                 queue.filtersChanged = false
@@ -350,19 +350,17 @@ export default class BotClient extends Client {
                             }
     
                         });
-                        
+
                         player.on(AudioPlayerStatus.Idle, () => {
-                            console.log("Idle, playing next song: ")
                             const queue = this.queues.get(channel.guildId);
-                            if (!queue || !queue.tracks || queue.tracks.length == 0)
-                                return this.sendQueueUpdate(channel.guildId);
+                            if (!queue || !queue.tracks || queue.tracks.length == 0) return;
+                            this.handleQueue(player, queue);
                         });
                         
                         player.on('error', error => {
                             console.log("Error, playing next song: ", error)
                             const queue = this.queues.get(channel.guildId);
-                            if (!queue || !queue.tracks || queue.tracks.length == 0) 
-                                return this.sendQueueUpdate(channel.guildId);
+                            if (!queue || !queue.tracks || queue.tracks.length == 0) return;
                             
                             this.handleQueue(player, queue);
                         });
