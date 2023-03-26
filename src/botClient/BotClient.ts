@@ -76,7 +76,7 @@ export default class BotClient extends Client {
      * @param seekTime time to seek to
      * @returns a discord audio resource
      */
-    getResource!: (queue: IQueue, songInfoId: any, seekTime: number) => AudioResource<null>
+    getResource!: (queue: IQueue, songInfoId: any, seekTime: number) => Promise<AudioResource<null>>
 
     /**
      * 
@@ -299,7 +299,7 @@ export default class BotClient extends Client {
         };
 
         this.playSong = async (channel, songInfo) => {
-            return new Promise((res, rej) => {
+            return new Promise(async (res, rej) => {
                 const oldConnection = getVoiceConnection(channel.guildId);
                 if (oldConnection) {
                     if (oldConnection.joinConfig.channelId != channel.id) return rej("We aren't in the same channel!");
@@ -317,7 +317,7 @@ export default class BotClient extends Client {
     
                         const resource = this.getResource(curQueue, songInfo.id, songInfo.seekTime || 0);
                         
-                        player.play(resource)
+                        player.play(await resource)
     
                         player.on(AudioPlayerStatus.Paused, () => {
                             const queue = this.queues.get(channel.guildId)
@@ -465,26 +465,26 @@ export default class BotClient extends Client {
                     queue.previous = queue.tracks[0];
                     if (queue.trackloop && !queue.skipped) {
                         if (queue.paused) queue.paused = false;
-                        player.play(this.getResource(queue, queue.tracks[0].id, 0));
+                        player.play(await this.getResource(queue, queue.tracks[0].id, 0));
                     }
                     else if (queue.queueloop && !queue.skipped) {
                         const skipped = queue.tracks.shift();
                         if (!skipped) return;
                         queue.tracks.push(skipped);
                         if (queue.paused) queue.paused = false;
-                        player.play(this.getResource(queue, queue.tracks[0].id, 0));
+                        player.play(await this.getResource(queue, queue.tracks[0].id, 0));
                     }
                     else {
                         if (queue.skipped) queue.skipped = false;
                         if (queue.paused) queue.paused = false;
                         queue.tracks.shift();
-                        player.play(this.getResource(queue, queue.tracks[0].id, 0));
+                        player.play(await this.getResource(queue, queue.tracks[0].id, 0));
                     }
                 }
                 else if (queue && queue.tracks && queue.tracks.length <= 1) {
                     queue.previous = queue.tracks[0];
                     if (queue.trackloop || queue.queueloop && !queue.skipped) {
-                        player.play(this.getResource(queue, queue.tracks[0].id, 0));
+                        player.play(await this.getResource(queue, queue.tracks[0].id, 0));
                     }
                     else {
                         if (queue.skipped) queue.skipped = false;
