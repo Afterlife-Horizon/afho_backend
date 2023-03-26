@@ -17,21 +17,20 @@ export default function delFav(client: BotClient) {
 					console.log(err);
 					return res.status(500).send("Internal Server Error");
 				}
+			})
+
+			client.dbClient.selectFromDB("SELECT * FROM bot_favorites WHERE user_id = ?", [userId], (err, result) => {
+				if (err) {
+					console.log(err);
+					return res.status(500).send("Internal Server Error");
+				}
 				else {
-					client.dbClient.selectFromDB("SELECT * FROM bot_favorites WHERE user_id = ?", [userId], (err, result) => {
-						if (err) {
-							console.log(err);
-							return res.status(500).send("Internal Server Error");
-						}
-						else {
-							client.favs[userId] = result.map((fav) => {
-								return {  
-									name: fav.name,
-									url: fav.url,
-									thumbnail: fav.thumbnail
-								};
-							})
-						}
+					client.favs[userId] = result.map((fav) => {
+						return {  
+							name: fav.name,
+							url: fav.url,
+							thumbnail: fav.thumbnail
+						};
 					})
 				}
 			})
