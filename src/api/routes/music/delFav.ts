@@ -1,5 +1,6 @@
 import express = require("express");
 import BotClient from "../../../botClient/BotClient";
+import { IFavorite } from "../../../types";
 const router = express.Router();
 
 export default function delFav(client: BotClient) {
@@ -19,21 +20,9 @@ export default function delFav(client: BotClient) {
 				}
 			})
 
-			client.dbClient.selectFromDB("SELECT * FROM bot_favorites WHERE user_id = ?", [userId], (err, result) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).send("Internal Server Error");
-				}
-				else {
-					client.favs[userId] = result.map((fav) => {
-						return {  
-							name: fav.name,
-							url: fav.url,
-							thumbnail: fav.thumbnail
-						};
-					})
-				}
-			})
+			console.log("Before: " + client.favs[userId])
+			client.favs[userId] = client.favs[userId].filter((fav: IFavorite) => fav.name !== name);
+			console.log("After: " + client.favs[userId])
 
 			res.status(200).json({ data: client.favs[userId] });
 		} catch (err) {
