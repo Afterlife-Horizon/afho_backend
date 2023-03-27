@@ -1,7 +1,7 @@
 import express = require("express");
 const router = express.Router();
 import { Colors, EmbedBuilder } from "discord.js";
-import { AudioPlayerPausedState, AudioPlayerPlayingState, VoiceConnectionReadyState, getVoiceConnection } from "@discordjs/voice";
+import { AudioPlayerPausedState, AudioPlayerPlayingState, VoiceConnection, VoiceConnectionConnectingState, VoiceConnectionDisconnectedState, VoiceConnectionReadyState, VoiceConnectionSignallingState, getVoiceConnection } from "@discordjs/voice";
 
 export default function (client) {
     return (
@@ -30,7 +30,8 @@ export default function (client) {
                 queue.effects = filters;
                 queue.filtersChanged = true;
 
-                const state = oldConnection.state as VoiceConnectionReadyState;
+                const state = oldConnection.state as VoiceConnectionSignallingState | VoiceConnectionDisconnectedState | VoiceConnectionConnectingState | VoiceConnectionReadyState;
+                console.log(state)
                 if (!state || !state.subscription) return res.status(400).send(`👎 **Something went wrong**`);
 
                 const playerState = state.subscription.player.state as AudioPlayerPlayingState | AudioPlayerPausedState;
