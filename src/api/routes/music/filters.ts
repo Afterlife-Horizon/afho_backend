@@ -30,7 +30,7 @@ export default function (client) {
                 queue.effects = filters;
                 queue.filtersChanged = true;
 
-                const state = oldConnection.state as VoiceConnectionSignallingState | VoiceConnectionDisconnectedState | VoiceConnectionConnectingState | VoiceConnectionReadyState;
+                const state = oldConnection.state as VoiceConnectionReadyState;
                 console.log(state)
                 if (!state || !state.subscription) return res.status(400).send(`👎 **Something went wrong**`);
 
