@@ -27,6 +27,8 @@ export default function (client: BotClient) {
                 queue.effects[key] = value;
             }
 
+            client.queues.set(guild.id, queue);
+
             const response = await changeFilters(client, { member: requester })
 
             if (response.error) return res.status(400).json({ error: response.error });

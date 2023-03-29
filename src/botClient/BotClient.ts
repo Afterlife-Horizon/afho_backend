@@ -254,7 +254,7 @@ export default class BotClient extends Client {
             });
         };
 
-        this.getResource = (queue, songInfoId, seekTime = 0) => {
+        this.getResource = (queue, songInfoId, seekTime) => {
             let Qargs = "";
             const effects = queue.effects;
     
