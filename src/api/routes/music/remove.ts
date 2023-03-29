@@ -3,7 +3,7 @@ const router = express.Router();
 import { getVoiceConnection } from "@discordjs/voice";
 import BotClient from "../../../botClient/BotClient";
 
-export default function (client: BotClient) {
+export default function (client) {
     return (
         router.post("/", async (req, res) => {
             const guild = client.guilds.cache.find(g => g.name === process.env.SERVER_NAME);

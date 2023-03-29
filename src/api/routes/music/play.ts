@@ -5,7 +5,7 @@ import { Playlist, Video, default as YouTube } from 'youtube-sr';
 import { GuildMember } from "discord.js";
 import BotClient from "../../../botClient/BotClient";
 
-export default function (client: BotClient) {
+export default function (client) {
     return (
         router.post("/", async (req, res) => {
             try {
