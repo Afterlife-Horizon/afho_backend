@@ -41,8 +41,8 @@ export default function (client: BotClient) {
                 if (!state || !state.subscription) return res.status(400).send(`👎 **Something went wrong**`);
 
                 const playerState = state.subscription.player.state as AudioPlayerPlayingState | AudioPlayerPausedState;
-                if (!playerState || !playerState.resource || !playerState.resource.volume) return res.status(400).send(`👎 **Something went wrong**`);        
-            
+                if (!playerState || !playerState.resource) return res.status(400).send(`👎 **Something went wrong**`);        
+
 
                 const curPos = playerState.resource.playbackDuration;
                 state.subscription.player.stop();
