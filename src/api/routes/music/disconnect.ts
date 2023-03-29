@@ -1,7 +1,8 @@
 import express = require("express");
+import BotClient from "../../../botClient/BotClient";
 const router = express.Router();
 
-export default function (client) {
+export default function (client: BotClient) {
     return (
         router.post("/", async (req, res) => {
             if (!client.currentChannel) return res.status(406).send("not connected!");

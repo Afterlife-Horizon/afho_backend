@@ -20,7 +20,7 @@ export interface IQueue {
     textChannel: string;
     paused: boolean;
     skipped: boolean;
-    effects: IEffects;
+    effects: IFilters;
     trackloop: boolean;
     queueloop: boolean;
     filtersChanged: boolean;
@@ -32,7 +32,7 @@ export interface IQueue {
     autoplay: boolean;
 }
 
-export interface IEffects {
+export interface IFilters {
     bassboost: number;
     subboost: boolean;
     mcompand: boolean;
@@ -85,4 +85,10 @@ export interface Level {
 
 export interface APILevel extends Level {
     username: string;
+}
+
+export interface IFunctionResponse {
+    message?: string;
+    error?: string;
+    status: number
 }

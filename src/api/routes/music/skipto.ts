@@ -7,7 +7,7 @@ import { Channel, GuildMember, TextChannel, User, VoiceChannel } from "discord.j
 export default function (client: BotClient) {
     return (
         router.post("/", async (req, res) => {
-            const guild = client.guilds.cache.find((g: { name: string; }) => g.name === "Afterlife Horizon");
+            const guild = client.guilds.cache.find((g: { name: string; }) => g.name === process.env.SERVER_NAME);
             if (!guild) return res.status(406).send("Guild not found!");
             await guild.members.fetch();
             await guild.channels.fetch();

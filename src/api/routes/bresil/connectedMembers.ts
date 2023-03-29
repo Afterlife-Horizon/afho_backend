@@ -1,12 +1,15 @@
 import express = require("express");
+import BotClient from "../../../botClient/BotClient";
 const router = express.Router();
 
-export default function (client) {
+export default function (client: BotClient) {
     return (
         router.get("/", async (req, res) => {
             try {
                 await client.guilds.fetch();
-                const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+                const guild = client.guilds.cache.find(g => g.name === process.env.SERVER_NAME);
+
+                if (!guild) return res.status(404).json({ error: "Guild not found" });
     
                 await guild.members.fetch();
                 const connectedMembers = guild.members.cache.filter(m => m.voice.channel).map(m => m.user);

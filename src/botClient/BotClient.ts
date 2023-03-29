@@ -9,7 +9,6 @@ import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
-import { exec as ytdlexec } from 'youtube-dl-exec';
 import ytdl, { downloadOptions } from "ytdl-core"
 
 
@@ -376,9 +375,9 @@ export default class BotClient extends Client {
 
         this.sendQueueUpdate = async (guildId) => {
             const queue = this.queues.get(guildId);
-            if (!queue || !queue.tracks || queue.tracks.length == 0 || !queue.textChannel) return false;
+            if (!queue || !queue.tracks || queue.tracks.length == 0) return false;
 
-            const channel = this.channels.cache.get(queue.textChannel) || await this.channels.fetch(queue.textChannel).catch((err) => console.log(err));
+            const channel = this.channels.cache.get(process.env.BASE_CHANNEL_ID || "") || await this.channels.fetch(queue.textChannel).catch((err) => console.log(err));
             const textChannel = channel?.isTextBased() ? channel as TextChannel : null;
             if (!textChannel) return false;
             

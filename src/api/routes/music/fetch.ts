@@ -1,20 +1,33 @@
 import express = require("express");
 const router = express.Router();
-import { getVoiceConnection } from "@discordjs/voice";
+import { AudioPlayerBufferingState, AudioPlayerIdleState, AudioPlayerPausedState, AudioPlayerPlayingState, AudioPlayerState, VoiceConnection, VoiceConnectionConnectingState, VoiceConnectionDisconnectedState, VoiceConnectionReadyState, VoiceConnectionSignallingState, VoiceConnectionState, getVoiceConnection } from "@discordjs/voice";
+import BotClient from "../../../botClient/BotClient";
 
-export default function (client) {
+export default function (client: BotClient) {
     return (
         router.get("/", async (req, res) => {
             try {
                 if (!client.ready) return res.status(406).send("Loading!");
-                const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+                const guild = client.guilds.cache.find(g => g.name === process.env.SERVER_NAME);
+                if (!guild) return res.status(406).send("Server not found!");
+
                 await guild.members.fetch();
-                const admins = await guild.roles.cache.find(r => r.name === "admin").members;
+                const admins = guild.roles.cache.find(r => r.name === "admin")?.members;
     
-                let oldConnection;
+                if (!admins) return res.status(406).send("Admins not found!");
+
+                const queue = client.queues.get(guild.id);
+                
                 let curPos = 0;
-                if (client.currentChannel) oldConnection = getVoiceConnection(client.currentChannel.guild.id);
-                if (oldConnection && client.queues.size !== 0 && client.queues.get(client.currentChannel.guild.id).size !== 0) curPos = oldConnection.state.subscription.player.state.resource?.playbackDuration;
+                
+                let oldConnection: VoiceConnection | undefined;
+                const currentChannel = client.currentChannel;
+                if (currentChannel) oldConnection = getVoiceConnection(currentChannel.guild.id);
+
+                const state = oldConnection?.state as VoiceConnectionSignallingState | VoiceConnectionDisconnectedState | VoiceConnectionConnectingState | VoiceConnectionReadyState;
+                const ressource = (state?.subscription?.player.state as AudioPlayerBufferingState | AudioPlayerPlayingState | AudioPlayerPausedState)?.resource;
+
+                if (oldConnection && client.queues.size !== 0 && queue) curPos = ressource ? ressource.playbackDuration : 0
                 const data = {
                     queue: client.queues,
                     prog: curPos,

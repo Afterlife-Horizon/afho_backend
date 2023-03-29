@@ -2,7 +2,6 @@ import connectHistoryApiFallback from 'connect-history-api-fallback';
 import express from 'express';
 import { Express } from 'express';
 import path from 'node:path';
-import fs from 'node:fs';
 import BotClient from '../botClient/BotClient';
 
 // ------------ api routes ------------

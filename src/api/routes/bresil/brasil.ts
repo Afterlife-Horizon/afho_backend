@@ -12,7 +12,7 @@ export default function (client: BotClient) {
                 const logChannel = client.channels.cache.get(client.config.baseChannelId) as TextChannel;
                 const brasilChannelId = client.config.brasilChannelId;
 
-                const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+                const guild = client.guilds.cache.find(g => g.name === process.env.SERVER_NAME);
 
                 if (!guild) return res.status(406).json({error: 'Guild not found!'});
                 const mover = await guild.members.fetch(moverId);

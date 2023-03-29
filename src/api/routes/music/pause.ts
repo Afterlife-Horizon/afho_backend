@@ -1,20 +1,26 @@
 import express = require("express");
+import BotClient from "../../../botClient/BotClient";
+import { Interaction, TextChannel } from "discord.js";
 const router = express.Router();
 
 export default function (client) {
     return (
         router.post("/", async (req, res) => {
-        const guild = client.guilds.cache.find(g => g.name === "Afterlife Horizon");
+        const guild = client.guilds.cache.find(g => g.name === process.env.SERVER_NAME);
+        if (!guild) return res.status(406).send("Guild not found!");
+
         await guild.members.fetch();
         const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
         const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
         const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);
+        if (!voiceChannel) return res.status(406).send("You are not connected to a voice channel!");
 
         if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!");
-        else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!");
+        else if (voiceChannel.id !== client.currentChannel?.id) return res.status(406).send("Not the same channel!");
 
         if (!client.currentChannel) return res.status(406).send("not connected!");
-        const channel = await client.channels.fetch(client.config.baseChannelId);
+        const channel = await client.channels.fetch(client.config.baseChannelId) as TextChannel;
+        if (!channel) return res.status(406).send("Channel not found!");
 
         const send = (msg) => {
             channel.send(msg);
@@ -127,7 +133,7 @@ export default function (client) {
                     _hoistedOptions: [],
                 },
             };
-            await client.emit('interactionCreate', pauseInteraction);
+            client.emit("interactionCreate", pauseInteraction);
             res.status(200).send("OK");
         }
         catch (err) {

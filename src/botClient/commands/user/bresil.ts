@@ -26,7 +26,7 @@ export default (client: BotClient) : ICommand => {
 						content: `❌ You are not in a channel you wanker!`,
 					});
 
-				const guild = interaction.client.guilds.cache.find((g) => g.name === "Afterlife Horizon");
+				const guild = interaction.client.guilds.cache.find((g) => g.name === process.env.SERVER_NAME);
 				const member = await guild?.members.fetch(memberid);
 				if (!member) return await interaction.reply({ content: `❌ Member is not in a channel!` });
 
