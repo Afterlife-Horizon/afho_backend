@@ -8,7 +8,7 @@ import { IFilters } from "../../../types";
 export default function (client: BotClient) {
     return (
         router.post("/", async (req, res) => {
-            const { user, filter } : {user: string, filter: IFilters} = req.body;
+            const { user, filters } : {user: string, filters: IFilters} = req.body;
             if (!user) return res.status(400).json({ error: "Missing username" });
 
             const guild = client.guilds.cache.find(g => g.name === process.env.SERVER_NAME);
@@ -18,12 +18,12 @@ export default function (client: BotClient) {
             const requester = connectedMembers.find((member) => member.user.username === user) as GuildMember;
             if (!requester) return res.status(406).send("User not found!");
 
-            if (!filter) return res.status(400).json({ error: "Missing filter" });
+            if (!filters) return res.status(400).json({ error: "Missing filter" });
 
             const queue = client.queues.get(guild.id);
             if (!queue) return res.status(400).json({ error: "No queue found" });
 
-            for (const [key, value] of Object.entries(filter)) {
+            for (const [key, value] of Object.entries(filters)) {
                 queue.effects[key] = value;
             }
 
