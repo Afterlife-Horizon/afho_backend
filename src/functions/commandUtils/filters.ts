@@ -1,7 +1,7 @@
 import { getVoiceConnection, VoiceConnectionReadyState, AudioPlayerPlayingState, AudioPlayerPausedState } from "@discordjs/voice";
-import { GuildMember, StringSelectMenuBuilder, ActionRowBuilder, SelectMenuBuilder, StringSelectMenuInteraction, EmbedBuilder, Colors, TextChannel } from "discord.js";
+import { GuildMember, TextChannel } from "discord.js";
 import BotClient from "../../botClient/BotClient";
-import { IFilters, IFunctionResponse } from "../../types";
+import { IFunctionResponse } from "../../types";
 
 interface IArgs {
     member: GuildMember;
@@ -17,13 +17,16 @@ export default async function changeFilters(client: BotClient, args: IArgs) : Pr
         if (!member.voice.channelId) return { status: 400, error: "👎 **Please join a Voice-Channel first!**" }
 
         const oldConnection = getVoiceConnection(guild.id)
+        console.log(!oldConnection)
         if (!oldConnection) return { status: 400, error: `👎 **I'm not connected somewhere**!` }
 
         const state = oldConnection.state as VoiceConnectionReadyState;
+        console.log(!state || !state.subscription)
         if (!state || !state.subscription) return { status: 400, error: `👎 **Something went wrong**` }
 
         const playerState = state.subscription.player.state as AudioPlayerPlayingState | AudioPlayerPausedState;
-        if (!playerState || !playerState.resource || !playerState.resource.volume) return { status: 400, error: `👎 **Something went wrong**`}      
+        console.log(!playerState || !playerState.resource)
+        if (!playerState || !playerState.resource) return { status: 400, error: `👎 **Something went wrong**`}      
 
         const queue = client.queues.get(guild.id)
         if (!queue) return { status: 400, error: `👎 **I'm nothing playing right now.**` }
