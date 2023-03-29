@@ -286,7 +286,7 @@ export default class BotClient extends Client {
                 highWaterMark: 1 << 62,
                 liveBuffer: 1 << 62,
                 dlChunkSize: 0,
-                seek: Math.floor(seekTime / 1000),
+                begin: this.formatDuration(seekTime),
                 bitrate: queue.bitrate || 128,
                 quality: "highestaudio",
                 encoderArgs: Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200'],

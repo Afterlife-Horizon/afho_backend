@@ -27,6 +27,8 @@ export default function (client: BotClient) {
                 queue.effects[key] = value;
             }
 
+            console.log(client.queues.get(guild.id))
+
             client.queues.set(guild.id, queue);
 
             const response = await changeFilters(client, { member: requester })
