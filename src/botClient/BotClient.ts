@@ -263,7 +263,7 @@ export default class BotClient extends Client {
         newStream.format('mp3').seekInput(this.formatDuration(seekTime)).output(passThrought).run();
         
     
-        const resource = createAudioResource(new Readable());
+        const resource = createAudioResource(passThrought);
 
 
         const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? (queue.volume / 100) : 1;
