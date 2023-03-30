@@ -11,8 +11,7 @@ import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
-import { Readable, Transform } from "stream"
-import { PassThrough, Writable } from "node:stream"
+import { PassThrough } from "node:stream"
 
 
 export default class BotClient extends Client {
@@ -32,6 +31,7 @@ export default class BotClient extends Client {
     public favs: Map<string, IFavorite[]>;
     public ready: boolean;
     public passThrought?: PassThrough;
+    public stream?: FFmpeg.FfmpegCommand;
 
     constructor(options: ClientOptions) {
         super(options)
@@ -255,11 +255,11 @@ export default class BotClient extends Client {
         }
 
         
-        const stream = ytdl(this.getYTLink(songInfoId), requestOpts).once('error', (err) => console.error(err.message, '\n', err.stack))
+        const readable = ytdl(this.getYTLink(songInfoId), requestOpts).once('error', (err) => console.error(err.message, '\n', err.stack))
 
         this.passThrought = new PassThrough();
 
-        const newStream =  FFmpeg(stream)
+        this.stream = FFmpeg(readable)
             .audioChannels(2)
             .audioBitrate(128)
             .audioFrequency(48000)
@@ -269,7 +269,8 @@ export default class BotClient extends Client {
             .format('mp3')
             .output(this.passThrought)
             .on('error', (err) => console.error(err.message, '\n', err.stack))
-            .run();
+
+        this.stream.run();
     
         const resource = createAudioResource(this.passThrought);
 
