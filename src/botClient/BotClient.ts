@@ -237,12 +237,12 @@ export default class BotClient extends Client {
         const encoderArgs = Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200']
 
         let requestOpts : downloadOptions = {
-            // filter: "audioonly",
-            // highWaterMark: 1 << 62,
-            // liveBuffer: 1 << 62,
-            // dlChunkSize: 0,
+            filter: "audioonly",
+            highWaterMark: 1 << 62,
+            liveBuffer: 1 << 62,
+            dlChunkSize: 0,
             // begin: seekTime,
-            // quality: "highestaudio",
+            quality: "highestaudio",
         };
 
 
@@ -264,13 +264,11 @@ export default class BotClient extends Client {
             .audioBitrate(128)
             .audioFrequency(48000)
             .audioCodec('libmp3lame')
-            .noVideo()
             .addOptions(encoderArgs)
-            .on('error', (err) => console.error(err.message, '\n', err.stack))
-            
-        newStream.seekInput(this.formatDuration(seekTime))
+            .seekInput(this.formatDuration(seekTime))
             .format('mp3')
             .output(this.passThrought)
+            .on('error', (err) => console.error(err.message, '\n', err.stack))
             .run();
     
         const resource = createAudioResource(this.passThrought);
