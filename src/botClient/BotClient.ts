@@ -273,6 +273,10 @@ export default class BotClient extends Client {
             .seekInput(this.formatDuration(seekTime))
             .format('mp3')
             .output(this.passThrought)
+            .on("close" , () => {
+                readable.destroy();
+                console.log("stream closed")
+            })
             .on('error', (err) => null)
         this.stream.run();
 
