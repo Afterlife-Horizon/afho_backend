@@ -269,6 +269,11 @@ export default class BotClient extends Client {
         .on('error', (err) => console.error(err.message, '\n', err.stack))
 
         newStream.format('mp3').run();
+
+        passThrought.on("close", () => {
+            stream.destroy();
+            newStream.kill('SIGSTOP');
+        });
         
     
         const resource = createAudioResource(passThrought);
