@@ -238,8 +238,8 @@ export default class BotClient extends Client {
 
         let requestOpts : downloadOptions = {
             filter: "audioonly",
-            // highWaterMark: 1 << 62,
-            // liveBuffer: 1 << 62,
+            highWaterMark: 1 << 62,
+            liveBuffer: 1 << 62,
             dlChunkSize: 0,
             // begin: seekTime,
             quality: "highestaudio",
@@ -257,6 +257,11 @@ export default class BotClient extends Client {
         
         const readable = ytdl(this.getYTLink(songInfoId), requestOpts).once('error', (err) => console.error(err.message, '\n', err.stack))
 
+        readable.on("error", () => null);
+        readable.on("close", () => {
+            console.log("readable closed")
+        })
+
         this.passThrought = new PassThrough();
 
         this.stream = FFmpeg(readable)
@@ -268,7 +273,7 @@ export default class BotClient extends Client {
             .seekInput(this.formatDuration(seekTime))
             .format('mp3')
             .output(this.passThrought)
-            .on('error', (err) => console.error(err.message, '\n', err.stack))
+            .on('error', (err) => null)
         this.stream.run();
 
         this.passThrought.on("error", () => null);
