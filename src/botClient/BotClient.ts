@@ -265,22 +265,12 @@ export default class BotClient extends Client {
             .audioFrequency(48000)
             .noVideo()
             .addOptions(encoderArgs)
+            .on('error', (err) => console.error(err.message, '\n', err.stack))
             
         newStream.seekInput(this.formatDuration(seekTime))
             .format('mp3')
             .output(this.passThrought)
             .run();
-
-        this.passThrought.on("close", () => {
-            newStream.kill("SIGKILL");
-            stream.destroy();
-        });
-
-        this.passThrought.on("error", () => {
-            newStream.kill("SIGKILL");
-            stream.destroy();
-        });
-        
     
         const resource = createAudioResource(this.passThrought);
 
