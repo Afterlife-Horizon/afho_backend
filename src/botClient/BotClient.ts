@@ -238,8 +238,8 @@ export default class BotClient extends Client {
 
         let requestOpts : downloadOptions = {
             filter: "audioonly",
-            highWaterMark: 1 << 62,
-            liveBuffer: 1 << 62,
+            // highWaterMark: 1 << 62,
+            // liveBuffer: 1 << 62,
             dlChunkSize: 0,
             // begin: seekTime,
             quality: "highestaudio",
