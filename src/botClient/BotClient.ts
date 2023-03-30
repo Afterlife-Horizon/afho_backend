@@ -31,6 +31,7 @@ export default class BotClient extends Client {
     public queues: Map<string, IQueue>;
     public favs: Map<string, IFavorite[]>;
     public ready: boolean;
+    public passThrought?: PassThrough;
 
     constructor(options: ClientOptions) {
         super(options)
@@ -256,31 +257,28 @@ export default class BotClient extends Client {
         
         const stream = ytdl(this.getYTLink(songInfoId), requestOpts).once('error', (err) => console.error(err.message, '\n', err.stack))
 
-        const passThrought = new PassThrough();
+        this.passThrought = new PassThrough();
 
-        const newStream = FFmpeg(stream)
-        .audioChannels(2)
-        .audioBitrate(128)
-        .audioFrequency(48000)
-        .noVideo()
-        .addOptions(encoderArgs)
-        .seekInput(this.formatDuration(seekTime))
-        .output(passThrought)
+        FFmpeg(stream)
+            .audioChannels(2)
+            .audioBitrate(128)
+            .audioFrequency(48000)
+            .noVideo()
+            .addOptions(encoderArgs)
+            .seekInput(this.formatDuration(seekTime))
+            .output(this.passThrought)
+            .format('mp3').run();
 
-        newStream.format('mp3').run();
-
-        passThrought.on("close", () => {
+        this.passThrought.on("close", () => {
             stream.destroy();
-            newStream.kill('SIGSTOP');
         });
 
-        passThrought.on("error", (err) => {
+        this.passThrought.on("error", (err) => {
             stream.destroy();
-            newStream.kill('SIGSTOP');
         });
         
     
-        const resource = createAudioResource(passThrought);
+        const resource = createAudioResource(this.passThrought);
 
 
         const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? (queue.volume / 100) : 1;
