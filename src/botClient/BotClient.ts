@@ -236,12 +236,12 @@ export default class BotClient extends Client {
         const encoderArgs = Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200']
 
         let requestOpts : downloadOptions = {
-            filter: "audioonly",
-            highWaterMark: 1 << 62,
-            liveBuffer: 1 << 62,
-            dlChunkSize: 0,
-            begin: seekTime,
-            quality: "highestaudio",
+            // filter: "audioonly",
+            // highWaterMark: 1 << 62,
+            // liveBuffer: 1 << 62,
+            // dlChunkSize: 0,
+            // begin: seekTime,
+            // quality: "highestaudio",
         };
 
 
