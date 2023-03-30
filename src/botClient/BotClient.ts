@@ -12,7 +12,7 @@ import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
 import { Readable, Transform } from "stream"
-import { PassThrough } from "node:stream"
+import { PassThrough, Writable } from "node:stream"
 
 
 export default class BotClient extends Client {
@@ -259,11 +259,11 @@ export default class BotClient extends Client {
 
         const newStream = FFmpeg(stream).audioChannels(2).audioBitrate(128).audioFrequency(48000).noVideo().addOptions(encoderArgs).on('error', (err) => console.error(err.message, '\n', err.stack))
 
-        const passThrought = new PassThrough();
-        newStream.writeToStream(passThrought);
+        const passThrought = new Writable();
+        newStream.seekInput(this.formatDuration(seekTime)).writeToStream(passThrought);
         
     
-        const resource = createAudioResource(passThrought);
+        const resource = createAudioResource(new Readable());
 
 
         const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? (queue.volume / 100) : 1;
