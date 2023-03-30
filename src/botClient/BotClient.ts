@@ -257,7 +257,7 @@ export default class BotClient extends Client {
         const stream = ytdl(this.getYTLink(songInfoId), requestOpts).once('error', (err) => console.error(err.message, '\n', err.stack))
 
 
-        const newStream = FFmpeg(stream).audioChannels(2).audioBitrate(128).audioFrequency(48000).noVideo().addOptions(encoderArgs).on('error', (err) => console.error(err.message, '\n', err.stack))
+        const newStream = FFmpeg(stream).audioChannels(2).audioBitrate(128).audioFrequency(48000).noVideo().on('error', (err) => console.error(err.message, '\n', err.stack))
 
         const passThrought = new PassThrough();
         newStream.seekInput(seekTime / 1000).writeToStream(passThrought);
