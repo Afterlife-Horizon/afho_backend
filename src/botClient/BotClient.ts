@@ -259,21 +259,25 @@ export default class BotClient extends Client {
 
         this.passThrought = new PassThrough();
 
-        FFmpeg(stream)
+        const newStream =  FFmpeg(stream)
             .audioChannels(2)
             .audioBitrate(128)
             .audioFrequency(48000)
             .noVideo()
             .addOptions(encoderArgs)
-            .seekInput(this.formatDuration(seekTime))
+            
+        newStream.seekInput(this.formatDuration(seekTime))
+            .format('mp3')
             .output(this.passThrought)
-            .format('mp3').run();
+            .run();
 
         this.passThrought.on("close", () => {
+            newStream.kill("SIGKILL");
             stream.destroy();
         });
 
-        this.passThrought.on("error", (err) => {
+        this.passThrought.on("error", () => {
+            newStream.kill("SIGKILL");
             stream.destroy();
         });
         
