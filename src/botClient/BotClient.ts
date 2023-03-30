@@ -257,10 +257,8 @@ export default class BotClient extends Client {
         
         const readable = ytdl(this.getYTLink(songInfoId), requestOpts).once('error', (err) => console.error(err.message, '\n', err.stack))
 
-        readable.on("error", () => null);
-        readable.on("close", () => {
-            console.log("readable closed")
-        })
+        readable.on("error", (err) => console.log(err));
+        readable.on("close", () => console.log("readable closed"))
 
         this.passThrought = new PassThrough();
 
@@ -273,16 +271,12 @@ export default class BotClient extends Client {
             .seekInput(this.formatDuration(seekTime))
             .format('mp3')
             .output(this.passThrought)
-            .on("close" , () => {
-                readable.destroy();
-                console.log("stream closed")
-            })
             .on('error', (err) => null)
         this.stream.run();
 
-        this.passThrought.on("error", () => null);
+        this.passThrought.on("error", () => readable.destroy());
         this.passThrought.on("close", () => {
-            // this.stream?.kill("SIGKILL");
+            readable.destroy();
             this.stream = undefined;
             this.passThrought = undefined;
         })
