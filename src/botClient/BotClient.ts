@@ -260,7 +260,7 @@ export default class BotClient extends Client {
         const newStream = FFmpeg(stream).on('error', (err) => console.error(err.message, '\n', err.stack))
 
         const passThrought = new PassThrough();
-        newStream.seekInput(seekTime / 1000).writeToStream(passThrought);
+        // newStream.seekInput(seekTime / 1000).writeToStream(passThrought);
         
     
         const resource = createAudioResource(passThrought);
