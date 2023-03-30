@@ -1,4 +1,4 @@
-import { AudioPlayer, AudioPlayerStatus, CreateVoiceConnectionOptions, JoinVoiceChannelOptions, NoSubscriberBehavior, VoiceConnectionStatus, createAudioPlayer, createAudioResource, entersState, getVoiceConnection, joinVoiceChannel } from "@discordjs/voice"
+import { AudioPlayer, AudioPlayerStatus, CreateVoiceConnectionOptions, JoinVoiceChannelOptions, NoSubscriberBehavior, StreamType, VoiceConnectionStatus, createAudioPlayer, createAudioResource, entersState, getVoiceConnection, joinVoiceChannel } from "@discordjs/voice"
 import { Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
 import { ICommand, IQueue, IESong, IFavorite } from "../types"
 import fs from "node:fs"
@@ -12,6 +12,7 @@ import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
 import { PassThrough, Readable, Writable } from "stream"
+import { Stream } from "node:stream"
 
 
 export default class BotClient extends Client {
@@ -257,8 +258,7 @@ export default class BotClient extends Client {
 
         const newStream = ffmpeg(stream).inputOptions(encoderArgs).audioChannels(2).audioBitrate(128).audioFrequency(48000).noVideo().on('error', (err) => console.error(err.message, '\n', err.stack))
 
-        let output = new PassThrough();
-        newStream.seekInput(seekTime / 1000).output(output);
+        const output = newStream.seekInput(seekTime / 1000).pipe() as Readable;
 
         const resource = createAudioResource(output);
 
