@@ -331,7 +331,7 @@ export default class BotClient extends Client {
                         oldConnection.subscribe(player);
 
     
-                        const resource = this.getResource(curQueue, songInfo.id, songInfo.seekTime);
+                        const resource = this.getResource(curQueue, songInfo.id, 0);
                         
                         player.play(resource)
     
