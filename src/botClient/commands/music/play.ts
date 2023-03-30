@@ -4,7 +4,6 @@ import { getVoiceConnection } from "@discordjs/voice";
 import { Playlist, Video, default as YouTube } from 'youtube-sr';
 import { ICommand, IQueue } from '../../../types';
 import BotClient from '../../BotClient';
-import { values } from 'lodash';
 
 export default (client: BotClient) : ICommand => {
     return {
@@ -29,6 +28,8 @@ export default (client: BotClient) : ICommand => {
                 }
 
                 client.currentChannel = member.voice.channel as VoiceChannel;
+
+                if (!client.currentChannel) return interaction.reply({ content: `👎 **Something went wrong**` }).catch((err) => console.log(err))
                 const track = interaction.options.get('song')?.value as string;
                 const args = track.split(" ");
 
@@ -47,7 +48,7 @@ export default (client: BotClient) : ICommand => {
 
                 if (!oldConnection) {
                     try {
-                        await client.joinVoiceChannel(member.voice.channel);
+                        await client.joinVoiceChannel(client.currentChannel);
                     }
                     catch (err) {
                         console.log(err);
@@ -85,7 +86,7 @@ export default (client: BotClient) : ICommand => {
                         const bitrate = 128;
                         const newQueue = client.createQueue(video, interaction.user, interaction.channelId, bitrate);
                         client.queues.set(guild.id, newQueue);
-                        await client.playSong(member.voice.channel, song);
+                        await client.playSong(client.currentChannel, video);
 
                         return interaction.editReply({ content: `Now playing : ${video.title} - ${video.durationFormatted}!` }).catch((err) => console.log(err));
                     }
@@ -104,7 +105,7 @@ export default (client: BotClient) : ICommand => {
                         playList.videos.forEach(nsong => newQueue.tracks.push(client.createSong(nsong, interaction.user)));
                         client.queues.set(guild.id, newQueue);
 
-                        await client.playSong(member.voice.channel, video);
+                        await client.playSong(client.currentChannel, video);
 
                         return interaction.editReply({ content: `Now playing : ${video.title} - ${video.durationFormatted} - from playlist: ${playList.title}` }).catch((err) => console.log(err));
                     }

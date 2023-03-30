@@ -1,4 +1,4 @@
-import { GuildMember, SlashCommandBuilder } from 'discord.js';
+import { GuildMember, SlashCommandBuilder, VoiceChannel } from 'discord.js';
 import { getVoiceConnection } from "@discordjs/voice";
 import { ICommand } from '../../../types';
 import BotClient from '../../BotClient';
@@ -19,7 +19,11 @@ export default (client: BotClient) : ICommand => {
                 if (!oldConnection) return await interaction.reply({ content: `I am not in a voice channel!` });
                 if (!member.voice.channelId) return await interaction.reply({ content: `Please join a voice channel first` });
 
-                await client.leaveVoiceChannel(member.voice.channel);
+                const voiceChannel = member.voice.channel as VoiceChannel;
+
+                if (!voiceChannel) return await interaction.reply({ content: `Something went wrong` });
+
+                await client.leaveVoiceChannel(voiceChannel);
                 await interaction.reply({ content: `Left voice channel!` });
             }
             catch (err) {
