@@ -201,7 +201,7 @@ export default class BotClient extends Client {
      * 
      * @param queue queue of the guild
      * @param songInfoId id of the song
-     * @param seekTime time to seek to
+     * @param seekTime time to seek to in milliseconds
      * @returns a discord audio resource
      */
     public getResource = (queue: IQueue, songInfoId: string, seekTime: number) => {
@@ -230,8 +230,6 @@ export default class BotClient extends Client {
         if (Qargs.startsWith(",")) Qargs = Qargs.substring(1);
 
 
-        const formatedSeekTime = this.formatDuration(seekTime);
-        console.log(formatedSeekTime)
 
         const requestOpts = {
             requestOptions: {},
@@ -239,7 +237,7 @@ export default class BotClient extends Client {
             highWaterMark: 1 << 62,
             liveBuffer: 1 << 62,
             dlChunkSize: 0,
-            begin: formatedSeekTime,
+            begin: seekTime,
             bitrate: queue.bitrate || 128,
             quality: "highestaudio",
             postprocessors: [{
