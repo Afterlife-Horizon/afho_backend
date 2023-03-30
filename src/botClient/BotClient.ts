@@ -263,6 +263,7 @@ export default class BotClient extends Client {
             .audioChannels(2)
             .audioBitrate(128)
             .audioFrequency(48000)
+            .audioCodec('libmp3lame')
             .noVideo()
             .addOptions(encoderArgs)
             .on('error', (err) => console.error(err.message, '\n', err.stack))
