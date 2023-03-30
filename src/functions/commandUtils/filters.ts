@@ -11,7 +11,7 @@ export default async function changeFilters(client: BotClient, args: IArgs) : Pr
     try {
         const member = args.member
         const guild = client.guilds.cache.get(member.guild.id)
-        const channel = await client.channels.fetch(process.env.BASE_CHANNEL_ID || "") as TextChannel;
+        const channel = await client.channels.fetch(client.config.baseChannelId) as TextChannel;
         if (!member || !guild || !channel) return { status: 500, error: `Something went wrong` }
 
         if (!member.voice.channelId) return { status: 400, error: "👎 **Please join a Voice-Channel first!**" }

@@ -11,7 +11,7 @@ export default function (client: BotClient) {
             const { user, filters } : {user: string, filters: IFilters} = req.body;
             if (!user) return res.status(400).json({ error: "Missing username" });
 
-            const guild = client.guilds.cache.find(g => g.name === process.env.SERVER_NAME);
+            const guild = client.guilds.cache.find(g => g.name === client.config.serverName);
             if (!guild) return res.status(406).send("Guild not found!");
             
             const connectedMembers = guild.members.cache.filter(member => member.voice.channel);

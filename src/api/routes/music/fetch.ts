@@ -8,7 +8,7 @@ export default function (client: BotClient) {
         router.get("/", async (req, res) => {
             try {
                 if (!client.ready) return res.status(406).send("Loading!");
-                const guild = client.guilds.cache.find(g => g.name === process.env.SERVER_NAME);
+                const guild = client.guilds.cache.find(g => g.name === client.config.serverName);
                 if (!guild) return res.status(406).send("Server not found!");
 
                 await guild.members.fetch();

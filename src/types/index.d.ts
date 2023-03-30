@@ -4,6 +4,7 @@ import BotClient from "../botClient/BotClient";
 import { AudioResource } from "@discordjs/voice";
 
 export interface IESong extends Video {
+    id: string;
     requester: User;
 }
 

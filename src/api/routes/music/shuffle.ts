@@ -5,7 +5,7 @@ const router = express.Router();
 export default function (client) {
     return (
         router.post("/", async (req, res) => {
-            const guild = client.guilds.cache.find(g => g.name === process.env.SERVER_NAME);
+            const guild = client.guilds.cache.find(g => g.name === client.config.serverName);
             const connectedMembers = await guild.members.cache.filter(member => member.voice.channel);
             const requester = connectedMembers.filter((member) => member.user.username === req.body.user);
             const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0);

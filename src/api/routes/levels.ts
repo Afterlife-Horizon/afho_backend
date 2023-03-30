@@ -33,7 +33,7 @@ export default function levels(client: BotClient) {
                     }
                 });
 
-                const guild = client.guilds.cache.find(g => g.name === process.env.SERVER_NAME);
+                const guild = client.guilds.cache.find(g => g.name === client.config.serverName);
                 if (!guild) {
                     res.status(500).json({ error: "Internal error"});
                     return;

@@ -12,7 +12,7 @@ export default (client: BotClient) : ICommand => {
 
             const member = interaction.member as GuildMember;
             const guild = client.guilds.cache.get(member.guild.id);
-            const channel = await client.channels.fetch(process.env.BASE_CHANNEL_ID || "") as TextChannel;
+            const channel = await client.channels.fetch(client.config.baseChannelId) as TextChannel;
 
             if (!guild || !channel) return await interaction.reply({ content: `👎 **Something went wrong**`, ephemeral: true });
 

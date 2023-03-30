@@ -10,7 +10,7 @@ export default function (client: BotClient) {
             const { user } = req.body;
             if (!user) return res.status(400).json({ error: "Missing username" });
 
-            const guild = client.guilds.cache.find(g => g.name === process.env.SERVER_NAME);
+            const guild = client.guilds.cache.find(g => g.name === client.config.serverName);
             const member = guild?.members.cache.find(m => m.user.username === user) as GuildMember;
 
             const response = await clearQueue(client, {member})
