@@ -3,6 +3,7 @@ import { Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, U
 import { ICommand, IQueue, IESong, IFavorite } from "../types"
 import fs from "node:fs"
 import path from "node:path"
+import ffmpeg from 'fluent-ffmpeg';
 
 import interactionCreate from "./listeners/interactionCreate"
 import messageCreate from "./listeners/messageCreate"
@@ -10,6 +11,7 @@ import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
+import { PassThrough, Readable, Writable } from "stream"
 
 
 export default class BotClient extends Client {
@@ -232,8 +234,7 @@ export default class BotClient extends Client {
         
         const encoderArgs = Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200']
 
-        const requestOpts : downloadOptions = {
-            requestOptions: {},
+        let requestOpts : downloadOptions = {
             filter: "audioonly",
             highWaterMark: 1 << 62,
             liveBuffer: 1 << 62,
@@ -252,9 +253,14 @@ export default class BotClient extends Client {
         }
 
         
-        const resource = createAudioResource(
-            ytdl(this.getYTLink(songInfoId), requestOpts).once('error', (err) => console.error(err.message, '\n', err.stack))
-        );
+        const stream = ytdl(this.getYTLink(songInfoId), requestOpts).once('error', (err) => console.error(err.message, '\n', err.stack))
+
+        const newStream = ffmpeg(stream).inputOptions(encoderArgs).audioChannels(2).audioBitrate(128).audioFrequency(48000).noVideo().on('error', (err) => console.error(err.message, '\n', err.stack))
+
+        let output = new PassThrough();
+        newStream.seekInput(seekTime / 1000).output(output);
+
+        const resource = createAudioResource(output);
 
 
         const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? (queue.volume / 100) : 1;
