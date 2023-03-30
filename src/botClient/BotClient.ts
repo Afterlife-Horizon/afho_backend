@@ -230,15 +230,21 @@ export default class BotClient extends Client {
         if (Qargs.startsWith(",")) Qargs = Qargs.substring(1);
 
 
+        const formatedSeekTime = this.formatDuration(seekTime);
+        console.log(formatedSeekTime)
+
         const requestOpts = {
             requestOptions: {},
             filter: "audioonly",
             highWaterMark: 1 << 62,
             liveBuffer: 1 << 62,
             dlChunkSize: 0,
-            begin: this.formatDuration(seekTime),
+            begin: formatedSeekTime,
             bitrate: queue.bitrate || 128,
             quality: "highestaudio",
+            postprocessors: [{
+
+            }],
             encoderArgs: Qargs ? ["-af", Qargs] : ['-af', 'bass=g=2,dynaudnorm=f=200'],
         } as downloadOptions;
 
