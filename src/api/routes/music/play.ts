@@ -82,6 +82,8 @@ export default function (client) {
 
                     const video = song as Video
 
+                    console.log("video: ", video)
+
                     if (!queue || queue.tracks.length == 0) {
                         const bitrate = 128;
                         const newQueue = client.createQueue(video, req.body.user, client.currentChannel.guildId, bitrate);
