@@ -34,7 +34,7 @@ export default async function changeFilters(client: BotClient, args: IArgs) : Pr
         queue.filtersChanged = true;
         const curPos = playerState.resource.playbackDuration;
 
-        console.log(curPos)
+        console.log(playerState.resource)
         
         state.subscription?.player.stop();
         state.subscription?.player.play(client.getResource(queue, queue.tracks[0].id, curPos));
