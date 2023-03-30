@@ -273,7 +273,7 @@ export default class BotClient extends Client {
 
         this.passThrought.on("error", () => null);
         this.passThrought.on("close", () => {
-            this.stream?.kill("SIGKILL");
+            // this.stream?.kill("SIGKILL");
             this.stream = undefined;
             this.passThrought = undefined;
         })
