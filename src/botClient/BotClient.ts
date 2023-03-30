@@ -266,11 +266,15 @@ export default class BotClient extends Client {
         .addOptions(encoderArgs)
         .seekInput(this.formatDuration(seekTime))
         .output(passThrought)
-        .on('error', (err) => console.error(err.message, '\n', err.stack))
 
         newStream.format('mp3').run();
 
         passThrought.on("close", () => {
+            stream.destroy();
+            newStream.kill('SIGSTOP');
+        });
+
+        passThrought.on("error", (err) => {
             stream.destroy();
             newStream.kill('SIGSTOP');
         });

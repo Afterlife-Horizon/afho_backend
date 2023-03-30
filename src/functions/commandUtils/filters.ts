@@ -17,15 +17,12 @@ export default async function changeFilters(client: BotClient, args: IArgs) : Pr
         if (!member.voice.channelId) return { status: 400, error: "👎 **Please join a Voice-Channel first!**" }
 
         const oldConnection = getVoiceConnection(guild.id)
-        console.log(!oldConnection)
         if (!oldConnection) return { status: 400, error: `👎 **I'm not connected somewhere**!` }
 
         const state = oldConnection.state as VoiceConnectionReadyState;
-        console.log(!state || !state.subscription)
         if (!state || !state.subscription) return { status: 400, error: `👎 **Something went wrong**` }
 
         const playerState = state.subscription.player.state as AudioPlayerPlayingState | AudioPlayerPausedState;
-        console.log(!playerState || !playerState.resource)
         if (!playerState || !playerState.resource) return { status: 400, error: `👎 **Something went wrong**`}      
 
         const queue = client.queues.get(guild.id)
