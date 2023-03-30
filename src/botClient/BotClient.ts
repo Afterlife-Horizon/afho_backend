@@ -11,8 +11,8 @@ import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
-import { PassThrough, Readable, Writable } from "stream"
-import { Stream } from "node:stream"
+import { Readable, Transform } from "stream"
+import { PassThrough } from "node:stream"
 
 
 export default class BotClient extends Client {
@@ -256,11 +256,14 @@ export default class BotClient extends Client {
         
         const stream = ytdl(this.getYTLink(songInfoId), requestOpts).once('error', (err) => console.error(err.message, '\n', err.stack))
 
-        const newStream = ffmpeg(stream).inputOptions(encoderArgs).audioChannels(2).audioBitrate(128).audioFrequency(48000).noVideo().on('error', (err) => console.error(err.message, '\n', err.stack))
 
-        const output = newStream.seekInput(seekTime / 1000).pipe() as Readable;
+        const newStream = ffmpeg(stream).outputOptions(encoderArgs).audioChannels(2).audioBitrate(128).audioFrequency(48000).noVideo().on('error', (err) => console.error(err.message, '\n', err.stack))
 
-        const resource = createAudioResource(output);
+
+        const passThrought = new PassThrough();
+        newStream.seekInput(seekTime / 1000).pipe(passThrought);
+
+        const resource = createAudioResource(passThrought);
 
 
         const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? (queue.volume / 100) : 1;
