@@ -21,7 +21,7 @@ import { EnhancedUser, song, track, fav } from "../types"
 import useFetchInfo from "../hooks/useFetchInfo"
 
 const Music = (props: any) => {
-	// const isDarkTheme = window.matchMedia("(prefers-color-scheme:dark)").matches
+	const isDarkTheme = window.matchMedia("(prefers-color-scheme:dark)").matches
 	const navigate = useNavigate()
 
 	const [colorScheme, setColorScheme] = useState<string>("")
@@ -133,18 +133,18 @@ const Music = (props: any) => {
 		}
 		const isAdmin: boolean = fetchInfo.admins.usernames.includes(user?.user_metadata.full_name)
 		if (apiUser) {
-			setUser({ ...apiUser, isAdmin })
+			if (apiUser.id !== user?.id) setUser({ ...apiUser, isAdmin })
 		}
 		setIsRequester(tmpIsRequester)
 		setIsClearing(false)
 		setIsSkipping(false)
 		setIsAddingFirst(false)
 		setIsShuffling(false)
-	}, [fetchInfo, apiUser])
+	}, [fetchInfo, apiUser?.id])
 
-	// useEffect(() => {
-	// 	setColorScheme(isDarkTheme ? "dark" : "")
-	// }, [isDarkTheme])
+	useEffect(() => {
+		setColorScheme(isDarkTheme ? "dark" : "")
+	}, [isDarkTheme])
 
 	if (isLoading) return <Spinner />
 	if (isError) navigate("/login")

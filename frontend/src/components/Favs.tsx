@@ -1,5 +1,5 @@
 // ------------ Packages ------------
-import React, { MutableRefObject, useContext, useEffect, useRef, useState } from "react"
+import React, { MutableRefObject, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { Divider, Input, InputRef } from "antd"
 import { Image } from "antd"
 
@@ -10,6 +10,7 @@ import MusicContext from "../context/MusicContext"
 import useFavorites from "../hooks/useFavorites"
 import Spinner from "./Spinner"
 import { queryClient } from "../main"
+import { EnhancedUser } from "../types"
 
 const Favs: React.FC = () => {
 	const { user, setIsAdding, setInfo, setInfoboxColor, queue } = useContext(MusicContext)
