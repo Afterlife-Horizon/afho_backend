@@ -87,6 +87,8 @@ const Favs: React.FC = () => {
 			})
 	}
 
+	return <Spinner />
+
 	if (userId === "") return null
 	return (
 		<div className="favs">
@@ -115,7 +117,7 @@ const Favs: React.FC = () => {
 				page: {page} / {maxPage === -1 ? 1 : maxPage}
 			</div>
 			<ul className="favsList">
-				{favs.slice((page - 1) * 5, page * 5 + 1).map(fav => {
+				{favs?.slice((page - 1) * 5, page * 5 + 1).map(fav => {
 					j++
 					return (
 						<li className="queue-item" key={"favSong" + String((page - 1) * 5 + j)}>
