@@ -27,10 +27,10 @@ const Favs: React.FC = () => {
 
 	let maxPage = favs.length > 6 ? Math.ceil((favs.length - 1) / 5) : -1
 
-	useEffect(() => {
-		if (page > maxPage + 2) setPage(maxPage + 2)
-		else if (page !== 1 && favs.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0) setPage(prev => prev - 1)
-	}, [favs])
+	// useEffect(() => {
+	// 	if (page > maxPage + 2) setPage(maxPage + 2)
+	// 	else if (page !== 1 && favs.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0) setPage(prev => prev - 1)
+	// }, [favs])
 
 	let j = 0
 
@@ -87,9 +87,7 @@ const Favs: React.FC = () => {
 			})
 	}
 
-	return <Spinner />
-
-	if (userId === "") return null
+	if (userId === "") return <Spinner />
 	return (
 		<div className="favs">
 			<h3>Favorites</h3>

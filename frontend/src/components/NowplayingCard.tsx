@@ -193,8 +193,6 @@ const NowplayingCard: React.FC = () => {
 
 	let checkRequester = !user?.isAdmin && !isSongRequester
 
-	console.log(user?.user_metadata.avatar_url)
-	if (!user?.user_metadata.avatar_url) return <Spinner />
 	return (
 		<div className="nowplaying">
 			<div className="nowplaying-card ant-card brasilboardd">
