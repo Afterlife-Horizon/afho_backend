@@ -30,8 +30,8 @@ const options = {
 	presence: {
 		activities: [
 			{
-				name: "https://music.afterlifehorizon.net",
-				url: "",
+				name: "/help",
+				url: "https://music.afterlifehorizon.net",
 				type: ActivityType.Listening
 			}
 		],
