@@ -16,7 +16,7 @@ import "../css/dark/Music.css"
 import NowplayingCard from "../components/NowplayingCard"
 import useUser from "../hooks/useUser"
 import Spinner from "../components/Spinner"
-import { EnhancedUser, song, track, fav } from "../types"
+import { EnhancedUser, song, track } from "../types"
 import useFetchInfo from "../hooks/useFetchInfo"
 
 const Music = (props: any) => {
@@ -133,7 +133,7 @@ const Music = (props: any) => {
 		}
 		const isAdmin: boolean = fetchInfo.admins.usernames.includes(user?.user_metadata.full_name)
 		if (apiUser) {
-			if (firstFetch) {
+			if (firstFetch && apiUser.id) {
 				setUser({ ...apiUser, isAdmin })
 				setFirstFetch(false)
 			}
