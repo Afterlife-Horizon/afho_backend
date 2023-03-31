@@ -299,7 +299,7 @@ export default class BotClient extends Client {
 				status: "online",
 				activities: [
 					{
-						name: `${queue.tracks[0]?.title} - ${queue.tracks[0]?.channel?.name}`,
+						name: `${queue.tracks[0]?.title} BY ${queue.tracks[0]?.channel?.name}`,
 						type: ActivityType.Listening
 					}
 				]
