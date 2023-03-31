@@ -4,6 +4,7 @@ const router = express.Router()
 
 export default function (client) {
 	return router.post("/", async (req, res) => {
+		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		const guild = client.guilds.cache.find(g => g.name === client.config.serverName)
 		const connectedMembers = await guild.members.cache.filter(member => member.voice.channel)
 		const requester = connectedMembers.filter(member => member.user.username === req.body.user)

@@ -5,6 +5,7 @@ const router = express.Router()
 
 export default function (client) {
 	return router.post("/", async (req, res) => {
+		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		const guild = client.guilds.cache.find(g => g.name === client.config.serverName)
 		if (!guild) return res.status(406).send("Guild not found!")
 

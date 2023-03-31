@@ -5,6 +5,7 @@ const router = express.Router()
 
 export default function delFav(client: BotClient) {
 	return router.delete("/", async (req, res) => {
+		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		try {
 			const userId = req.body.userId
 			const name = req.body.name

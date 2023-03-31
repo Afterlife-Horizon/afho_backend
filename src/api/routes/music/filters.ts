@@ -7,6 +7,7 @@ import { IFilters } from "../../../types"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
+		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		const { user, filters }: { user: string; filters: IFilters } = req.body
 		if (!user) return res.status(400).json({ error: "Missing username" })
 

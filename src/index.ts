@@ -1,20 +1,38 @@
-import { ClientOptions, GatewayIntentBits, Partials } from "discord.js"
+import { ActivityType, ClientOptions, GatewayIntentBits, Partials, REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from "discord.js"
 import BotClient from "./botClient/BotClient"
 import ExpressClient from "./api/ExpressClient"
 import http from "http"
 import https from "https"
 import fs from "node:fs"
+import { exit } from "process"
+import { type } from "os"
+
+// Check for .env file
+if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !== "delete") {
+	throw new Error("Invalid method provided, please use 'add' or 'delete'")
+} else if (process.env.METHOD) {
+	console.log("Running in " + process.env.METHOD + " mode")
+	if (!process.env.CLIENT_ID) throw new Error("No clientID found")
+	if (!process.env.TOKEN) throw new Error("No token found")
+} else {
+	if (!fs.existsSync(".env")) throw new Error("No .env file found, creating one...")
+	if (!process.env.DB_ADRESS || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME)
+		throw new Error("No database credentials found in .env file")
+	if (!process.env.DISCORD_REDIRECT_URI) throw new Error("No discord redirect URI found")
+	if (!process.env.TOKEN || !process.env.CLIENT_ID) throw new Error("No discord token or clientID found")
+	if (!process.env.SERVER_NAME || !process.env.BRASIL_CHANNEL_ID || !process.env.BASE_CHANNEL_ID)
+		throw new Error("No server name or channel IDs found")
+	if (!process.env.CERT || !process.env.CERT_KEY) console.log("No HTTPS certificate found, using HTTP instead...")
+	if (!process.env.OPENAI_KEY) console.log("No OpenAI key found, not using OpenAI API")
+}
 
 const options = {
 	presence: {
 		activities: [
 			{
-				name: `music.afterlifehorizon.net`,
-				type: "LISTENING"
-			},
-			{
-				name: "/help",
-				url: "https://music.afterlifehorizon.net"
+				name: "https://music.afterlifehorizon.net",
+				url: "",
+				type: ActivityType.Listening
 			}
 		],
 		status: "online"
@@ -43,22 +61,57 @@ client.once("ready", () => {
 	client.ready = true
 })
 
-const expressClient = new ExpressClient(client)
+if (process.env.METHOD) {
+	const rest = new REST({ version: "10" }).setToken(client.config.token)
+	if (process.env.METHOD === "add") {
+		console.log("Registering application commands...: ")
+		const commands: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
+		for (const [name, command] of client.commands) {
+			console.log("Registering command: " + name)
+			commands.push(command.data.toJSON())
+		}
+		rest.put(Routes.applicationCommands(client.config.clientID), { body: commands })
+			.then((data: any) => console.log(`Successfully registered ${data.length} application commands.`))
+			.then(() => {
+				exit(0)
+			})
+			.catch(console.error)
+	}
 
-const credentials = {
-	key: fs.readFileSync(process.env.CERT_KEY || ""),
-	cert: fs.readFileSync(process.env.CERT || "")
+	if (process.env.METHOD === "delete") {
+		console.log("Deleting all application commands...")
+		rest.put(Routes.applicationCommands(client.config.clientID), { body: [] })
+			.then(() => console.log("Successfully deleted all application commands."))
+			.then(() => {
+				exit(0)
+			})
+			.catch(console.error)
+	}
 }
 
-const httpServer = http.createServer(expressClient.app)
-const httpsServer = https.createServer(credentials, expressClient.app)
-httpServer.listen(8080, () => {
-	console.log("HTTP Server running on port 8080")
-})
-httpsServer.listen(8443, () => {
-	console.log("HTTPS Server running on port 8443")
-})
+if (!process.env.METHOD) {
+	const expressClient = new ExpressClient(client)
 
-// --------- Loging in bot ---------
-if (!client.config.token || client.config.token === "") throw new Error("No token provided")
-client.login(client.config.token)
+	const httpServer = http.createServer(expressClient.app)
+	httpServer.listen(8080, () => {
+		console.log("HTTP Server running on port 8080")
+	})
+
+	if (process.env.CERT && process.env.CERT_KEY) {
+		const credentials = {
+			key: fs.readFileSync(process.env.CERT_KEY),
+			cert: fs.readFileSync(process.env.CERT)
+		}
+		const httpsServer = https.createServer(credentials, expressClient.app)
+		httpsServer.listen(8443, () => {
+			console.log("HTTPS Server running on port 8443")
+		})
+	}
+
+	// --------- Loging in bot ---------
+	if (!client.config.token || client.config.token === "") throw new Error("No token provided")
+	client.login(client.config.token).catch(err => {
+		console.error(err)
+		exit(1)
+	})
+}

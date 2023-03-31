@@ -13,6 +13,7 @@ import { Level } from "../../types"
 
 export default function levels(client: BotClient) {
 	return router.get("/", async (_, res) => {
+		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		try {
 			const ids: string[] = []
 			const levelarray: Level[] = []

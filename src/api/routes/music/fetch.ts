@@ -19,7 +19,7 @@ import BotClient from "../../../botClient/BotClient"
 export default function (client: BotClient) {
 	return router.get("/", async (req, res) => {
 		try {
-			if (!client.ready) return res.status(406).send("Loading!")
+			if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 			const guild = client.guilds.cache.find(g => g.name === client.config.serverName)
 			if (!guild) return res.status(406).send("Server not found!")
 

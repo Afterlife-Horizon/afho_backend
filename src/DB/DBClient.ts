@@ -7,10 +7,10 @@ export default class DBClient {
 	}
 
 	private getConnection() {
-		const host = process.env.DB_ADRESS || "127.0.0.1"
-		const user = process.env.DB_USER || "root"
-		const password = process.env.DB_PASSWORD || ""
-		const database = process.env.DB_DATABASE || ""
+		const host = process.env.DB_ADRESS
+		const user = process.env.DB_USER
+		const password = process.env.DB_PASSWORD
+		const database = process.env.DB_DATABASE
 
 		const conn = myslqi.createPool({
 			host: host,
