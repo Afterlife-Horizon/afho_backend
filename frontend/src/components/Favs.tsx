@@ -16,7 +16,7 @@ const Favs: React.FC = () => {
 	const userId = user?.user_metadata.provider_id || ""
 	const username = user?.user_metadata.full_name || ""
 
-	console.log(user)
+	console.log(user?.user_metadata.provider_id)
 
 	const { data: favs, isLoading: isLoading, isError: isError } = useFavorites(userId)
 
