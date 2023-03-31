@@ -12,7 +12,7 @@ import {
 	getVoiceConnection,
 	joinVoiceChannel
 } from "@discordjs/voice"
-import { Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
+import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
 import { ICommand, IQueue, IESong, IFavorite } from "../types"
 import fs from "node:fs"
 import path from "node:path"
@@ -292,6 +292,23 @@ export default class BotClient extends Client {
 		const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? queue.volume / 100 : 1
 		resource.volume?.setVolume(volume)
 		resource.playbackDuration = seekTime
+
+		const playing = `${queue.tracks[0]?.title} / ${queue.tracks[0]?.channel?.name}`
+
+		const user = this.user
+		if (user) {
+			user.setPresence({
+				status: "online",
+				activities: [
+					{
+						name: playing,
+						type: ActivityType.Listening
+					}
+				]
+			})
+		}
+		console.log(`Playing ${playing}`)
+
 		return resource
 	}
 

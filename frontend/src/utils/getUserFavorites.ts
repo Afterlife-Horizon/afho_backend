@@ -1,3 +1,5 @@
+import { fav } from "../types"
+
 export default async function getUserFavorites(id: string): Promise<{ favorites: fav[] }> {
 	const res = await fetch("/api/getFavs", {
 		method: "POST",

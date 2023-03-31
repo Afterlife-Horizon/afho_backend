@@ -1,5 +1,5 @@
 // ------------ Packages ------------
-import React, { MutableRefObject, useContext, useRef, useState } from "react"
+import React, { MutableRefObject, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { Divider, Input, InputRef } from "antd"
 import { Image } from "antd"
 
@@ -7,20 +7,32 @@ import { Image } from "antd"
 import "../css/Favs.css"
 import "../css/dark/Favs.css"
 import MusicContext from "../context/MusicContext"
+import useFavorites from "../hooks/useFavorites"
+import Spinner from "./Spinner"
+import { queryClient } from "../main"
+import { EnhancedUser } from "../types"
 
 const Favs: React.FC = () => {
-	const { favs, setFavs, user, setIsAdding, setInfo, setInfoboxColor, queue } = useContext(MusicContext)
-	const userId = user?.id || ""
-	const username = user?.username
+	const { user, setIsAdding, setInfo, setInfoboxColor, queue } = useContext(MusicContext)
+	if (!user?.user_metadata.provider_id) return <Spinner />
+	const userId = user?.user_metadata.provider_id || ""
+	const username = user?.user_metadata.full_name || ""
+
+	// TODO: Fix Too many re-renders
+	const { data: favs, isLoading, isError } = useFavorites(userId)
+	if (isLoading) return <Spinner />
+	if (isError) return <div>Something went wrong</div>
 
 	const [favAdd, setFavAdd] = useState("")
 	const [page, setPage] = useState(1)
 
-	if (typeof favs === "undefined") return <div></div>
-
 	let maxPage = favs.length > 6 ? Math.ceil((favs.length - 1) / 5) : -1
-	if (page > maxPage + 2) setPage(maxPage + 2)
-	else if (page !== 1 && favs.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0) setPage(prev => prev - 1)
+
+	useEffect(() => {
+		if (page > maxPage + 2) setPage(maxPage + 2)
+		else if (page !== 1 && favs.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0) setPage(prev => prev - 1)
+	}, [favs])
+
 	let j = 0
 
 	async function addFav() {
@@ -34,9 +46,8 @@ const Favs: React.FC = () => {
 		})
 			.then(res => res.json())
 			.then(data => {
-				setFavs(data.data)
+				queryClient.setQueriesData(["favorites", userId], data.data)
 				setFavAdd("")
-				// if (inputRef.current) inputRef.current.value = ""
 			})
 			.catch(err => console.log(err))
 	}
@@ -50,7 +61,7 @@ const Favs: React.FC = () => {
 		})
 			.then(res => res.json())
 			.then(data => {
-				setFavs(data.data)
+				queryClient.setQueriesData(["favorites", userId], data.data)
 			})
 			.catch(err => console.log(err))
 	}
@@ -77,7 +88,7 @@ const Favs: React.FC = () => {
 			})
 	}
 
-	if (userId === "") return null
+	if (userId === "") return <Spinner />
 	return (
 		<div className="favs">
 			<h3>Favorites</h3>
@@ -105,7 +116,7 @@ const Favs: React.FC = () => {
 				page: {page} / {maxPage === -1 ? 1 : maxPage}
 			</div>
 			<ul className="favsList">
-				{favs.slice((page - 1) * 5, page * 5 + 1).map(fav => {
+				{favs?.slice((page - 1) * 5, page * 5 + 1).map(fav => {
 					j++
 					return (
 						<li className="queue-item" key={"favSong" + String((page - 1) * 5 + j)}>

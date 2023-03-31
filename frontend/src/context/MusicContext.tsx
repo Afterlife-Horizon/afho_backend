@@ -1,12 +1,13 @@
+import { User } from "@supabase/supabase-js"
 import { createContext } from "react"
+import { song, track, fav, EnhancedUser } from "../types"
 
 interface IMusicContext {
 	song: song
 	setSong: React.Dispatch<React.SetStateAction<song>>
 	info: string
 	setInfo: React.Dispatch<React.SetStateAction<string>>
-	user: user
-	setUser: React.Dispatch<React.SetStateAction<user>>
+	user: EnhancedUser | undefined
 	isPaused: boolean
 	setIsPaused: React.Dispatch<React.SetStateAction<boolean>>
 	queue: track[]
@@ -27,8 +28,6 @@ interface IMusicContext {
 	setIsClearing: React.Dispatch<React.SetStateAction<boolean>>
 	isSkipping: boolean
 	setIsSkipping: React.Dispatch<React.SetStateAction<boolean>>
-	favs: fav[]
-	setFavs: React.Dispatch<React.SetStateAction<fav[]>>
 	infoboxColor: string
 	setInfoboxColor: React.Dispatch<React.SetStateAction<string>>
 	colorScheme: string
@@ -69,23 +68,7 @@ const MusicContext = createContext<IMusicContext>({
 	setSong: value => {},
 	info: "",
 	setInfo: value => {},
-	user: {
-		id: "",
-		username: "",
-		accent_color: "",
-		avatar: "",
-		avatar_decoration: "",
-		banner: "",
-		banner_color: "",
-		discriminator: "",
-		flags: 0,
-		locale: "",
-		mfa_enabled: false,
-		premium_type: 0,
-		public_flags: 0,
-		isAdmin: false
-	},
-	setUser: value => {},
+	user: undefined,
 	isPaused: false,
 	setIsPaused: value => {},
 	queue: [],
@@ -106,8 +89,6 @@ const MusicContext = createContext<IMusicContext>({
 	setIsClearing: value => {},
 	isSkipping: false,
 	setIsSkipping: value => {},
-	favs: [],
-	setFavs: value => {},
 	infoboxColor: "",
 	setInfoboxColor: value => {},
 	colorScheme: "",

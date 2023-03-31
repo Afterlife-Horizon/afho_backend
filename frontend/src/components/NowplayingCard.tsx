@@ -2,11 +2,15 @@ import React, { useContext, useState } from "react"
 import MusicContext from "../context/MusicContext"
 import { Avatar, Card } from "antd"
 import Meta from "antd/lib/card/Meta"
+import { supabase } from "../utils/supabaseUtils"
+import { useNavigate } from "react-router-dom"
+import Spinner from "./Spinner"
 
 const NowplayingCard: React.FC = () => {
 	const [isDisconnecting, setIsDisconnecting] = useState(false)
 	const [isPausing, setIsPausing] = useState(false)
 	const [isStopping, setIsStopping] = useState(false)
+	const navigate = useNavigate()
 
 	const {
 		user,
@@ -37,7 +41,7 @@ const NowplayingCard: React.FC = () => {
 		const res = await fetch("/api/skip", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ user: user?.username })
+			body: JSON.stringify({ user: user?.user_metadata.full_name })
 		})
 
 		setIsSkipping(false)
@@ -70,7 +74,7 @@ const NowplayingCard: React.FC = () => {
 			const res = await fetch("/api/unpause", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ user: user?.username })
+				body: JSON.stringify({ user: user?.user_metadata.full_name })
 			})
 
 			setIsPausing(false)
@@ -91,7 +95,7 @@ const NowplayingCard: React.FC = () => {
 			const res = await fetch("/api/pause", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ user: user?.username })
+				body: JSON.stringify({ user: user?.user_metadata.full_name })
 			})
 
 			setIsPausing(false)
@@ -130,7 +134,7 @@ const NowplayingCard: React.FC = () => {
 		const res = await fetch("/api/stop", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ user: user?.username })
+			body: JSON.stringify({ user: user?.user_metadata.full_name })
 		})
 
 		setIsStopping(false)
@@ -162,7 +166,7 @@ const NowplayingCard: React.FC = () => {
 		const res = await fetch("/api/disconnect", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ user: user.username })
+			body: JSON.stringify({ user: user.user_metadata.full_name })
 		})
 
 		setIsDisconnecting(false)
@@ -181,20 +185,10 @@ const NowplayingCard: React.FC = () => {
 		}
 	}
 
-	const handleLogout = (event: React.MouseEvent<HTMLButtonElement>) => {
-		event.preventDefault()
-		try {
-			localStorage.removeItem("access_token")
-			localStorage.removeItem("token_type")
-			setInfo("Logged out!")
-			setInfoboxColor("green")
-			setTimeout(() => {
-				window.location.replace("/login")
-			}, 1000)
-		} catch (err) {
-			setInfo("A problem occured")
-			setInfoboxColor("red")
-		}
+	async function handleSignOut() {
+		const { error } = await supabase.auth.signOut()
+		if (error) return
+		navigate("/login")
 	}
 
 	let checkRequester = !user?.isAdmin && !isSongRequester
@@ -209,7 +203,13 @@ const NowplayingCard: React.FC = () => {
 			</div>
 			<Card
 				className="nowplaying-card"
-				cover={<img className="nowplaying-img" alt="example" src={song.cover_src} />}
+				cover={
+					song.cover_src === "https://freesvg.org/img/aiga_waiting_room_bg.png" ? (
+						<img className="nowplaying-img" style={{ maxWidth: "15rem" }} alt="example" src={song.cover_src} />
+					) : (
+						<img className="nowplaying-img" alt="example" src={song.cover_src} />
+					)
+				}
 				actions={[
 					<button disabled={!user?.isAdmin} className="next" onClick={handleDisconnectClicked}>
 						{isDisconnecting ? <div className="small-spinner"></div> : "DISCONNECT"}
@@ -246,13 +246,10 @@ const NowplayingCard: React.FC = () => {
 				/>
 			</Card>
 			<Card className="nowplaying-card">
-				<Meta
-					avatar={<Avatar src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} />}
-					title={`${user?.username}#${user?.discriminator}`}
-				/>
+				<Meta avatar={<Avatar src={user?.user_metadata.avatar_url} />} title={user?.user_metadata.name} />
 			</Card>
 			<div className="nowplaying-card ant-card">
-				<button onClick={handleLogout}>LOG OUT</button>
+				<button onClick={handleSignOut}>LOG OUT</button>
 			</div>
 			<div style={{ border: `1px solid ${infoboxColor}` }} className="nowplaying-card ant-card infobox">
 				{info}

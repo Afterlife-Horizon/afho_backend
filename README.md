@@ -81,31 +81,77 @@ This bot is created and designed by myself.
     1.  https://discord.com/developers/applications
     2.  Create a Bot and copy the token for later
     3.  give the bot the necessary permissions presence intent, server members intent and server messages intent
-    4.  In the application/ OAuth2 tab add a redirect uri
-    5.  Go to URL Generator and select identify and save the link for later
 4.  If you want acces to openAi features create an openAi account and get a token for the api
 5.  Optionally get your youtube account token for the music bot (paste your cookie)
-6.  Add all the variables in a .env file:
+6.  Create an application on supabase:
+    1.  https://supabase.com/
+    2.  in Authentication tab go to URL Configurator and add the url of your website
+    3.  In providers tab enable disord with the client id and secret of your discord application, copy the url
+    4.  go to https://discord.com/developers/applications and add the url to the redirect uri
+7.  Add all the variables in .env files:
 
-    #### **`.env`**
+    1. backend .env
 
+        ```bash
+        nano ./.env
+        ```
+
+        #### **`./.env`**
+
+        ```bash
+        # Database variables
+        DB_ADRESS="127.0.0.1"       # adress of your database
+        DB_DATABASE=""              # name of your database
+        DB_USER="root"              # user of your database
+        DB_PASSWORD=""              # password of your database
+
+        # Discord related variables
+        SERVER_NAME=""              # name of your server
+        CLIENT_ID=""                # discord client id
+        TOKEN=""                    # discord bot token
+        BASE_CHANNEL_ID=""          # id of bot message channel
+        BRASIL_CHANNEL_ID=""        # id of bresil channel
+
+        # optionnal variables
+        # OPENAI_KEY=               # openAi key
+        # YOUTUBE_LOGIN_COOKIE=     # youtube cookie
+
+        # add these certificate files if you want to use https
+        # CERT="/home/<USER>/.ssh/<YOUR_CERT_NAME>.crt"     # certificate file
+        # CERT_KEY="/home/<USER>/.ssh/<YOUR_CERT_KEY_NAME>.key"     # private key
+        ```
+
+    2. frontend .env
+
+        ```bash
+        nano ./frontend/.env
+        ```
+
+        #### **`./frontend/.env`**
+
+        ```bash
+        VITE_REDIRECT_URI=""    # url of your website with / at the end
+        VITE_SUPABASE_URL=""    # url of your supabase project
+        VITE_SUPABASE_KEY=""    # public key from supabase
+        ```
+
+8.  Install the dependencies:
+
+    ```bash
+    cd frontend && npm install
+    cd .. && npm install
     ```
-    # CERT_KEY="/home/<USER>/.ssh/<YOUR_CERT_KEY_NAME>.key"
-    # CERT="/home/<USER>/.ssh/<YOUR_CERT_NAME>.crt"
 
-    DB_ADRESS="127.0.0.1"
-    DB_USER="root"
-    DB_PASSWORD=""
-    DB_DATABASE=""
+9.  Build the frontend:
 
-    DISCORD_REDIRECT_URI=""
-    TOKEN=""
-    CLIENT_ID=""
-    SERVER_NAME=""
-    BRASIL_CHANNEL_ID=""
-    BASE_CHANNEL_ID=""
-    # OPENAI_KEY=
-    # YOUTUBE_LOGIN_COOKIE=
+    ```bash
+    cd frontend && npm run build
+    ```
+
+10. Start the bot:
+
+    ```bash
+    npm start
     ```
 
 ## Main commands
