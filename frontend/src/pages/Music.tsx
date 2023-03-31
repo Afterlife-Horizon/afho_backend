@@ -192,7 +192,7 @@ const Music = (props: any) => {
 			<MusicContext.Provider value={musicContextValue}>
 				<NowplayingCard />
 				<Queue />
-				<Favs />
+				{/* <Favs /> */}
 				<Filters />
 			</MusicContext.Provider>
 		</div>
