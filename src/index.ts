@@ -8,6 +8,8 @@ import { exit } from "process"
 import { type } from "os"
 
 // Check for .env file
+if (!fs.existsSync(".env")) throw new Error("No .env file found, creating one...")
+
 if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !== "delete") {
 	throw new Error("Invalid method provided, please use 'add' or 'delete'")
 } else if (process.env.METHOD) {
@@ -15,7 +17,6 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 	if (!process.env.CLIENT_ID) throw new Error("No clientID found")
 	if (!process.env.TOKEN) throw new Error("No token found")
 } else {
-	if (!fs.existsSync(".env")) throw new Error("No .env file found, creating one...")
 	if (!process.env.DB_ADRESS || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_DATABASE)
 		throw new Error("No database credentials found in .env file")
 	if (!process.env.DISCORD_REDIRECT_URI) throw new Error("No discord redirect URI found")
