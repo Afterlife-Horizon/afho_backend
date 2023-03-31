@@ -299,13 +299,13 @@ export default class BotClient extends Client {
 				status: "online",
 				activities: [
 					{
-						name: `${queue.tracks[0]?.title}`,
+						name: `${queue.tracks[0]?.title} - ${queue.tracks[0]?.channel?.name}`,
 						type: ActivityType.Listening
 					}
 				]
 			})
 		}
-		console.log(`Playing ${queue.tracks[0]?.title} in ${queue.textChannel}`)
+		console.log(`Playing ${queue.tracks[0]?.title}`)
 		console.log(`presence: ${user?.presence?.activities[0]?.name}`)
 
 		return resource
