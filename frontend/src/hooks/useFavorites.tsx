@@ -4,6 +4,7 @@ import { fav } from "../types"
 
 const useFavorites = (id: string): UseQueryResult<fav[], Error> => {
 	return useQuery({
+		enabled: !!id && id !== "",
 		queryKey: ["favorites", id],
 		queryFn: () => getUserFavorites(id),
 		select: data => data.favorites
