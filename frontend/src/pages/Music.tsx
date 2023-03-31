@@ -74,7 +74,6 @@ const Music = (props: any) => {
 	})
 
 	const { data: apiUser, isLoading, isError } = useUser()
-
 	const { data: fetchInfo, isLoading: isFetchingInfo, isError: isFetchingInfoError } = useFetchInfo()
 
 	useEffect(() => {
@@ -152,8 +151,6 @@ const Music = (props: any) => {
 
 	if (isFetchingInfo) return <Spinner />
 	if (isFetchingInfoError) return <div>There was an error fetching the bot info</div>
-
-	if (!user) navigate("/login")
 
 	const musicContextValue = {
 		song,
