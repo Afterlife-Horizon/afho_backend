@@ -148,7 +148,7 @@ const Music = (props: any) => {
 	}, [isDarkTheme])
 
 	if (isLoading) return <Spinner />
-	if (isError || !user) navigate("/login")
+	if (isError) navigate("/login")
 
 	if (isFetchingInfo) return <Spinner />
 	if (isFetchingInfoError) return <div>There was an error fetching the bot info</div>
@@ -186,7 +186,7 @@ const Music = (props: any) => {
 		colorScheme,
 		setColorScheme
 	}
-	
+
 	return (
 		<div className={classes}>
 			<MusicContext.Provider value={musicContextValue}>
