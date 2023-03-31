@@ -140,7 +140,7 @@ const Music = (props: any) => {
 		setIsSkipping(false)
 		setIsAddingFirst(false)
 		setIsShuffling(false)
-	}, [fetchInfo])
+	}, [fetchInfo, apiUser])
 
 	// useEffect(() => {
 	// 	setColorScheme(isDarkTheme ? "dark" : "")
