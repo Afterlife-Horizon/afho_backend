@@ -292,6 +292,22 @@ export default class BotClient extends Client {
 		const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? queue.volume / 100 : 1
 		resource.volume?.setVolume(volume)
 		resource.playbackDuration = seekTime
+
+		const user = this.user
+		if (user) {
+			user.setPresence({
+				status: "online",
+				activities: [
+					{
+						name: `${queue.tracks[0]?.title}`,
+						type: ActivityType.Listening
+					}
+				]
+			})
+		}
+		console.log(`Playing ${queue.tracks[0]?.title} in ${queue.textChannel}`)
+		console.log(`presence: ${user?.presence?.activities[0]?.name}`)
+
 		return resource
 	}
 
@@ -503,21 +519,6 @@ export default class BotClient extends Client {
 						queue.tracks = []
 					}
 				}
-
-				const user = this.user
-				if (user) {
-					user.setPresence({
-						status: "online",
-						activities: [
-							{
-								name: `${queue.tracks[0]?.title}`,
-								type: ActivityType.Listening
-							}
-						]
-					})
-				}
-				console.log(`Playing ${queue.tracks[0]?.title} in ${queue.textChannel}`)
-				console.log(`presence: ${user?.presence?.activities[0]?.name}`)
 			} catch (e) {
 				console.error(e)
 			}
