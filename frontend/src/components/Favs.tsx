@@ -98,7 +98,6 @@ const Favs: React.FC = () => {
 					type="text"
 					placeholder="Search for a song or playlist (URL or Name)"
 					onChange={e => setFavAdd(e.target.value)}
-					value={favAdd}
 				/>
 				<button onClick={() => addFav()}>ADD</button>
 			</div>
