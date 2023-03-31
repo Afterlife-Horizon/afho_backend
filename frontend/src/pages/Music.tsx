@@ -14,7 +14,6 @@ import "antd/dist/antd.css"
 import "../css/Music.css"
 import "../css/dark/Music.css"
 import NowplayingCard from "../components/NowplayingCard"
-import getBotInfo from "../utils/getBotinfo"
 import useUser from "../hooks/useUser"
 import Spinner from "../components/Spinner"
 import { EnhancedUser, song, track, fav } from "../types"
@@ -35,6 +34,7 @@ const Music = (props: any) => {
 	const [hasChanged, setHasChanged] = useState<boolean>(true)
 	const [isSongRequester, setIsRequester] = useState<boolean>(true)
 	const [user, setUser] = useState<EnhancedUser | undefined>(undefined)
+	const [firstFetch, setFirstFetch] = useState<boolean>(true)
 
 	const [isSkipping, setIsSkipping] = useState<boolean>(false)
 	const [isAdding, setIsAdding] = useState<boolean>(false)
@@ -133,7 +133,10 @@ const Music = (props: any) => {
 		}
 		const isAdmin: boolean = fetchInfo.admins.usernames.includes(user?.user_metadata.full_name)
 		if (apiUser) {
-			if (apiUser.id !== user?.id) setUser({ ...apiUser, isAdmin })
+			if (firstFetch) {
+				setUser({ ...apiUser, isAdmin })
+				setFirstFetch(false)
+			}
 		}
 		setIsRequester(tmpIsRequester)
 		setIsClearing(false)
