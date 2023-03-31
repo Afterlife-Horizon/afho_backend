@@ -34,7 +34,7 @@ const Favs: React.FC = () => {
 	useEffect(() => {
 		if (page > maxPage + 2) setPage(maxPage + 2)
 		else if (page !== 1 && favs.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0) setPage(prev => prev - 1)
-	}, favs)
+	}, [favs])
 
 	let j = 0
 
