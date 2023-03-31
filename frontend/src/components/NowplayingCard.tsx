@@ -4,6 +4,7 @@ import { Avatar, Card } from "antd"
 import Meta from "antd/lib/card/Meta"
 import { supabase } from "../utils/supabaseUtils"
 import { useNavigate } from "react-router-dom"
+import Spinner from "./Spinner"
 
 const NowplayingCard: React.FC = () => {
 	const [isDisconnecting, setIsDisconnecting] = useState(false)
@@ -192,6 +193,8 @@ const NowplayingCard: React.FC = () => {
 
 	let checkRequester = !user?.isAdmin && !isSongRequester
 
+	console.log(user?.user_metadata.avatar_url)
+	if (!user?.user_metadata.avatar_url) return <Spinner />
 	return (
 		<div className="nowplaying">
 			<div className="nowplaying-card ant-card brasilboardd">
