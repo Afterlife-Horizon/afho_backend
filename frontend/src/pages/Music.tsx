@@ -1,44 +1,29 @@
 // ------------ Packages ------------
 import { useEffect, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 import MusicContext from "../context/MusicContext"
 
 // ------------ Components ------------
-import Queue from "./Queue"
-import Filters from "./Filters"
-import Favs from "./Favs"
+import Queue from "../components/Queue"
+import Filters from "../components/Filters"
+import Favs from "../components/Favs"
 
 // ------------ CSS Files ------------
 import "antd/dist/antd.css"
 import "../css/Music.css"
 import "../css/dark/Music.css"
-import NowplayingCard from "./NowplayingCard"
-import getApiToken from "../utils/getApiToken"
-import getUserInfo from "../utils/getUserInfo"
+import NowplayingCard from "../components/NowplayingCard"
 import getUserFavorites from "../utils/getUserFavorites"
 import getBotInfo from "../utils/getBotinfo"
+import useUser from "../hooks/useUser"
+import Spinner from "../components/Spinner"
+import { EnhancedUser, song, track, fav } from "../types"
 
 const Music = (props: any) => {
-	const [searchParams] = useSearchParams()
 	const isDarkTheme = window.matchMedia("(prefers-color-scheme:dark)").matches
+	const navigate = useNavigate()
 
-	const [user, setUser] = useState<user>({
-		id: "",
-		username: "",
-		accent_color: "",
-		avatar: "",
-		avatar_decoration: "",
-		banner: "",
-		banner_color: "",
-		discriminator: "",
-		flags: 0,
-		locale: "",
-		mfa_enabled: false,
-		premium_type: 0,
-		public_flags: 0,
-		isAdmin: false
-	})
 	const [favs, setFavs] = useState<fav[]>([])
 	const [colorScheme, setColorScheme] = useState<string>("")
 	const classes = "music " + props.className + " " + colorScheme
@@ -50,15 +35,16 @@ const Music = (props: any) => {
 	const [songProgress, setSongProgress] = useState<number>(0)
 	const [hasChanged, setHasChanged] = useState<boolean>(true)
 	const [isSongRequester, setIsRequester] = useState<boolean>(true)
+	const [user, setUser] = useState<EnhancedUser | undefined>(undefined)
 
 	const [isSkipping, setIsSkipping] = useState<boolean>(false)
 	const [isAdding, setIsAdding] = useState<boolean>(false)
 	const [isAddingFirst, setIsAddingFirst] = useState<boolean>(false)
 	const [isShuffling, setIsShuffling] = useState<boolean>(false)
 	const [isClearing, setIsClearing] = useState<boolean>(false)
-	const [isLoading, setLoading] = useState<boolean>(false)
-	const [error, setError] = useState<string>("")
 	const [intervalReset, setIntervalReset] = useState<boolean>(false)
+	const [loading, setLoading] = useState<boolean>(true)
+	const [error, setError] = useState<string>("")
 
 	const [song, setSong] = useState<song>({
 		name: "None",
@@ -91,6 +77,8 @@ const Music = (props: any) => {
 		cover_src: "https://freesvg.org/img/aiga_waiting_room_bg.png"
 	})
 
+	const { data: apiUser, isLoading, isError } = useUser()
+
 	async function fetchBotInfo() {
 		try {
 			const res = await getBotInfo()
@@ -114,7 +102,7 @@ const Music = (props: any) => {
 				setQueue(queue.tracks.slice(0))
 				setSongProgress(Math.floor(100 * (res.prog / queue.tracks[0].duration)))
 				setHasChanged(queue.filtersChanged)
-				tmpIsRequester = user.username === queue.tracks[0].requester
+				tmpIsRequester = user?.user_metadata.full_name === queue.tracks[0].requester
 			} else {
 				setHasChanged(false)
 				setSong({
@@ -149,8 +137,10 @@ const Music = (props: any) => {
 				})
 				setQueue([])
 			}
-			const isAdmin: boolean = res.admins.usernames.includes(user.username)
-			setUser(prev => ({ ...prev, isAdmin: isAdmin }))
+			const isAdmin: boolean = res.admins.usernames.includes(user?.user_metadata.full_name)
+			if (apiUser) {
+				setUser({ ...apiUser, isAdmin })
+			}
 			setIsRequester(tmpIsRequester)
 			setIntervalReset(prev => !prev)
 			setIsClearing(false)
@@ -165,51 +155,11 @@ const Music = (props: any) => {
 	}
 
 	useEffect(() => {
-		setLoading(true)
-		const code = searchParams.get("code")
-
-		const access_token = localStorage.getItem("access_token")
-
-		if ((!code || code === "") && !access_token) return window.location.replace("/login")
-		if (!access_token) {
-			async function fetchToken() {
-				try {
-					const token = await getApiToken(code || "")
-					if (!token.access_token || !token.token_type) return window.location.replace("/login")
-
-					localStorage.setItem("access_token", token.access_token)
-					localStorage.setItem("token_type", token.token_type)
-					return window.location.replace("/")
-				} catch (err) {
-					console.error(err)
-					setError("A probleme occured!")
-				}
-			}
-			fetchToken()
-		} else {
-			async function fetchUserInfo() {
-				try {
-					const token_type = localStorage.getItem("token_type")
-					if (!access_token || !token_type) return window.location.replace("/login")
-					const res = await getUserInfo(access_token, token_type)
-					setUser({ ...res, isAdmin: false })
-					setInfo("Logged in!")
-				} catch (err) {
-					localStorage.clear()
-					setError("A probleme occured!")
-					return window.location.replace("/login")
-				}
-			}
-			fetchUserInfo()
-
-			fetchBotInfo()
-		}
+		fetchBotInfo()
 	}, [])
 
 	useEffect(() => {
 		const repeatedFetchInterval = setInterval(() => {
-			const code = searchParams.get("code")
-			if (code) window.location.replace("/?code=" + code)
 			fetchBotInfo()
 		}, 2000)
 
@@ -220,11 +170,11 @@ const Music = (props: any) => {
 
 	useEffect(() => {
 		try {
-			if (user.id === "") return
+			if (user?.id === "") return
 
 			async function fetchUserfavs() {
 				try {
-					const res = await getUserFavorites(user.id)
+					const res = await getUserFavorites(user?.user_metadata.provider_id)
 					setFavs(res.favorites)
 				} catch (err) {
 					console.error(err)
@@ -235,11 +185,19 @@ const Music = (props: any) => {
 			console.error(err)
 			setError("A probleme occured!")
 		}
-	}, [user.id])
+	}, [user?.id])
 
 	useEffect(() => {
 		setColorScheme(isDarkTheme ? "dark" : "")
 	}, [isDarkTheme])
+
+	if (isLoading) return <Spinner />
+	if (isError || !user) navigate("/login")
+
+	if (error) return <div>error: {error}</div>
+	if (loading) return <Spinner />
+
+	if (!user) navigate("/login")
 
 	const musicContextValue = {
 		song,
@@ -247,7 +205,6 @@ const Music = (props: any) => {
 		info,
 		setInfo,
 		user,
-		setUser,
 		isPaused,
 		setIsPaused,
 		queue,

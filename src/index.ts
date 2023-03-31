@@ -28,14 +28,6 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 
 const options = {
 	presence: {
-		pid: process.pid,
-		activities: [
-			{
-				name: "Waiting for your commands",
-				type: ActivityType.Listening,
-				url: "https://music.afterlifehorizon.net"
-			}
-		],
 		status: "dnd"
 	},
 	intents: [

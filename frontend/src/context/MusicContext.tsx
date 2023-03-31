@@ -1,12 +1,13 @@
+import { User } from "@supabase/supabase-js"
 import { createContext } from "react"
+import { song, track, fav } from "../types"
 
 interface IMusicContext {
 	song: song
 	setSong: React.Dispatch<React.SetStateAction<song>>
 	info: string
 	setInfo: React.Dispatch<React.SetStateAction<string>>
-	user: user
-	setUser: React.Dispatch<React.SetStateAction<user>>
+	user: User | undefined
 	isPaused: boolean
 	setIsPaused: React.Dispatch<React.SetStateAction<boolean>>
 	queue: track[]
@@ -69,23 +70,7 @@ const MusicContext = createContext<IMusicContext>({
 	setSong: value => {},
 	info: "",
 	setInfo: value => {},
-	user: {
-		id: "",
-		username: "",
-		accent_color: "",
-		avatar: "",
-		avatar_decoration: "",
-		banner: "",
-		banner_color: "",
-		discriminator: "",
-		flags: 0,
-		locale: "",
-		mfa_enabled: false,
-		premium_type: 0,
-		public_flags: 0,
-		isAdmin: false
-	},
-	setUser: value => {},
+	user: undefined,
 	isPaused: false,
 	setIsPaused: value => {},
 	queue: [],
