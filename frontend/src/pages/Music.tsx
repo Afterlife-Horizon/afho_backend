@@ -190,7 +190,7 @@ const Music = (props: any) => {
 				<NowplayingCard />
 				<Queue />
 				{/* <Favs /> */}
-				{/* <Filters /> */}
+				<Filters />
 			</MusicContext.Provider>
 		</div>
 	)
