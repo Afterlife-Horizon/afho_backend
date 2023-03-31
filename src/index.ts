@@ -5,7 +5,6 @@ import http from "http"
 import https from "https"
 import fs from "node:fs"
 import { exit } from "process"
-import { type } from "os"
 
 // Check for .env file
 if (!fs.existsSync(".env")) throw new Error("No .env file found, creating one...")
@@ -31,9 +30,9 @@ const options = {
 	presence: {
 		activities: [
 			{
-				name: "/help",
-				url: "https://music.afterlifehorizon.net",
-				type: ActivityType.Listening
+				name: "Waiting for your commands",
+				type: ActivityType.Streaming,
+				url: "https://music.afterlifehorizon.net"
 			}
 		],
 		status: "online"
