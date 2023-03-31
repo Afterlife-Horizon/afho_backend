@@ -506,9 +506,13 @@ export default class BotClient extends Client {
 
 				const user = this.user
 				if (user) {
-					user.setActivity({
-						name: `${queue.tracks[0]?.title}`,
-						type: ActivityType.Listening
+					user.setPresence({
+						activities: [
+							{
+								name: `${queue.tracks[0]?.title}`,
+								type: ActivityType.Listening
+							}
+						]
 					})
 				}
 			} catch (e) {
