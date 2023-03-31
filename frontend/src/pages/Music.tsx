@@ -131,7 +131,7 @@ const Music = (props: any) => {
 			})
 			setQueue([])
 		}
-		const isAdmin: boolean = fetchInfo.admins.usernames.includes(user?.user_metadata.full_name)
+		const isAdmin: boolean = fetchInfo.admins.usernames.includes(apiUser?.user_metadata.full_name)
 		if (apiUser) {
 			if (firstFetch && apiUser.id) {
 				setUser({ ...apiUser, isAdmin })
