@@ -37,7 +37,7 @@ const NowplayingCard: React.FC = () => {
 		const res = await fetch("/api/skip", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ user: user?.username })
+			body: JSON.stringify({ user: user?.user_metadata.full_name })
 		})
 
 		setIsSkipping(false)
@@ -70,7 +70,7 @@ const NowplayingCard: React.FC = () => {
 			const res = await fetch("/api/unpause", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ user: user?.username })
+				body: JSON.stringify({ user: user?.user_metadata.full_name })
 			})
 
 			setIsPausing(false)
@@ -91,7 +91,7 @@ const NowplayingCard: React.FC = () => {
 			const res = await fetch("/api/pause", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ user: user?.username })
+				body: JSON.stringify({ user: user?.user_metadata.full_name })
 			})
 
 			setIsPausing(false)
@@ -130,7 +130,7 @@ const NowplayingCard: React.FC = () => {
 		const res = await fetch("/api/stop", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ user: user?.username })
+			body: JSON.stringify({ user: user?.user_metadata.full_name })
 		})
 
 		setIsStopping(false)
@@ -162,7 +162,7 @@ const NowplayingCard: React.FC = () => {
 		const res = await fetch("/api/disconnect", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ user: user.username })
+			body: JSON.stringify({ user: user.user_metadata.full_name })
 		})
 
 		setIsDisconnecting(false)
@@ -246,10 +246,7 @@ const NowplayingCard: React.FC = () => {
 				/>
 			</Card>
 			<Card className="nowplaying-card">
-				<Meta
-					avatar={<Avatar src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`} />}
-					title={`${user?.username}#${user?.discriminator}`}
-				/>
+				<Meta avatar={<Avatar src={user?.user_metadata.avatar_url} />} title={user?.user_metadata.name} />
 			</Card>
 			<div className="nowplaying-card ant-card">
 				<button onClick={handleLogout}>LOG OUT</button>

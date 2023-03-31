@@ -7,16 +7,22 @@ import { Image } from "antd"
 import "../css/Favs.css"
 import "../css/dark/Favs.css"
 import MusicContext from "../context/MusicContext"
+import useFavorites from "../hooks/useFavorites"
+import Spinner from "./Spinner"
+import { queryClient } from "../main"
 
 const Favs: React.FC = () => {
-	const { favs, setFavs, user, setIsAdding, setInfo, setInfoboxColor, queue } = useContext(MusicContext)
-	const userId = user?.id || ""
-	const username = user?.username
+	const { user, setIsAdding, setInfo, setInfoboxColor, queue } = useContext(MusicContext)
+	const userId = user?.user_metadata.provider_id || ""
+	const username = user?.user_metadata.full_name || ""
+
+	const { data: favs, isLoading: isLoading, isError: isError } = useFavorites(userId)
+
+	if (isLoading) return <Spinner />
+	if (isError) return <div>Something went wrong</div>
 
 	const [favAdd, setFavAdd] = useState("")
 	const [page, setPage] = useState(1)
-
-	if (typeof favs === "undefined") return <div></div>
 
 	let maxPage = favs.length > 6 ? Math.ceil((favs.length - 1) / 5) : -1
 	if (page > maxPage + 2) setPage(maxPage + 2)
@@ -34,9 +40,8 @@ const Favs: React.FC = () => {
 		})
 			.then(res => res.json())
 			.then(data => {
-				setFavs(data.data)
+				queryClient.setQueriesData(["favorites", userId], data.data)
 				setFavAdd("")
-				// if (inputRef.current) inputRef.current.value = ""
 			})
 			.catch(err => console.log(err))
 	}
@@ -50,7 +55,7 @@ const Favs: React.FC = () => {
 		})
 			.then(res => res.json())
 			.then(data => {
-				setFavs(data.data)
+				queryClient.setQueriesData(["favorites", userId], data.data)
 			})
 			.catch(err => console.log(err))
 	}
