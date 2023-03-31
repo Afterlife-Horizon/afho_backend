@@ -1,5 +1,5 @@
 // ------------ Packages ------------
-import React, { MutableRefObject, useContext, useRef, useState } from "react"
+import React, { MutableRefObject, useContext, useEffect, useRef, useState } from "react"
 import { Divider, Input, InputRef } from "antd"
 import { Image } from "antd"
 
@@ -21,9 +21,7 @@ const Favs: React.FC = () => {
 
 	console.log(user?.user_metadata.provider_id)
 
-	return <div></div>
-
-	const { data: favs, isLoading: isLoading, isError: isError } = useFavorites(userId)
+	const { data: favs, isLoading, isError } = useFavorites(userId)
 
 	if (isLoading) return <Spinner />
 	if (isError) return <div>Something went wrong</div>
@@ -32,8 +30,12 @@ const Favs: React.FC = () => {
 	const [page, setPage] = useState(1)
 
 	let maxPage = favs.length > 6 ? Math.ceil((favs.length - 1) / 5) : -1
-	if (page > maxPage + 2) setPage(maxPage + 2)
-	else if (page !== 1 && favs.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0) setPage(prev => prev - 1)
+
+	useEffect(() => {
+		if (page > maxPage + 2) setPage(maxPage + 2)
+		else if (page !== 1 && favs.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0) setPage(prev => prev - 1)
+	}, favs)
+
 	let j = 0
 
 	async function addFav() {
