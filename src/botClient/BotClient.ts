@@ -293,20 +293,21 @@ export default class BotClient extends Client {
 		resource.volume?.setVolume(volume)
 		resource.playbackDuration = seekTime
 
+		const playing = `${queue.tracks[0]?.title} / ${queue.tracks[0]?.channel?.name}`
+
 		const user = this.user
 		if (user) {
 			user.setPresence({
 				status: "online",
 				activities: [
 					{
-						name: `${queue.tracks[0]?.title} BY ${queue.tracks[0]?.channel?.name}`,
+						name: playing,
 						type: ActivityType.Listening
 					}
 				]
 			})
 		}
-		console.log(`Playing ${queue.tracks[0]?.title}`)
-		console.log(`presence: ${user?.presence?.activities[0]?.name}`)
+		console.log(`Playing ${playing}`)
 
 		return resource
 	}
