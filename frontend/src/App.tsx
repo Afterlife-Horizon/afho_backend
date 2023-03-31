@@ -1,16 +1,16 @@
 // ------------ Packages ------------
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React from "react"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 
 // ------------ Components ------------
-import Music from "./components/Music";
-import Login from "./components/Login";
-import Brasilboard from "./components/Brasilboard";
-import LevelBoard from "./components/LevelBoard";
+import Music from "./components/Music"
+import Login from "./components/Login"
+import Brasilboard from "./components/Brasilboard"
+import LevelBoard from "./components/LevelBoard"
 
 // ------------ CSS Files ------------
-import "./css/App.css";
-import "./css/dark/App.css";
+import "./css/App.css"
+import "./css/dark/App.css"
 
 const App: React.FC = () => {
 	return (
@@ -22,7 +22,7 @@ const App: React.FC = () => {
 				<Route index element={<Music />} />
 			</Routes>
 		</BrowserRouter>
-	);
-};
+	)
+}
 
-export default App;
+export default App

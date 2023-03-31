@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import path from'node:path';
+import path from 'node:path';
 import { REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from 'discord.js';
 import { ICommand } from './types';
 
@@ -7,8 +7,8 @@ require('dotenv').config();
 
 const { clientId, token } = {
     clientId: process.env.CLIENTID,
-    token: process.env.TOKEN
-}
+    token: process.env.TOKEN,
+};
 
 if (!token) throw new Error("No token provided");
 if (!clientId) throw new Error("No client id provided");

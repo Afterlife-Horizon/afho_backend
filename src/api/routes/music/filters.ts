@@ -1,39 +1,37 @@
-import express = require("express");
-const router = express.Router();
-import { GuildMember } from "discord.js";
-import BotClient from "../../../botClient/BotClient";
-import changeFilters from "../../../functions/commandUtils/filters";
-import { IFilters } from "../../../types";
+import express = require("express")
+const router = express.Router()
+import { GuildMember } from "discord.js"
+import BotClient from "../../../botClient/BotClient"
+import changeFilters from "../../../functions/commandUtils/filters"
+import { IFilters } from "../../../types"
 
 export default function (client: BotClient) {
-    return (
-        router.post("/", async (req, res) => {
-            const { user, filters } : {user: string, filters: IFilters} = req.body;
-            if (!user) return res.status(400).json({ error: "Missing username" });
+	return router.post("/", async (req, res) => {
+		const { user, filters }: { user: string; filters: IFilters } = req.body
+		if (!user) return res.status(400).json({ error: "Missing username" })
 
-            const guild = client.guilds.cache.find(g => g.name === client.config.serverName);
-            if (!guild) return res.status(406).send("Guild not found!");
-            
-            const connectedMembers = guild.members.cache.filter(member => member.voice.channel);
-            const requester = connectedMembers.find((member) => member.user.username === user) as GuildMember;
-            if (!requester) return res.status(406).send("User not found!");
+		const guild = client.guilds.cache.find(g => g.name === client.config.serverName)
+		if (!guild) return res.status(406).send("Guild not found!")
 
-            if (!filters) return res.status(400).json({ error: "Missing filter" });
+		const connectedMembers = guild.members.cache.filter(member => member.voice.channel)
+		const requester = connectedMembers.find(member => member.user.username === user) as GuildMember
+		if (!requester) return res.status(406).send("User not found!")
 
-            const queue = client.queues.get(guild.id);
-            if (!queue) return res.status(400).json({ error: "No queue found" });
+		if (!filters) return res.status(400).json({ error: "Missing filter" })
 
-            for (const [key, value] of Object.entries(filters)) {
-                queue.effects[key] = value;
-            }
+		const queue = client.queues.get(guild.id)
+		if (!queue) return res.status(400).json({ error: "No queue found" })
 
-            client.queues.set(guild.id, queue);
+		for (const [key, value] of Object.entries(filters)) {
+			queue.effects[key] = value
+		}
 
-            const response = await changeFilters(client, { member: requester })
+		client.queues.set(guild.id, queue)
 
-            if (response.error) return res.status(400).json({ error: response.error });
+		const response = await changeFilters(client, { member: requester })
 
-            return res.status(response.status).json({ message: "OK" });
-        })
-    );
+		if (response.error) return res.status(400).json({ error: response.error })
+
+		return res.status(response.status).json({ message: "OK" })
+	})
 }

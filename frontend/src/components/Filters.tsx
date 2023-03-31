@@ -1,26 +1,25 @@
 // ------------ Packages ------------
-import React, { useContext, useEffect, useState } from "react";
-import { Switch, Input } from "antd";
-import axios from "axios";
+import React, { useContext, useEffect, useState } from "react"
+import { Switch, Input } from "antd"
+import axios from "axios"
 
 // ------------ CSS Files ------------
-import "../css/Filters.css";
-import "../css/dark/Filters.css";
+import "../css/Filters.css"
+import "../css/dark/Filters.css"
 
-import _ from "lodash";
-import MusicContext from "../context/MusicContext";
+import _ from "lodash"
+import MusicContext from "../context/MusicContext"
 interface testCallback {
-	(err: any, status: any, data: any): any;
+	(err: any, status: any, data: any): any
 }
 
 const Filters: React.FC = () => {
-
-	const { user, setInfo, setInfoboxColor, hasChanged, song } = useContext(MusicContext);
+	const { user, setInfo, setInfoboxColor, hasChanged, song } = useContext(MusicContext)
 
 	const [inputValues, setInputValues] = useState({
 		bassboost: "",
-		speed: "",
-	});
+		speed: ""
+	})
 	const filters = [
 		"bassboost",
 		"speed",
@@ -40,8 +39,8 @@ const Filters: React.FC = () => {
 		"tremolo",
 		"vibrato",
 		"reverse",
-		"treble",
-	];
+		"treble"
+	]
 
 	const [effects, setEffects] = useState({
 		bassboost: 0,
@@ -62,29 +61,29 @@ const Filters: React.FC = () => {
 		tremolo: false,
 		vibrato: false,
 		reverse: false,
-		treble: false,
-	});
+		treble: false
+	})
 
 	const handleChangeFilter = (filter: any) => {
 		return (state: boolean) => {
-			setEffects((prev: any) => ({ ...prev, [filter]: state }));
-			setIsChecked((prev: any) => ({ ...prev, [filter]: state }));
-		};
-	};
+			setEffects((prev: any) => ({ ...prev, [filter]: state }))
+			setIsChecked((prev: any) => ({ ...prev, [filter]: state }))
+		}
+	}
 
 	const handleChangeFilterWithValues = (filter: string) => {
 		return (event: any) => {
-			event.preventDefault();
-			setEffects((prev) => ({ ...prev, [filter]: event.target.value }));
+			event.preventDefault()
+			setEffects(prev => ({ ...prev, [filter]: event.target.value }))
 			setInputValues((prev: any) => ({
 				...prev,
-				[filter]: event.target.value,
-			}));
-		};
-	};
+				[filter]: event.target.value
+			}))
+		}
+	}
 
 	const handlefilterSubmitted = (event: any) => {
-		event.preventDefault();
+		event.preventDefault()
 
 		const changeSongFilter = async (callback: testCallback) => {
 			await axios
@@ -92,30 +91,30 @@ const Filters: React.FC = () => {
 					"/api/filters",
 					{ filters: { ...effects }, user: user?.username },
 					{
-						headers: { "Content-Type": "application/json" },
+						headers: { "Content-Type": "application/json" }
 					}
 				)
-				.then((res) => {
-					callback(null, res.status, res.data);
+				.then(res => {
+					callback(null, res.status, res.data)
 				})
-				.catch((err) => {
-					callback(err, err.response.status, err.response.data);
-				});
-		};
+				.catch(err => {
+					callback(err, err.response.status, err.response.data)
+				})
+		}
 
 		if (!user?.isAdmin) {
-			setInfo("You need to be admin!");
-			return setInfoboxColor("orange");
+			setInfo("You need to be admin!")
+			return setInfoboxColor("orange")
 		}
 
 		changeSongFilter((err, status, data) => {
 			if (err) {
-				if (status !== 500) setInfo(data);
-				else setInfo("An error occured");
-				setInfoboxColor("red");
-				return console.error(err);
+				if (status !== 500) setInfo(data)
+				else setInfo("An error occured")
+				setInfoboxColor("red")
+				return console.error(err)
 			}
-			setInputValues({ bassboost: "", speed: "" });
+			setInputValues({ bassboost: "", speed: "" })
 			setEffects({
 				bassboost: 0,
 				subboost: false,
@@ -135,43 +134,28 @@ const Filters: React.FC = () => {
 				tremolo: false,
 				vibrato: false,
 				reverse: false,
-				treble: false,
-			});
-		});
-	};
+				treble: false
+			})
+		})
+	}
 
 	const [isChecked, setIsChecked]: any[] = useState(
-		_.flow([
-			Object.entries,
-			(arr: any) =>
-				arr.filter(([, value]: any[]) => typeof value === "boolean"),
-			Object.fromEntries,
-		])(filters)
-	);
+		_.flow([Object.entries, (arr: any) => arr.filter(([, value]: any[]) => typeof value === "boolean"), Object.fromEntries])(filters)
+	)
 
 	useEffect(() => {
 		const updateChecked = () => {
 			setIsChecked(
-				_.flow([
-					Object.entries,
-					(arr: any) =>
-						arr.filter(([, value]: any[]) => typeof value === "boolean"),
-					Object.fromEntries,
-				])(filters)
-			);
-		};
-		updateChecked();
-	}, [hasChanged]);
+				_.flow([Object.entries, (arr: any) => arr.filter(([, value]: any[]) => typeof value === "boolean"), Object.fromEntries])(filters)
+			)
+		}
+		updateChecked()
+	}, [hasChanged])
 
 	return (
 		<form className="filters">
 			<h3>Filters</h3>
-			<Input
-				disabled={!user.isAdmin}
-				type="submit"
-				value="Submit"
-				onClick={handlefilterSubmitted}
-			/>
+			<Input disabled={!user.isAdmin} type="submit" value="Submit" onClick={handlefilterSubmitted} />
 
 			<ul>
 				{filters.map((filter: string) => {
@@ -187,19 +171,15 @@ const Filters: React.FC = () => {
 										onChange={handleChangeFilterWithValues(filter)}
 									/>
 								) : (
-									<Switch
-										key={filter}
-										checked={isChecked[filter]}
-										onChange={handleChangeFilter(filter)}
-									/>
+									<Switch key={filter} checked={isChecked[filter]} onChange={handleChangeFilter(filter)} />
 								)}
 							</div>
 						</li>
-					);
+					)
 				})}
 			</ul>
 		</form>
-	);
-};
+	)
+}
 
-export default Filters;
+export default Filters

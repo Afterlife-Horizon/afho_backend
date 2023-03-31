@@ -7,6 +7,7 @@
 		"tsc": "npx tsc",
 		"tsc-dev": "ts-node-dev — respawn — pretty — transpile-only src/index.ts",
 		"lint": "eslint src/",
+		"lint-fix": "eslint src/ --fix",
 		"start": "node dist/index.js",
 		"dev": "NODE_ENV=dev node dist/index.js",
 		"adddev": "METHOD=add NODE_ENV=dev node dist/deploy-commands.js",
@@ -52,6 +53,8 @@
 		"@typescript-eslint/eslint-plugin": "^5.56.0",
 		"@typescript-eslint/parser": "^5.56.0",
 		"eslint": "^8.36.0",
+		"prettier": "2.8.7",
+		"stylelint-config-prettier": "^9.0.5",
 		"ts-node": "^10.9.1",
 		"ts-node-dev": "^2.0.0",
 		"typescript": "^5.0.2"
