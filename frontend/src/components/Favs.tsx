@@ -18,10 +18,11 @@ const Favs: React.FC = () => {
 	const userId = user?.user_metadata.provider_id || ""
 	const username = user?.user_metadata.full_name || ""
 
-	const { data: favs, isLoading, isError } = useFavorites(userId)
+	// const { data: favs, isLoading, isError } = useFavorites(userId)
+	const favs: any[] = []
 
-	if (isLoading) return <Spinner />
-	if (isError) return <div>Something went wrong</div>
+	// if (isLoading) return <Spinner />
+	// if (isError) return <div>Something went wrong</div>
 
 	const [favAdd, setFavAdd] = useState("")
 	const [page, setPage] = useState(1)
@@ -98,6 +99,7 @@ const Favs: React.FC = () => {
 					type="text"
 					placeholder="Search for a song or playlist (URL or Name)"
 					onChange={e => setFavAdd(e.target.value)}
+					value={favAdd}
 				/>
 				<button onClick={() => addFav()}>ADD</button>
 			</div>
