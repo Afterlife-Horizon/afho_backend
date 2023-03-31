@@ -507,6 +507,7 @@ export default class BotClient extends Client {
 				const user = this.user
 				if (user) {
 					user.setPresence({
+						status: "online",
 						activities: [
 							{
 								name: `${queue.tracks[0]?.title}`,
@@ -515,6 +516,8 @@ export default class BotClient extends Client {
 						]
 					})
 				}
+				console.log(`Playing ${queue.tracks[0]?.title} in ${queue.textChannel}`)
+				console.log(`presence: ${user?.presence?.activities[0]?.name}`)
 			} catch (e) {
 				console.error(e)
 			}
