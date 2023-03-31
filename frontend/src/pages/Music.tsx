@@ -21,7 +21,7 @@ import { EnhancedUser, song, track, fav } from "../types"
 import useFetchInfo from "../hooks/useFetchInfo"
 
 const Music = (props: any) => {
-	const isDarkTheme = window.matchMedia("(prefers-color-scheme:dark)").matches
+	// const isDarkTheme = window.matchMedia("(prefers-color-scheme:dark)").matches
 	const navigate = useNavigate()
 
 	const [colorScheme, setColorScheme] = useState<string>("")
@@ -142,9 +142,9 @@ const Music = (props: any) => {
 		setIsShuffling(false)
 	}, [fetchInfo])
 
-	useEffect(() => {
-		setColorScheme(isDarkTheme ? "dark" : "")
-	}, [isDarkTheme])
+	// useEffect(() => {
+	// 	setColorScheme(isDarkTheme ? "dark" : "")
+	// }, [isDarkTheme])
 
 	if (isLoading) return <Spinner />
 	if (isError) navigate("/login")
