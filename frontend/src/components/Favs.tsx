@@ -21,6 +21,8 @@ const Favs: React.FC = () => {
 
 	console.log(user?.user_metadata.provider_id)
 
+	return <div></div>
+
 	const { data: favs, isLoading: isLoading, isError: isError } = useFavorites(userId)
 
 	if (isLoading) return <Spinner />
