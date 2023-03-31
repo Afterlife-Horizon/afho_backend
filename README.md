@@ -224,15 +224,3 @@ _There are 30 commands to look at, I advise typing /help for more information...
 -   [Main Website (not bot related)](https://afterlifehorizon.net)
 
 -   [Music bots Website](https://music.afterlifehorizon.net)
-
-```
-
-```
-
-```
-
-```
-
-```
-
-```
