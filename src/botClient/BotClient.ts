@@ -12,7 +12,7 @@ import {
 	getVoiceConnection,
 	joinVoiceChannel
 } from "@discordjs/voice"
-import { Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
+import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
 import { ICommand, IQueue, IESong, IFavorite } from "../types"
 import fs from "node:fs"
 import path from "node:path"
@@ -502,6 +502,15 @@ export default class BotClient extends Client {
 						if (queue.skipped) queue.skipped = false
 						queue.tracks = []
 					}
+				}
+
+				const guild = this.guilds.cache.find(g => g.name === this.config.serverName)
+				const user = this.user
+				if (guild && user) {
+					user.setActivity({
+						name: `${this.queues.get(guild.id)?.tracks[0]?.title}`,
+						type: ActivityType.Listening
+					})
 				}
 			} catch (e) {
 				console.error(e)
