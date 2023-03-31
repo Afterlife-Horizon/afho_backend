@@ -32,11 +32,11 @@ const options = {
 		activities: [
 			{
 				name: "Waiting for your commands",
-				type: ActivityType.Streaming,
+				type: ActivityType.Listening,
 				url: "https://music.afterlifehorizon.net"
 			}
 		],
-		status: "online"
+		status: "dnd"
 	},
 	intents: [
 		GatewayIntentBits.DirectMessages,
