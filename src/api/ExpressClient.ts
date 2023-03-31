@@ -30,10 +30,6 @@ import musicGetFavs from "./routes/music/getFavs"
 import musicAddFav from "./routes/music/addFav"
 import musicRemoveFav from "./routes/music/delFav"
 
-// ------------ login ------------
-import login from "./routes/login/login"
-import loginAccess from "./routes/login/loginAccess"
-
 export default class ExpressClient {
 	public app: Express
 	private client: BotClient
@@ -62,8 +58,6 @@ export default class ExpressClient {
 			.use("/api/getFavs", musicGetFavs(this.client))
 			.use("/api/addFav", musicAddFav(this.client))
 			.use("/api/delFav", musicRemoveFav(this.client))
-			.use("/api/login", login())
-			.use("/api/loginaccess", loginAccess())
 			.use(connectHistoryApiFallback({ verbose: false }))
 			.use(express.static(path.join(__dirname, "../../frontend/dist")))
 	}

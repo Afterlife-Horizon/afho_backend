@@ -1,3 +1,5 @@
+import { IFetchData } from "../types"
+
 export default async function getBotInfo(): Promise<IFetchData> {
 	const res = await fetch("/api/fetch")
 

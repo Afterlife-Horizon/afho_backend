@@ -45,7 +45,7 @@ const Queue = () => {
 				await axios
 					.post(
 						"/api/remove",
-						{ queuePos: id, user: user?.username },
+						{ queuePos: id, user: user?.user_metadata.full_name },
 						{
 							headers: { "Content-Type": "application/json" }
 						}
@@ -86,7 +86,7 @@ const Queue = () => {
 				await axios
 					.post(
 						"/api/skipto",
-						{ queuePos: id, user: user?.username },
+						{ queuePos: id, user: user?.user_metadata.full_name },
 						{
 							headers: { "Content-Type": "application/json" }
 						}
@@ -128,7 +128,7 @@ const Queue = () => {
 			await axios
 				.post(
 					"/api/play",
-					{ songs: link, user: user?.username },
+					{ songs: link, user: user?.user_metadata.full_name },
 					{
 						headers: { "Content-Type": "application/json" }
 					}
@@ -168,7 +168,7 @@ const Queue = () => {
 			await axios
 				.post(
 					"/api/playfirst",
-					{ songs: link, user: user?.username },
+					{ songs: link, user: user?.user_metadata.full_name },
 					{
 						headers: { "Content-Type": "application/json" }
 					}
@@ -209,7 +209,7 @@ const Queue = () => {
 		setIsShuffling(true)
 		const shuffleSongs = async (callback: testCallback) => {
 			await axios
-				.post("/api/shuffle", { user: user?.username })
+				.post("/api/shuffle", { user: user?.user_metadata.full_name })
 				.then(res => {
 					callback(null, res.status, res.data)
 				})
@@ -240,7 +240,7 @@ const Queue = () => {
 		setIsClearing(true)
 		const clearSongs = async (callback: testCallback) => {
 			await axios
-				.post("/api/clearqueue", { user: user?.username })
+				.post("/api/clearqueue", { user: user?.user_metadata.full_name })
 				.then(res => {
 					callback(null, res.status, res.data)
 				})

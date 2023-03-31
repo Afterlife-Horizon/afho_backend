@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import axios from "axios"
-import AdvBrasil from "./AdvBrasil"
+import AdvBrasil from "../components/AdvBrasil"
 import Autocomplete from "@mui/material/Autocomplete"
 import TextField from "@mui/material/TextField"
 import Box from "@mui/material/Box"

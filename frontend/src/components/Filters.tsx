@@ -89,7 +89,7 @@ const Filters: React.FC = () => {
 			await axios
 				.post(
 					"/api/filters",
-					{ filters: { ...effects }, user: user?.username },
+					{ filters: { ...effects }, user: user?.user_metadata.full_name },
 					{
 						headers: { "Content-Type": "application/json" }
 					}
@@ -155,7 +155,7 @@ const Filters: React.FC = () => {
 	return (
 		<form className="filters">
 			<h3>Filters</h3>
-			<Input disabled={!user.isAdmin} type="submit" value="Submit" onClick={handlefilterSubmitted} />
+			<Input disabled={!user?.isAdmin} type="submit" value="Submit" onClick={handlefilterSubmitted} />
 
 			<ul>
 				{filters.map((filter: string) => {

@@ -1,3 +1,5 @@
+import { apiUser } from "../types"
+
 export default async function getUser(access_token: string, token_type: string): Promise<apiUser> {
 	const res = await fetch("/api/loginaccess", {
 		method: "POST",

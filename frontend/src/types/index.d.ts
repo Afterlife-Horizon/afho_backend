@@ -1,3 +1,5 @@
+import { User } from "@supabase/supabase-js"
+
 type apiUser = {
 	id: string
 	username: string
@@ -12,6 +14,10 @@ type apiUser = {
 	mfa_enabled: boolean
 	premium_type: number
 	public_flags: number
+}
+
+export interface EnhancedUser extends User {
+	isAdmin: boolean
 }
 
 interface user extends apiUser {

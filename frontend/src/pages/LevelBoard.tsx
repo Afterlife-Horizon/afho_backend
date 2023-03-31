@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import axios from "axios"
 import Box from "@mui/material/Box"
 import "../css/brasilboard.css"
-import AdvLevel from "./AdvLevel"
+import AdvLevel from "../components/AdvLevel"
 
 interface testCallback {
 	(err: any, status: any, data: any): any
