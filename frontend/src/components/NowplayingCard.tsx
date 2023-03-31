@@ -2,11 +2,14 @@ import React, { useContext, useState } from "react"
 import MusicContext from "../context/MusicContext"
 import { Avatar, Card } from "antd"
 import Meta from "antd/lib/card/Meta"
+import { supabase } from "../utils/supabaseUtils"
+import { useNavigate } from "react-router-dom"
 
 const NowplayingCard: React.FC = () => {
 	const [isDisconnecting, setIsDisconnecting] = useState(false)
 	const [isPausing, setIsPausing] = useState(false)
 	const [isStopping, setIsStopping] = useState(false)
+	const navigate = useNavigate()
 
 	const {
 		user,
@@ -181,20 +184,10 @@ const NowplayingCard: React.FC = () => {
 		}
 	}
 
-	const handleLogout = (event: React.MouseEvent<HTMLButtonElement>) => {
-		event.preventDefault()
-		try {
-			localStorage.removeItem("access_token")
-			localStorage.removeItem("token_type")
-			setInfo("Logged out!")
-			setInfoboxColor("green")
-			setTimeout(() => {
-				window.location.replace("/login")
-			}, 1000)
-		} catch (err) {
-			setInfo("A problem occured")
-			setInfoboxColor("red")
-		}
+	async function handleSignOut() {
+		const { error } = await supabase.auth.signOut()
+		if (error) return
+		navigate("/login")
 	}
 
 	let checkRequester = !user?.isAdmin && !isSongRequester
@@ -249,7 +242,7 @@ const NowplayingCard: React.FC = () => {
 				<Meta avatar={<Avatar src={user?.user_metadata.avatar_url} />} title={user?.user_metadata.name} />
 			</Card>
 			<div className="nowplaying-card ant-card">
-				<button onClick={handleLogout}>LOG OUT</button>
+				<button onClick={handleSignOut}>LOG OUT</button>
 			</div>
 			<div style={{ border: `1px solid ${infoboxColor}` }} className="nowplaying-card ant-card infobox">
 				{info}
