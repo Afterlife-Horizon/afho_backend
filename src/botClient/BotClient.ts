@@ -504,11 +504,10 @@ export default class BotClient extends Client {
 					}
 				}
 
-				const guild = this.guilds.cache.find(g => g.name === this.config.serverName)
 				const user = this.user
-				if (guild && user) {
+				if (user) {
 					user.setActivity({
-						name: `${this.queues.get(guild.id)?.tracks[0]?.title}`,
+						name: `${queue.tracks[0]?.title}`,
 						type: ActivityType.Listening
 					})
 				}
