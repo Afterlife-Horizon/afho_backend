@@ -13,6 +13,9 @@ import { queryClient } from "../main"
 
 const Favs: React.FC = () => {
 	const { user, setIsAdding, setInfo, setInfoboxColor, queue } = useContext(MusicContext)
+
+	if (!user?.user_metadata.provider_id) return <Spinner />
+
 	const userId = user?.user_metadata.provider_id || ""
 	const username = user?.user_metadata.full_name || ""
 
