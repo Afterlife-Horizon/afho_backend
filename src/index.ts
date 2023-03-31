@@ -18,7 +18,6 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 } else {
 	if (!process.env.DB_ADRESS || !process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_DATABASE)
 		throw new Error("No database credentials found in .env file")
-	if (!process.env.DISCORD_REDIRECT_URI) throw new Error("No discord redirect URI found")
 	if (!process.env.TOKEN || !process.env.CLIENT_ID) throw new Error("No discord token or clientID found")
 	if (!process.env.SERVER_NAME || !process.env.BRASIL_CHANNEL_ID || !process.env.BASE_CHANNEL_ID)
 		throw new Error("No server name or channel IDs found")
