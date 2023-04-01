@@ -10,7 +10,7 @@ export default (client: BotClient): ICommand => {
 			const res = await disconnect(client)
 
 			if (res.status === 200) {
-				await interaction.reply({ content: "👋 **Disconnected**", ephemeral: true })
+				await interaction.reply({ content: "👋 **Disconnected**" })
 			}
 			await interaction.reply({ content: res.error, ephemeral: true })
 		}

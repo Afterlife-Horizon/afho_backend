@@ -11,7 +11,7 @@ export default (client: BotClient): ICommand => {
 			const user = interaction.user.username
 			const response = pause(client, user)
 
-			if (response.status === 200) return interaction.reply({ content: response.message, ephemeral: true })
+			if (response.status === 200) return interaction.reply({ content: response.message })
 			return interaction.reply({ content: response.error, ephemeral: true })
 		}
 	}
