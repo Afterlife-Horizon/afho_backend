@@ -12,9 +12,9 @@ This bot is created and designed by myself.
 
 ## Requirements
 
--   NodeJS 18.0.0 or higher
--   MariaDB 10.5.12 or higher
--   ffmpeg 4.4.1 or higher
+-   NodeJS 18.15.0 or higher
+-   MariaDB 10.5.18 or higher
+-   ffmpeg 4.3.5 or higher
 
 ## Installation
 
