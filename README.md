@@ -23,13 +23,13 @@ This bot is created and designed by myself.
     1. Bresil table:
 
         ```sql
-        DROP TABLE IF EXISTS`bot_bresil`;
+        DROP TABLE IF EXISTS `bot_bresil`;
         /*!40101 SET @saved_cs_client     = @@character_set_client */;
         /*!40101 SET character_set_client = utf8 */;
         CREATE TABLE `bot_bresil`(
-        `id`varchar(255) NOT NULL,
-        `username`varchar(255) NOT NULL,
-        `bresil_received`int(11) NOT NULL DEFAULT 0,
+        `id` varchar(255) NOT NULL,
+        `username` varchar(255) NOT NULL,
+        `bresil_received` int(11) NOT NULL DEFAULT 0,
         `bresil_sent` int(11) NOT NULL DEFAULT 0,
         PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -39,14 +39,14 @@ This bot is created and designed by myself.
     2. Favorites table:
 
         ```sql
-        DROP TABLE IF EXISTS`bot_favorites`;
+        DROP TABLE IF EXISTS `bot_favorites`;
         /*!40101 SET @saved_cs_client     = @@character_set_client */;
         /*!40101 SET character_set_client = utf8 */;
         CREATE TABLE `bot_favorites`(
-        `id`int(11) NOT NULL AUTO_INCREMENT,
-        `user_id`text NOT NULL,
-        `name`varchar(255) NOT NULL,
-        `url`varchar(255) NOT NULL,
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `user_id` text NOT NULL,
+        `name` varchar(255) NOT NULL,
+        `url` varchar(255) NOT NULL,
         `thumbnail` varchar(255) NOT NULL,
         PRIMARY KEY (`id`)
         ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
