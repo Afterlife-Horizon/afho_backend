@@ -2,19 +2,28 @@ import express = require("express")
 const router = express.Router()
 import { VoiceConnectionReadyState, getVoiceConnection } from "@discordjs/voice"
 import BotClient from "../../../botClient/BotClient"
-import { Channel, GuildMember, TextChannel, User, VoiceChannel } from "discord.js"
+import { Channel, TextChannel } from "discord.js"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
+
+		const access_token = req.body.access_token
+
+		if (!access_token) return res.status(406).send({ error: "No Access Token!" })
+
+		const user = await client.supabaseClient.auth.getUser(access_token)
+
+		if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
+
 		const guild = client.guilds.cache.find((g: { name: string }) => g.name === client.config.serverName)
 		if (!guild) return res.status(406).send("Guild not found!")
 		await guild.members.fetch()
 		await guild.channels.fetch()
 		const connectedMembers = guild.members.cache.filter((member: { voice: { channel: any } }) => member.voice.channel)
-		const requester = connectedMembers.filter((member: { user: { username: any } }) => member.user.username === req.body.user)
+		const requester = connectedMembers.filter(member => member.user.username === user.data.user?.user_metadata.full_name)
 		const voiceChannel = guild.channels.cache.find(
-			(c: Channel) => c.type === 2 && c.members.filter((m: GuildMember) => m.user.username === req.body.user).size !== 0
+			(c: Channel) => c.type === 2 && c.members.filter(m => m.user.username === user.data.user?.user_metadata.full_name).size !== 0
 		)
 
 		if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!")

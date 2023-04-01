@@ -1,19 +1,35 @@
 import express = require("express")
 const router = express.Router()
 import { getVoiceConnection } from "@discordjs/voice"
+import BotClient from "../../../botClient/BotClient"
+import { TextChannel } from "discord.js"
 
-export default function (client) {
+export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
+
+		const access_token = req.body.access_token
+
+		if (!access_token) return res.status(406).send({ error: "No Access Token!" })
+
+		const user = await client.supabaseClient.auth.getUser(access_token)
+
+		if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
+
 		const guild = client.guilds.cache.find(g => g.name === client.config.serverName)
-		const connectedMembers = await guild.members.cache.filter(member => member.voice.channel)
-		const requester = connectedMembers.filter(member => member.user.username === req.body.user)
-		const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size !== 0)
+		if (!guild) return res.status(406).send("Guild not found!")
 
-		if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!")
-		else if (voiceChannel.id !== client.currentChannel.id) return res.status(406).send("Not the same channel!")
+		const connectedMembers = guild.members.cache.filter(member => member.voice.channel)
+		const requester = connectedMembers.find(member => member.user.username === user.data.user?.user_metadata.full_name)
+		const voiceChannel = guild.channels.cache.find(
+			c => c.type === 2 && c.members.find(m => m.user.username === user.data.user?.user_metadata.full_name) !== undefined
+		)
 
-		const channel = await client.channels.fetch(client.config.baseChannelId)
+		if (!requester) return res.status(406).send("You are not connected to a voice channel!")
+		else if (voiceChannel?.id !== client.currentChannel?.id) return res.status(406).send("Not the same channel!")
+
+		const channel = (await client.channels.fetch(client.config.baseChannelId)) as TextChannel
+		if (!channel) return res.status(406).send("Channel not found!")
 		if (!client.currentChannel) return res.status(406).send("not connected!")
 
 		const queue = client.queues.get(client.currentChannel.guild.id)

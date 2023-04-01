@@ -11,6 +11,7 @@ import useFavorites from "../hooks/useFavorites"
 import Spinner from "./Spinner"
 import { queryClient } from "../main"
 import { EnhancedUser } from "../types"
+import { supabase } from "../utils/supabaseUtils"
 
 const Favs: React.FC = () => {
 	const { user, setIsAdding, setInfo, setInfoboxColor, queue } = useContext(MusicContext)
@@ -42,7 +43,10 @@ const Favs: React.FC = () => {
 			headers: {
 				"Content-Type": "application/json"
 			},
-			body: JSON.stringify({ userId: userId, url: favAdd })
+			body: JSON.stringify({
+				access_token: (await supabase.auth.getSession()).data?.session?.access_token,
+				url: favAdd
+			})
 		})
 			.then(res => res.json())
 			.then(data => {
@@ -57,7 +61,11 @@ const Favs: React.FC = () => {
 			headers: {
 				"Content-Type": "application/json"
 			},
-			body: JSON.stringify({ userId, name })
+			body: JSON.stringify({
+				userId,
+				name,
+				access_token: (await supabase.auth.getSession()).data?.session?.access_token
+			})
 		})
 			.then(res => res.json())
 			.then(data => {
@@ -71,7 +79,10 @@ const Favs: React.FC = () => {
 			headers: {
 				"Content-Type": "application/json"
 			},
-			body: JSON.stringify({ songs: fav.url, user: username })
+			body: JSON.stringify({
+				songs: fav.url,
+				access_token: (await supabase.auth.getSession()).data?.session?.access_token
+			})
 		})
 			.then(res => res.json())
 			.then(data => {

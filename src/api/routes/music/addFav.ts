@@ -8,11 +8,26 @@ export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		try {
-			const userId = req.body.userId
-			const url = req.body.url
-			if (!client.ready) return res.status(406).send("Loading!")
+			if (!client.ready) return res.status(406).send({ error: "Loading!" })
 
-			if (!userId) return res.status(400).json({ error: "No userId" })
+			const access_token = req.body.access_token
+
+			if (!access_token) return res.status(406).send({ error: "No Access Token!" })
+
+			const user = await client.supabaseClient.auth.getUser(access_token)
+
+			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
+
+			const guild = client.guilds.cache.find(g => g.name === client.config.serverName)
+			if (!guild) return res.status(406).send({ error: "Server not found!" })
+
+			const member = guild.members.cache.get(user.data?.user?.user_metadata.provider_id)
+
+			if (!member) return res.status(406).send({ error: "Member not found!" })
+
+			const url = req.body.url
+			const userId = member.user.id
+
 			if (!url) return res.status(400).json({ error: "No url" })
 
 			const youtubRegex = /^(https?:\/\/)?(www\.)?(m\.|music\.)?(youtube\.com|youtu\.?be)\/.+$/gi

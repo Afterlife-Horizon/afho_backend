@@ -8,6 +8,7 @@ import { Image } from "antd"
 import "../css/Queue.css"
 import "../css/dark/Queue.css"
 import MusicContext from "../context/MusicContext"
+import { supabase } from "../utils/supabaseUtils"
 
 interface testCallback {
 	(err: any, status: any, data: any): any
@@ -45,7 +46,10 @@ const Queue = () => {
 				await axios
 					.post(
 						"/api/remove",
-						{ queuePos: id, user: user?.user_metadata.full_name },
+						{
+							queuePos: id,
+							access_token: (await supabase.auth.getSession()).data?.session?.access_token
+						},
 						{
 							headers: { "Content-Type": "application/json" }
 						}
@@ -86,7 +90,10 @@ const Queue = () => {
 				await axios
 					.post(
 						"/api/skipto",
-						{ queuePos: id, user: user?.user_metadata.full_name },
+						{
+							queuePos: id,
+							access_token: (await supabase.auth.getSession()).data?.session?.access_token
+						},
 						{
 							headers: { "Content-Type": "application/json" }
 						}
@@ -128,7 +135,10 @@ const Queue = () => {
 			await axios
 				.post(
 					"/api/play",
-					{ songs: link, user: user?.user_metadata.full_name },
+					{
+						songs: link,
+						access_token: (await supabase.auth.getSession()).data?.session?.access_token
+					},
 					{
 						headers: { "Content-Type": "application/json" }
 					}
@@ -168,7 +178,10 @@ const Queue = () => {
 			await axios
 				.post(
 					"/api/playfirst",
-					{ songs: link, user: user?.user_metadata.full_name },
+					{
+						songs: link,
+						access_token: (await supabase.auth.getSession()).data?.session?.access_token
+					},
 					{
 						headers: { "Content-Type": "application/json" }
 					}
@@ -209,7 +222,9 @@ const Queue = () => {
 		setIsShuffling(true)
 		const shuffleSongs = async (callback: testCallback) => {
 			await axios
-				.post("/api/shuffle", { user: user?.user_metadata.full_name })
+				.post("/api/shuffle", {
+					access_token: (await supabase.auth.getSession()).data?.session?.access_token
+				})
 				.then(res => {
 					callback(null, res.status, res.data)
 				})
@@ -240,7 +255,9 @@ const Queue = () => {
 		setIsClearing(true)
 		const clearSongs = async (callback: testCallback) => {
 			await axios
-				.post("/api/clearqueue", { user: user?.user_metadata.full_name })
+				.post("/api/clearqueue", {
+					access_token: (await supabase.auth.getSession()).data?.session?.access_token
+				})
 				.then(res => {
 					callback(null, res.status, res.data)
 				})

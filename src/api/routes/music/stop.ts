@@ -6,9 +6,25 @@ const router = express.Router()
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
-		if (!req.body.user) return res.status(400).json({ error: "No user provided!" })
 
-		const result = musicStop(client, req.body.user)
+		const access_token = req.body.access_token
+
+		if (!access_token) return res.status(406).send({ error: "No Access Token!" })
+
+		const user = await client.supabaseClient.auth.getUser(access_token)
+
+		if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
+
+		const guild = client.guilds.cache.find(g => g.name === client.config.serverName)
+		if (!guild) return res.status(406).send("Server not found!")
+
+		const admins = guild.roles.cache.get(client.config.adminRoleId)?.members
+
+		if (!admins) return res.status(406).send("Admins not found!")
+
+		if (!admins.has(user.data?.user?.user_metadata.provider_id)) return res.status(406).send("You are not an admin!")
+
+		const result = musicStop(client, user.data.user?.user_metadata.full_name)
 
 		if (result.status === 200) return res.status(200).json({ message: result.message ? result.message : "👍" })
 		return res.status(result.status).json({ error: result.error ? result.error : "👎" })

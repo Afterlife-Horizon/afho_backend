@@ -9,6 +9,7 @@ import "../css/dark/Filters.css"
 
 import _ from "lodash"
 import MusicContext from "../context/MusicContext"
+import { supabase } from "../utils/supabaseUtils"
 interface testCallback {
 	(err: any, status: any, data: any): any
 }
@@ -89,7 +90,10 @@ const Filters: React.FC = () => {
 			await axios
 				.post(
 					"/api/filters",
-					{ filters: { ...effects }, user: user?.user_metadata.full_name },
+					{
+						filters: { ...effects },
+						access_token: (await supabase.auth.getSession()).data?.session?.access_token
+					},
 					{
 						headers: { "Content-Type": "application/json" }
 					}
@@ -115,27 +119,7 @@ const Filters: React.FC = () => {
 				return console.error(err)
 			}
 			setInputValues({ bassboost: "", speed: "" })
-			setEffects({
-				bassboost: 0,
-				subboost: false,
-				mcompand: false,
-				haas: false,
-				gate: false,
-				karaoke: false,
-				flanger: false,
-				pulsator: false,
-				surrounding: false,
-				"3d": false,
-				vaporwave: false,
-				nightcore: false,
-				phaser: false,
-				normalizer: false,
-				speed: 1,
-				tremolo: false,
-				vibrato: false,
-				reverse: false,
-				treble: false
-			})
+			setEffects(data.filters)
 		})
 	}
 

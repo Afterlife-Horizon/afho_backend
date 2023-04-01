@@ -41,7 +41,9 @@ const NowplayingCard: React.FC = () => {
 		const res = await fetch("/api/skip", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ user: user?.user_metadata.full_name })
+			body: JSON.stringify({
+				access_token: (await supabase.auth.getSession()).data?.session?.access_token
+			})
 		})
 
 		setIsSkipping(false)
@@ -74,7 +76,9 @@ const NowplayingCard: React.FC = () => {
 			const res = await fetch("/api/unpause", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ user: user?.user_metadata.full_name })
+				body: JSON.stringify({
+					access_token: (await supabase.auth.getSession()).data?.session?.access_token
+				})
 			})
 
 			setIsPausing(false)
@@ -95,7 +99,9 @@ const NowplayingCard: React.FC = () => {
 			const res = await fetch("/api/pause", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ user: user?.user_metadata.full_name })
+				body: JSON.stringify({
+					access_token: (await supabase.auth.getSession()).data?.session?.access_token
+				})
 			})
 
 			setIsPausing(false)
@@ -134,7 +140,9 @@ const NowplayingCard: React.FC = () => {
 		const res = await fetch("/api/stop", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ user: user?.user_metadata.full_name })
+			body: JSON.stringify({
+				access_token: (await supabase.auth.getSession()).data?.session?.access_token
+			})
 		})
 
 		setIsStopping(false)
@@ -167,7 +175,6 @@ const NowplayingCard: React.FC = () => {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
-				user: user.user_metadata.full_name,
 				access_token: (await supabase.auth.getSession()).data?.session?.access_token
 			})
 		})

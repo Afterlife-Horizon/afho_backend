@@ -8,17 +8,27 @@ import { IESong } from "../../../types"
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
+
+		const access_token = req.body.access_token
+
+		if (!access_token) return res.status(406).send({ error: "No Access Token!" })
+
+		const user = await client.supabaseClient.auth.getUser(access_token)
+
+		if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
+
 		try {
 			const guild = client.guilds.cache.find(g => g.name === client.config.serverName)
 			if (!guild) return res.status(406).send("Guild not found!")
-			await guild.members.fetch()
-			await guild.channels.fetch()
 			const connectedMembers = guild.members.cache.filter(member => member.voice.channel)
-			const requester = connectedMembers.filter(member => member.user.username === req.body.user)
-			const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.filter(m => m.user.username === req.body.user).size > 0)
+			const requester = connectedMembers.find(member => member.user.username === user.data.user?.user_metadata.full_name)
 
-			if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!")
-			else if (client.currentChannel?.id !== voiceChannel?.id) return res.status(406).send("Not the same channel!")
+			if (!requester) return res.status(406).send("You are not connected to a voice channel!")
+
+			const voiceChannel = guild.channels.cache.find(
+				c => c.type === 2 && c.members.filter(m => m.user.username === user.data.user?.user_metadata.full_name).size > 0
+			)
+			if (client.currentChannel?.id !== voiceChannel?.id) return res.status(406).send("Not the same channel!")
 
 			if (!client.currentChannel) return res.status(406).send("not connected!")
 			const currentChannel = (await client.channels.fetch(client.currentChannel.id)) as VoiceChannel | TextChannel
@@ -58,7 +68,7 @@ export default function (client: BotClient) {
 					res.status(406).send("No queue")
 					return channel.send({ content: `❗ No queue!` })
 				}
-				queue.tracks = [queue.tracks[0], client.createSong(video, req.body.user), ...queue.tracks.slice(1)]
+				queue.tracks = [queue.tracks[0], client.createSong(video, user.data.user?.user_metadata.full_name), ...queue.tracks.slice(1)]
 				return channel.send(`▶️ **Queued at \`1st\`: __${video.title}__** - \`${video.durationFormatted}\``)
 			} else {
 				song = song ? song : playlist.videos[0]
@@ -67,8 +77,13 @@ export default function (client: BotClient) {
 				const index = playlist.videos.findIndex(s => s.id == video.id) || 0
 				playlist.videos.splice(index, 1)
 				const playlistSongs: IESong[] = []
-				playlist.videos.forEach(nsong => playlistSongs.push(client.createSong(nsong, req.body.user)))
-				queue.tracks = [queue.tracks[0], client.createSong(video, req.body.user), ...playlistSongs, ...queue.tracks.slice(1)]
+				playlist.videos.forEach(nsong => playlistSongs.push(client.createSong(nsong, user.data.user?.user_metadata.full_name)))
+				queue.tracks = [
+					queue.tracks[0],
+					client.createSong(video, user.data.user?.user_metadata.full_name),
+					...playlistSongs,
+					...queue.tracks.slice(1)
+				]
 				await channel.send(
 					`👍 **Queued at \`1st\`: __${video.title}__** - \`${video.durationFormatted}\`\n> **Added \`${
 						playlist.videos.length - 1
