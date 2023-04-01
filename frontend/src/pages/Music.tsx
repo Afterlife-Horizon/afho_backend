@@ -18,6 +18,7 @@ import useUser from "../hooks/useUser"
 import Spinner from "../components/Spinner"
 import { EnhancedUser, song, track } from "../types"
 import useFetchInfo from "../hooks/useFetchInfo"
+import { defaultSong } from "../constants"
 
 const Music = (props: any) => {
 	const isDarkTheme = window.matchMedia("(prefers-color-scheme:dark)").matches
@@ -42,36 +43,7 @@ const Music = (props: any) => {
 	const [isShuffling, setIsShuffling] = useState<boolean>(false)
 	const [isClearing, setIsClearing] = useState<boolean>(false)
 
-	const [song, setSong] = useState<song>({
-		name: "None",
-		artist: "",
-		requester: null,
-		filters: {
-			bassboost: 0,
-			subboost: false,
-			mcompand: false,
-			haas: false,
-			gate: false,
-			karaoke: false,
-			flanger: false,
-			pulsator: false,
-			surrounding: false,
-			"3d": false,
-			vaporwave: false,
-			nightcore: false,
-			phaser: false,
-			normalizer: false,
-			speed: 1,
-			tremolo: false,
-			vibrato: false,
-			reverse: false,
-			treble: false
-		},
-		url: "",
-		formatedprog: "00:00",
-		duration: "00:00",
-		cover_src: "https://freesvg.org/img/aiga_waiting_room_bg.png"
-	})
+	const [song, setSong] = useState<song>(defaultSong)
 
 	const { data: apiUser, isLoading, isError } = useUser()
 	const { data: fetchInfo, isLoading: isFetchingInfo, isError: isFetchingInfoError } = useFetchInfo()
@@ -93,42 +65,13 @@ const Music = (props: any) => {
 				cover_src: queue.tracks[0].thumbnail.url
 			})
 			setIsPaused(queue.paused)
-			setQueue(queue.tracks)
+			setQueue([])
 			setSongProgress(Math.floor(100 * (fetchInfo.prog / queue.tracks[0].duration)))
 			setHasChanged(queue.filtersChanged)
 			tmpIsRequester = user?.user_metadata.full_name === queue.tracks[0].requester
 		} else {
 			setHasChanged(false)
-			setSong({
-				name: "None",
-				artist: "",
-				requester: null,
-				filters: {
-					bassboost: 0,
-					subboost: false,
-					mcompand: false,
-					haas: false,
-					gate: false,
-					karaoke: false,
-					flanger: false,
-					pulsator: false,
-					surrounding: false,
-					"3d": false,
-					vaporwave: false,
-					nightcore: false,
-					phaser: false,
-					normalizer: false,
-					speed: 1,
-					tremolo: false,
-					vibrato: false,
-					reverse: false,
-					treble: false
-				},
-				url: "",
-				formatedprog: "00:00",
-				duration: "00:00",
-				cover_src: "https://freesvg.org/img/aiga_waiting_room_bg.png"
-			})
+			setSong(defaultSong)
 			setQueue([])
 		}
 		const isAdmin: boolean = fetchInfo.admins.usernames.includes(apiUser?.user_metadata.full_name)
@@ -191,7 +134,7 @@ const Music = (props: any) => {
 		<div className={classes}>
 			<MusicContext.Provider value={musicContextValue}>
 				<NowplayingCard />
-				{/* <Queue /> */}
+				<Queue />
 				{/* <Favs /> */}
 				<Filters />
 			</MusicContext.Provider>
