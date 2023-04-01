@@ -37,6 +37,7 @@ export default class BotClient extends Client {
 		openaiKey?: string
 		YOUTUBE_LOGIN_COOKIE?: string
 		serverName: string
+		adminRoleId: string
 	}
 	public commands: Map<string, ICommand>
 	public queues: Map<string, IQueue>
@@ -54,7 +55,8 @@ export default class BotClient extends Client {
 			baseChannelId: process.env.BASE_CHANNEL_ID || "",
 			openaiKey: process.env.OPENAI_KEY,
 			YOUTUBE_LOGIN_COOKIE: process.env.YOUTUBE_LOGIN_COOKIE,
-			serverName: process.env.SERVER_NAME || ""
+			serverName: process.env.SERVER_NAME || "",
+			adminRoleId: process.env.ADMIN_ROLE_ID || ""
 		}
 		this.commands = new Collection()
 		this.queues = new Collection()

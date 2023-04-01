@@ -2,16 +2,13 @@ import express = require("express")
 const router = express.Router()
 import {
 	AudioPlayerBufferingState,
-	AudioPlayerIdleState,
 	AudioPlayerPausedState,
 	AudioPlayerPlayingState,
-	AudioPlayerState,
 	VoiceConnection,
 	VoiceConnectionConnectingState,
 	VoiceConnectionDisconnectedState,
 	VoiceConnectionReadyState,
 	VoiceConnectionSignallingState,
-	VoiceConnectionState,
 	getVoiceConnection
 } from "@discordjs/voice"
 import BotClient from "../../../botClient/BotClient"
@@ -24,7 +21,7 @@ export default function (client: BotClient) {
 			if (!guild) return res.status(406).send("Server not found!")
 
 			await guild.members.fetch()
-			const admins = guild.roles.cache.find(r => r.name === "admin")?.members
+			const admins = guild.roles.cache.get(client.config.adminRoleId)?.members
 
 			if (!admins) return res.status(406).send("Admins not found!")
 

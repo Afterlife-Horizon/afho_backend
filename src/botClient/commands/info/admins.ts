@@ -2,7 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction, Applica
 import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
 
-export default (_: BotClient): ICommand => {
+export default (client: BotClient): ICommand => {
 	return {
 		data: new SlashCommandBuilder().setName("admins").setDescription("Lists all admins!"),
 		async execute(interaction: CommandInteraction) {
@@ -10,7 +10,7 @@ export default (_: BotClient): ICommand => {
 			if (!guild) return interaction.reply({ content: "This command can only be used in a server!", ephemeral: true })
 			await guild.members.fetch()
 
-			const membersWithRole = guild.roles.cache.find(r => r.name === "admin")?.members
+			const membersWithRole = guild.roles.cache.get(client.config.adminRoleId)?.members
 
 			const ListEmbed = new EmbedBuilder()
 				.setTitle("Users with the admin role:")
