@@ -133,7 +133,7 @@ const Brasilboard: React.FC = () => {
 						</button>
 					</div>
 				)}
-				<AdvBrasil data={counts ? counts : []} />
+				<AdvBrasil data={counts} />
 			</Box>
 		</div>
 	)
