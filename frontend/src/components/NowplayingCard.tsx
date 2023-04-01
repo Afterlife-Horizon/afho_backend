@@ -28,7 +28,7 @@ const NowplayingCard: React.FC = () => {
 		setColorScheme
 	} = useContext(MusicContext)
 
-	const handleNextClicked = async (event: React.MouseEvent<HTMLButtonElement>) => {
+	async function handleNextClicked(event: React.MouseEvent<HTMLButtonElement>) {
 		event.preventDefault()
 		setIsSkipping(true)
 
@@ -60,7 +60,7 @@ const NowplayingCard: React.FC = () => {
 		}
 	}
 
-	const handlePauseClicked = async (event: React.MouseEvent<HTMLButtonElement>) => {
+	async function handlePauseClicked(event: React.MouseEvent<HTMLButtonElement>) {
 		event.preventDefault()
 		setIsPausing(true)
 
@@ -115,7 +115,7 @@ const NowplayingCard: React.FC = () => {
 		}
 	}
 
-	const handleStopClicked = async (event: React.MouseEvent<HTMLButtonElement>) => {
+	async function handleStopClicked(event: React.MouseEvent<HTMLButtonElement>) {
 		event.preventDefault()
 		setIsStopping(true)
 
@@ -153,7 +153,7 @@ const NowplayingCard: React.FC = () => {
 		}
 	}
 
-	const handleDisconnectClicked = async (event: React.MouseEvent<HTMLButtonElement>) => {
+	async function handleDisconnectClicked(event: React.MouseEvent<HTMLButtonElement>) {
 		event.preventDefault()
 		setIsDisconnecting(true)
 
