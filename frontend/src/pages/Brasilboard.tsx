@@ -23,8 +23,6 @@ const Brasilboard: React.FC = () => {
 	const [currentPlayer, setCurrentPlayer] = useState("")
 	const [info, setInfo] = useState("")
 
-	const memberNames = connectedMembers ? connectedMembers.map(m => m.username) : []
-
 	function autocompleteCheckValue(option: any, newValue: any) {
 		return option === newValue || newValue === ""
 	}
@@ -74,6 +72,8 @@ const Brasilboard: React.FC = () => {
 	if (isLoading || isLoadingCounts || isLoadingConnectedMembers) return <Spinner />
 	if (isErrorCounts || isErrorConnectedMembers) return <div>Something went wrong</div>
 	if (!connectedMembers || !counts) return <div>Something went wrong</div>
+
+	const memberNames = connectedMembers ? connectedMembers.map(m => m.username) : []
 
 	return (
 		<div className="brasilboard">
