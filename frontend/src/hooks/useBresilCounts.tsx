@@ -1,5 +1,4 @@
 import { UseQueryResult, useQuery } from "@tanstack/react-query"
-import getLevels from "../utils/getLeves"
 import getBresilCounts from "../utils/getBresilCounts"
 
 type COUNTS = { user: user; bresil_received: number; bresil_sent: number }[]

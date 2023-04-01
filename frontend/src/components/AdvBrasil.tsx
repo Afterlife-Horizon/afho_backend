@@ -60,7 +60,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }))
 
 const AdvBrasil: React.FC<props> = ({ data }) => {
-	const [sort, setSort] = useState<(a: any, b: any) => number>((a, b) => b.bresil_received - a.bresil_received)
+	const [sort, setSort] = useState<(a: (typeof data)[0], b: (typeof data)[0]) => number>((a, b) => b.bresil_received - a.bresil_received)
 	const sortedData = data.sort(sort)
 
 	function stringOfRank(rank: number) {
