@@ -21,6 +21,8 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 	if (!process.env.TOKEN || !process.env.CLIENT_ID) throw new Error("No discord token or clientID found")
 	if (!process.env.SERVER_NAME || !process.env.BRASIL_CHANNEL_ID || !process.env.BASE_CHANNEL_ID)
 		throw new Error("No server name or channel IDs found")
+	if (!process.env.ADMIN_ROLE_ID) throw new Error("No admin role ID found")
+	if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) throw new Error("No Supabase credentials found")
 	if (!process.env.CERT || !process.env.CERT_KEY) console.log("No HTTPS certificate found, using HTTP instead...")
 	if (!process.env.OPENAI_KEY) console.log("No OpenAI key found, not using OpenAI API")
 }

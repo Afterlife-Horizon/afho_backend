@@ -12,6 +12,7 @@ import {
 	getVoiceConnection,
 	joinVoiceChannel
 } from "@discordjs/voice"
+import { SupabaseClient, createClient } from "@supabase/supabase-js"
 import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
 import { ICommand, IQueue, IESong, IFavorite } from "../types"
 import fs from "node:fs"
@@ -38,6 +39,8 @@ export default class BotClient extends Client {
 		YOUTUBE_LOGIN_COOKIE?: string
 		serverName: string
 		adminRoleId: string
+		supabaseUrl: string
+		supabaseKey: string
 	}
 	public commands: Map<string, ICommand>
 	public queues: Map<string, IQueue>
@@ -45,6 +48,7 @@ export default class BotClient extends Client {
 	public ready: boolean
 	public passThrought?: PassThrough
 	public stream?: FFmpeg.FfmpegCommand
+	public supabaseClient: SupabaseClient<any, "public", any>
 
 	constructor(options: ClientOptions) {
 		super(options)
@@ -56,7 +60,9 @@ export default class BotClient extends Client {
 			openaiKey: process.env.OPENAI_KEY,
 			YOUTUBE_LOGIN_COOKIE: process.env.YOUTUBE_LOGIN_COOKIE,
 			serverName: process.env.SERVER_NAME || "",
-			adminRoleId: process.env.ADMIN_ROLE_ID || ""
+			adminRoleId: process.env.ADMIN_ROLE_ID || "",
+			supabaseUrl: process.env.SUPABASE_URL || "",
+			supabaseKey: process.env.SUPABASE_KEY || ""
 		}
 		this.commands = new Collection()
 		this.queues = new Collection()
@@ -66,6 +72,7 @@ export default class BotClient extends Client {
 		this.initListeners()
 		this.currentChannel = null
 		this.dbClient = new DBClient()
+		this.supabaseClient = createClient(this.config.supabaseUrl, this.config.supabaseKey)
 	}
 
 	private initCommands() {

@@ -165,8 +165,11 @@ const NowplayingCard: React.FC = () => {
 
 		const res = await fetch("/api/disconnect", {
 			method: "POST",
+			credentials: "include",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ user: user.user_metadata.full_name })
+			body: JSON.stringify({
+				user: user.user_metadata.full_name
+			})
 		})
 
 		setIsDisconnecting(false)

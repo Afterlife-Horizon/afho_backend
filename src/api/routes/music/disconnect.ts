@@ -9,6 +9,10 @@ export default function (client: BotClient) {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		if (!client.currentChannel) return res.status(406).send("not connected!")
 
+		if (!req.cookies) return res.status(406).send("not connected!")
+
+		// client.supabaseClient.auth.getUser()
+
 		const response = await disconnect(client)
 
 		if (response.status === 200) {
