@@ -13,7 +13,9 @@ export default function (client: BotClient) {
 
 		if (!access_token) return res.status(406).send({ error: "No Access Token!" })
 
-		console.log(client.supabaseClient.auth.getUser(access_token))
+		const user = await client.supabaseClient.auth.getUser(access_token)
+
+		if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
 		const response = await disconnect(client)
 
