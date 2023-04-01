@@ -111,4 +111,6 @@ build/
 
 .ssh/
 
+.fleet/
+.vscode/
 .dist/
