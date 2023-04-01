@@ -183,6 +183,7 @@ export default class BotClient extends Client {
 				newNetworking?.on("stateChange", networkStateChangeHandler)
 			})
 
+			this.currentChannel = channel
 			return res("Connected to the Voice Channel")
 		})
 	}
@@ -199,12 +200,14 @@ export default class BotClient extends Client {
 				if (oldConnection.joinConfig.channelId != channel.id) return rej("We aren't in the same channel!")
 				try {
 					oldConnection.destroy()
-					this.delay(250)
+					this.currentChannel = null
 					return res(true)
 				} catch (e) {
+					this.currentChannel = null
 					return rej(e)
 				}
 			} else {
+				this.currentChannel = null
 				return rej("I'm not connected somwhere.")
 			}
 		})

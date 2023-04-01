@@ -1,5 +1,7 @@
 import express = require("express")
 import BotClient from "../../../botClient/BotClient"
+import disconnect from "../../../functions/commandUtils/music/disconnect"
+
 const router = express.Router()
 
 export default function (client: BotClient) {
@@ -7,12 +9,11 @@ export default function (client: BotClient) {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		if (!client.currentChannel) return res.status(406).send("not connected!")
 
-		try {
-			await client.leaveVoiceChannel(client.currentChannel)
-			res.status(200).send("disconnected")
-		} catch (err) {
-			console.error(err)
-			res.status(500).send("Internal error!")
+		const response = await disconnect(client)
+
+		if (response.status === 200) {
+			res.status(200).json({ message: response.message })
 		}
+		res.status(response.status).json({ error: response.error })
 	})
 }

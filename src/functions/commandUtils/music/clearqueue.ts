@@ -1,7 +1,7 @@
 import { getVoiceConnection } from "@discordjs/voice"
 import { GuildMember, TextChannel } from "discord.js"
-import BotClient from "../../botClient/BotClient"
-import { IFunctionResponse } from "../../types"
+import BotClient from "../../../botClient/BotClient"
+import { IFunctionResponse } from "../../../types"
 
 interface IArgs {
 	member: GuildMember

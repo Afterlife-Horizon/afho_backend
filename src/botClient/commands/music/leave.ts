@@ -1,32 +1,18 @@
-import { GuildMember, SlashCommandBuilder, VoiceChannel } from "discord.js"
-import { getVoiceConnection } from "@discordjs/voice"
+import { SlashCommandBuilder } from "discord.js"
 import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
+import disconnect from "../../../functions/commandUtils/music/disconnect"
 
 export default (client: BotClient): ICommand => {
 	return {
 		data: new SlashCommandBuilder().setName("leave").setDescription("Leaves the voice channel!"),
 		async execute(interaction) {
-			try {
-				const member = interaction.member as GuildMember
-				const guild = interaction.guild
+			const res = await disconnect(client)
 
-				if (!member || !guild) return await interaction.reply({ content: `Something went wrong` })
-
-				const oldConnection = getVoiceConnection(guild.id)
-				if (!oldConnection) return await interaction.reply({ content: `I am not in a voice channel!` })
-				if (!member.voice.channelId) return await interaction.reply({ content: `Please join a voice channel first` })
-
-				const voiceChannel = member.voice.channel as VoiceChannel
-
-				if (!voiceChannel) return await interaction.reply({ content: `Something went wrong` })
-
-				await client.leaveVoiceChannel(voiceChannel)
-				await interaction.reply({ content: `Left voice channel!` })
-			} catch (err) {
-				console.log(err)
-				interaction.reply({ content: `Could not leave voice channel` })
+			if (res.status === 200) {
+				await interaction.reply({ content: "👋 **Disconnected**", ephemeral: true })
 			}
+			await interaction.reply({ content: res.error, ephemeral: true })
 		}
 	}
 }
