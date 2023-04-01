@@ -92,7 +92,7 @@ export default class BotClient extends Client {
 	 * @param ms time in milliseconds
 	 * @returns string of the given time in minutes:seconds format
 	 */
-	public formatDuration = (ms: number) => {
+	public formatDuration(ms: number) {
 		let sec = Math.floor((ms / 1000) % 60)
 		let min = Math.floor((ms / (1000 * 60)) % 60)
 		const hrs = Math.floor((ms / (1000 * 60 * 60)) % 24)
@@ -108,7 +108,7 @@ export default class BotClient extends Client {
 	 * @param position current position of the song
 	 * @returns a string with the progress bar
 	 */
-	public createBar = (duration: number, position: number) => {
+	public createBar(duration: number, position: number) {
 		const full = "▰"
 		const empty = "▱"
 		const size = "▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱".length
@@ -122,7 +122,7 @@ export default class BotClient extends Client {
 	 *
 	 * @returns string of the current time in hours:minutes:seconds.milliseconds format
 	 */
-	public getTime = () => {
+	public getTime() {
 		const date = new Date()
 		return `${this.m2(date.getHours())}:${this.m2(date.getMinutes())}:${this.m2(date.getSeconds())}.${this.m3(date.getMilliseconds())}`
 	}
@@ -132,7 +132,7 @@ export default class BotClient extends Client {
 	 * @param id youtube video id
 	 * @returns the youtube link of the given id
 	 */
-	public getYTLink = (id: string) => {
+	public getYTLink(id: string) {
 		return `https://www.youtube.com/watch?v=${id}`
 	}
 
@@ -141,7 +141,7 @@ export default class BotClient extends Client {
 	 * @param channel voice channel to join
 	 * @returns a promise that resolves when the bot joins the voice channel
 	 */
-	public joinVoiceChannel = async (channel: VoiceChannel): Promise<string> => {
+	public async joinVoiceChannel(channel: VoiceChannel): Promise<string> {
 		const networkStateChangeHandler = (_: VoiceState, newNetworkState: VoiceState) => {
 			const newUdp = Reflect.get(newNetworkState, "udp")
 			clearInterval(newUdp?.keepAliveInterval)
@@ -192,7 +192,7 @@ export default class BotClient extends Client {
 	 * @param channel voice channel to leave
 	 * @returns a promise that resolves when the bot leaves the voice channel
 	 */
-	public leaveVoiceChannel = async (channel: VoiceChannel) => {
+	public async leaveVoiceChannel(channel: VoiceChannel) {
 		return new Promise((res, rej) => {
 			const oldConnection = getVoiceConnection(channel.guild.id)
 			if (oldConnection) {
@@ -217,7 +217,7 @@ export default class BotClient extends Client {
 	 * @param seekTime time to seek to in milliseconds
 	 * @returns a discord audio resource
 	 */
-	public getResource = (queue: IQueue, songInfoId: string, seekTime: number) => {
+	public getResource(queue: IQueue, songInfoId: string, seekTime: number) {
 		let Qargs = ""
 		const effects = queue.effects
 
@@ -318,7 +318,7 @@ export default class BotClient extends Client {
 	 * @param songInfo song to play
 	 * @returns a promise that resolves when the song is played
 	 */
-	public playSong = async (channel: VoiceChannel, songInfo: Video) => {
+	public async playSong(channel: VoiceChannel, songInfo: Video) {
 		return new Promise((res, rej) => {
 			const oldConnection = getVoiceConnection(channel.guildId)
 			if (oldConnection) {
@@ -380,7 +380,7 @@ export default class BotClient extends Client {
 	 * @param guildId id of the guild
 	 * @returns true
 	 */
-	public sendQueueUpdate = async (guildId: string) => {
+	public async sendQueueUpdate(guildId: string) {
 		const queue = this.queues.get(guildId)
 		if (!queue || !queue.tracks || queue.tracks.length == 0) return false
 
@@ -415,7 +415,7 @@ export default class BotClient extends Client {
 	 * @param requester requester of the song
 	 * @returns the song with the requester
 	 */
-	public createSong = (song: Video, requester: User) => {
+	public createSong(song: Video, requester: User) {
 		return { ...song, requester } as IESong
 	}
 
@@ -424,7 +424,7 @@ export default class BotClient extends Client {
 	 * @param length length of the queue
 	 * @returns the position in the queue
 	 */
-	public queuePos = (length: number) => {
+	public queuePos(length: number) {
 		const str: { [key: number]: string } = {
 			1: "st",
 			2: "nd",
@@ -438,7 +438,7 @@ export default class BotClient extends Client {
 	 * @param length length of the queue
 	 * @returns a queue
 	 */
-	public createQueue = (song: Video, user: User, channelId: string, bitrate = 128) => {
+	public createQueue(song: Video, user: User, channelId: string, bitrate = 128) {
 		return {
 			textChannel: channelId,
 			paused: false,
@@ -480,7 +480,7 @@ export default class BotClient extends Client {
 	 * @param ms time to delay
 	 * @returns a promise that resolves after the time
 	 */
-	public delay = async (ms: number) => {
+	public async delay(ms: number) {
 		return new Promise(r => setTimeout(() => r(2), ms))
 	}
 
@@ -490,10 +490,22 @@ export default class BotClient extends Client {
 	 * @param player player to use
 	 * @param queue queue to use
 	 */
-	public handleQueue = async (player: AudioPlayer, queue: IQueue) => {
+	public async handleQueue(player: AudioPlayer, queue: IQueue) {
 		if (queue && !queue.filtersChanged) {
 			try {
 				player.stop()
+				const user = this.user
+				if (user) {
+					user.setPresence({
+						status: "online",
+						activities: [
+							{
+								name: "for commands",
+								type: ActivityType.Watching
+							}
+						]
+					})
+				}
 				if (queue && queue.tracks && queue.tracks.length > 1) {
 					queue.previous = queue.tracks[0]
 					if (queue.trackloop && !queue.skipped) {
