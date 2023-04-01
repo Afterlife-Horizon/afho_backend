@@ -3,7 +3,6 @@ import {
 	GuildMember,
 	StringSelectMenuBuilder,
 	ActionRowBuilder,
-	SelectMenuBuilder,
 	Colors,
 	EmbedBuilder,
 	StringSelectMenuInteraction,
@@ -11,7 +10,7 @@ import {
 } from "discord.js"
 import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
-import changeFilters from "../../../functions/commandUtils/filters"
+import changeFilters from "../../../functions/commandUtils/music/filters"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -48,7 +47,7 @@ export default (client: BotClient): ICommand => {
 			const msg = await channel
 				.send({
 					content: "🔗 Pick what filter(s) you want to change!",
-					components: [new ActionRowBuilder<SelectMenuBuilder>().addComponents(Menu)]
+					components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(Menu)]
 				})
 				.catch(console.error)
 			if (!msg) return { status: 500, error: `👎 **Something went wrong**` }
@@ -89,7 +88,7 @@ export default (client: BotClient): ICommand => {
 				Menu.setDisabled(true)
 				msg.edit({
 					content: msg.content,
-					components: [new ActionRowBuilder<SelectMenuBuilder>().addComponents(Menu)]
+					components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(Menu)]
 				}).catch(err => console.log(err))
 			})
 		}

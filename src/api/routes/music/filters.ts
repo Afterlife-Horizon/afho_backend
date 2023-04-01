@@ -2,7 +2,7 @@ import express = require("express")
 const router = express.Router()
 import { GuildMember } from "discord.js"
 import BotClient from "../../../botClient/BotClient"
-import changeFilters from "../../../functions/commandUtils/filters"
+import changeFilters from "../../../functions/commandUtils/music/filters"
 import { IFilters } from "../../../types"
 
 export default function (client: BotClient) {

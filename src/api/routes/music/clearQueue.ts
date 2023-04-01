@@ -1,7 +1,7 @@
 import express = require("express")
 import BotClient from "../../../botClient/BotClient"
 import { GuildMember } from "discord.js"
-import clearQueue from "../../../functions/commandUtils/clearqueue"
+import clearQueue from "../../../functions/commandUtils/music/clearqueue"
 const router = express.Router()
 
 export default function (client: BotClient) {
