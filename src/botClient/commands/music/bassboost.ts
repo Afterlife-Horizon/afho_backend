@@ -2,6 +2,7 @@ import { GuildMember, SlashCommandBuilder } from "discord.js"
 import { AudioPlayerPausedState, AudioPlayerPlayingState, VoiceConnectionReadyState, getVoiceConnection } from "@discordjs/voice"
 import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
+import changeFilters from "../../../functions/commandUtils/music/filters"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -16,11 +17,6 @@ export default (client: BotClient): ICommand => {
 			if (!member || !guild) return interaction.reply("👎 **Something went wrong**").catch(err => console.log(err))
 			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => console.log(err))
 
-			const oldConnection = getVoiceConnection(guild.id)
-			if (!oldConnection) return interaction.reply("👎 **I'm not connected somewhere!**")
-			if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId)
-				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => console.log(err))
-
 			const queue = client.queues.get(guild.id)
 			if (!queue) {
 				return interaction.reply(`👎 **Nothing playing right now**`)
@@ -32,18 +28,10 @@ export default (client: BotClient): ICommand => {
 					.catch(err => console.log(err))
 			const bassboost = Number(arg)
 			queue.effects.bassboost = bassboost
-
-			const state = oldConnection.state as VoiceConnectionReadyState
-			if (!state || !state.subscription) return interaction.reply(`👎 **Something went wrong**`).catch(err => console.log(err))
-
-			const playerState = state.subscription.player.state as AudioPlayerPlayingState | AudioPlayerPausedState
-			if (!playerState || !playerState.resource || !playerState.resource.volume)
-				return interaction.reply(`👎 **Something went wrong**`).catch(err => console.log(err))
-
 			queue.filtersChanged = true
-			const curPos = playerState.resource.playbackDuration
-			state.subscription.player.stop()
-			state.subscription.player.play(await client.getResource(queue, queue.tracks[0].id, curPos))
+
+			const res = await changeFilters(client, { member: member })
+			if (res.error) interaction.reply({ content: res.error, ephemeral: true })
 
 			return interaction.reply(`🎚 **Successfully changed the Bassboost-Level to \`${bassboost}db\`**`).catch(err => console.log(err))
 		}
