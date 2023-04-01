@@ -110,6 +110,9 @@ This bot is created and designed by myself.
         TOKEN=""                    # discord bot token
         BASE_CHANNEL_ID=""          # id of bot message channel
         BRASIL_CHANNEL_ID=""        # id of bresil channel
+        ADMIN_ROLE_ID=""            # id of admin role
+        SUPABASE_URL=""             # url of your supabase project
+        SUPABASE_KEY=""             # public key from supabase
 
         # optionnal variables
         # OPENAI_KEY=               # openAi key
