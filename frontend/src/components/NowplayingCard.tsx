@@ -165,10 +165,10 @@ const NowplayingCard: React.FC = () => {
 
 		const res = await fetch("/api/disconnect", {
 			method: "POST",
-			credentials: "include",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
-				user: user.user_metadata.full_name
+				user: user.user_metadata.full_name,
+				access_token: (await supabase.auth.getSession()).data?.session?.access_token
 			})
 		})
 

@@ -9,11 +9,11 @@ export default function (client: BotClient) {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		if (!client.currentChannel) return res.status(406).send("not connected!")
 
-		const session = req.body.session
+		const access_token = req.body.access_token
 
-		if (!session) return res.status(406).send({ error: "Session not found!" })
+		if (!access_token) return res.status(406).send({ error: "No Access Token!" })
 
-		console.log(client.supabaseClient.auth.getUser(session.access_token))
+		console.log(client.supabaseClient.auth.getUser(access_token))
 
 		const response = await disconnect(client)
 
