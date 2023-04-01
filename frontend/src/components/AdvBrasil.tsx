@@ -80,6 +80,7 @@ const AdvBrasil: React.FC<props> = ({ data }) => {
 	function handleSortClicked(type: number) {
 		return () => {
 			setSort((a, b) => {
+				if (!a || !b) return 0
 				if (type === 1) {
 					return b.bresil_received - a.bresil_received
 				} else if (type === 2) {
