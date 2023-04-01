@@ -325,7 +325,7 @@ const Queue = () => {
 									<a href={"https://www.youtube.com/watch?v=" + track.id} target="_blank" rel="noopener noreferrer">
 										{"  " + track.title}
 									</a>
-									<div className="requesterdiv">Requested by: {`${track.requester.username}#${track.requester.tag}`}</div>
+									<div className="requesterdiv">Requested by: {`${track.requester.tag}`}</div>
 								</div>
 							</div>
 

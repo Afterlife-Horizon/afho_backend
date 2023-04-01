@@ -240,7 +240,7 @@ const NowplayingCard: React.FC = () => {
 							<div>
 								{song.formatedprog} / {song.duration}
 							</div>
-							<div>Requester: {song.requester ? `${song.requester.username}#${song.requester.tag}` : "None"}</div>
+							<div>Requester: {song.requester ? `${song.requester.tag}` : "None"}</div>
 						</div>
 					}
 				/>
