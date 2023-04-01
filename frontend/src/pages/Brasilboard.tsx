@@ -19,18 +19,11 @@ const Brasilboard: React.FC = () => {
 	const { data: user, isLoading } = useUser()
 	const { data: counts, isLoading: isLoadingCounts, isError: isErrorCounts } = useBresilCounts()
 	const { data: connectedMembers, isLoading: isLoadingConnectedMembers, isError: isErrorConnectedMembers } = useConnectedMembers()
-
-	if (isLoading || isLoadingCounts || isLoadingConnectedMembers) return <Spinner />
-	if (isErrorCounts || isErrorConnectedMembers) return <div>Something went wrong</div>
-
-	if (!connectedMembers || !counts) return <div>Something went wrong</div>
-
-	const [currentPlayer, setCurrentPlayer] = useState("")
 	const navigate = useNavigate()
+	const [currentPlayer, setCurrentPlayer] = useState("")
+	const [info, setInfo] = useState("")
 
 	const memberNames = connectedMembers ? connectedMembers.map(m => m.username) : []
-
-	const [info, setInfo] = useState("")
 
 	function autocompleteCheckValue(option: any, newValue: any) {
 		return option === newValue || newValue === ""
@@ -77,6 +70,10 @@ const Brasilboard: React.FC = () => {
 			setInfo("OK!")
 		})
 	}
+
+	if (isLoading || isLoadingCounts || isLoadingConnectedMembers) return <Spinner />
+	if (isErrorCounts || isErrorConnectedMembers) return <div>Something went wrong</div>
+	if (!connectedMembers || !counts) return <div>Something went wrong</div>
 
 	return (
 		<div className="brasilboard">
