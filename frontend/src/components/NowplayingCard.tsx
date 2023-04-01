@@ -3,7 +3,7 @@ import MusicContext from "../context/MusicContext"
 import { Avatar, Card } from "antd"
 import Meta from "antd/lib/card/Meta"
 import { supabase } from "../utils/supabaseUtils"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import Spinner from "./Spinner"
 
 const NowplayingCard: React.FC = () => {
@@ -196,9 +196,9 @@ const NowplayingCard: React.FC = () => {
 	return (
 		<div className="nowplaying">
 			<div className="nowplaying-card ant-card brasilboardd">
-				<a href={"/brasilboard"}>
+				<Link to={"/brasilboard"}>
 					<button>BRASILBOARD</button>
-				</a>
+				</Link>
 				<button onClick={() => setColorScheme(prev => (prev === "" ? "dark" : ""))}>CHANGE THEME</button>
 			</div>
 			<Card
