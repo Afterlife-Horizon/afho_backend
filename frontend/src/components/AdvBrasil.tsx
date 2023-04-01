@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import Avatar from "@mui/material/Avatar"
 import { styled } from "@mui/material/styles"
 import Table from "@mui/material/Table"
@@ -31,7 +31,6 @@ type COUNTS = {
 }[]
 
 interface props {
-	setData: React.Dispatch<React.SetStateAction<COUNTS>>
 	data: {
 		user: user
 		bresil_received: number
@@ -60,7 +59,10 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 	}
 }))
 
-const AdvBrasil: React.FC<props> = ({ setData, data }) => {
+const AdvBrasil: React.FC<props> = ({ data }) => {
+	const [sort, setSort] = useState<(a: any, b: any) => number>((a, b) => b.bresil_received - a.bresil_received)
+	const sortedData = data.sort(sort)
+
 	function stringOfRank(rank: number) {
 		switch (rank) {
 			case 1:
@@ -76,7 +78,7 @@ const AdvBrasil: React.FC<props> = ({ setData, data }) => {
 
 	function handleSortClicked(type: number) {
 		return () => {
-			data.sort((a, b) => {
+			setSort((a, b) => {
 				if (type === 1) {
 					return b.bresil_received - a.bresil_received
 				} else if (type === 2) {
@@ -85,8 +87,6 @@ const AdvBrasil: React.FC<props> = ({ setData, data }) => {
 					return 0
 				}
 			})
-
-			setData([...data])
 		}
 	}
 
@@ -106,7 +106,7 @@ const AdvBrasil: React.FC<props> = ({ setData, data }) => {
 					</StyledTableRow>
 				</TableHead>
 				<TableBody>
-					{data.map((u, index) => (
+					{sortedData.map((u, index) => (
 						<StyledTableRow key={u.user.userId}>
 							<StyledTableCell align="center" style={{ fontWeight: "700", marginInline: "0", paddingInline: "0", minWidth: 0 }}>
 								{stringOfRank(index + 1)}
