@@ -14,6 +14,7 @@ This bot is created and designed by myself.
 
 -   NodeJS 18.0.0 or higher
 -   MariaDB 10.5.12 or higher
+-   ffmpeg 4.4.1 or higher
 
 ## Installation
 
