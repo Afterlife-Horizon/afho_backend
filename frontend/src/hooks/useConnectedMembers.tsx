@@ -20,7 +20,8 @@ const useConnectedMembers = (): UseQueryResult<users, Error> => {
 	return useQuery({
 		queryKey: ["connectedMembers", "all"],
 		queryFn: () => getConnectedMembers(),
-		refetchInterval: 2000
+		refetchInterval: 2000,
+		select: data => data.data
 	})
 }
 
