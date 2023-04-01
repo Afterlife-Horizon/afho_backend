@@ -65,7 +65,7 @@ const Music = (props: any) => {
 				cover_src: queue.tracks[0].thumbnail.url
 			})
 			setIsPaused(queue.paused)
-			setQueue([])
+			setQueue(queue.tracks)
 			setSongProgress(Math.floor(100 * (fetchInfo.prog / queue.tracks[0].duration)))
 			setHasChanged(queue.filtersChanged)
 			tmpIsRequester = user?.user_metadata.full_name === queue.tracks[0].requester
