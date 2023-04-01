@@ -305,7 +305,7 @@ const Queue = () => {
 				page: {page} / {maxPage === -1 ? 1 : maxPage}
 			</div>
 			<ul>
-				{queue.slice((page - 1) * 5 + 1, page * 5 + 1).map((track: any) => {
+				{queue.slice((page - 1) * 5 + 1, page * 5 + 1).map(track => {
 					j++
 					return (
 						<li className="queue-item" key={"queuedSong" + String((page - 1) * 5 + j)}>
@@ -325,7 +325,7 @@ const Queue = () => {
 									<a href={"https://www.youtube.com/watch?v=" + track.id} target="_blank" rel="noopener noreferrer">
 										{"  " + track.title}
 									</a>
-									<div className="requesterdiv">Requested by: {track.requester}</div>
+									<div className="requesterdiv">Requested by: {`${track.requester.username}#${track.requester.tag}`}</div>
 								</div>
 							</div>
 

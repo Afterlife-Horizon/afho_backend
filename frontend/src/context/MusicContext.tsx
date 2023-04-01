@@ -38,7 +38,7 @@ const MusicContext = createContext<IMusicContext>({
 	song: {
 		name: "None",
 		artist: "",
-		requester: "None",
+		requester: null,
 		filters: {
 			bassboost: 0,
 			subboost: false,

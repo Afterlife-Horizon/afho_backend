@@ -45,7 +45,7 @@ const Music = (props: any) => {
 	const [song, setSong] = useState<song>({
 		name: "None",
 		artist: "",
-		requester: "None",
+		requester: null,
 		filters: {
 			bassboost: 0,
 			subboost: false,
@@ -102,7 +102,7 @@ const Music = (props: any) => {
 			setSong({
 				name: "None",
 				artist: "",
-				requester: "None",
+				requester: null,
 				filters: {
 					bassboost: 0,
 					subboost: false,

@@ -41,7 +41,7 @@ type discordUser = {
 type song = {
 	name: string
 	artist: string
-	requester: string
+	requester: discordUser | null
 	filters: {
 		bassboost: number
 		subboost: boolean
@@ -118,7 +118,7 @@ type track = {
 	live: boolean
 	nsfw: string
 	private: boolean
-	requester: string
+	requester: discordUser
 	thumbnail: thumbnail
 	title: string
 	shorts: boolean
