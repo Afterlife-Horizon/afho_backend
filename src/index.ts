@@ -101,6 +101,11 @@ if (process.env.METHOD) {
 if (!process.env.METHOD) {
 	const expressClient = new ExpressClient(client)
 
+	const httpServer = http.createServer(expressClient.app)
+	httpServer.listen(8080, () => {
+		console.log("HTTP Server running on port 8080")
+	})
+
 	if (environement.cert && environement.certKey) {
 		const credentials = {
 			key: fs.readFileSync(environement.certKey),
@@ -109,11 +114,6 @@ if (!process.env.METHOD) {
 		const httpsServer = https.createServer(credentials, expressClient.app)
 		httpsServer.listen(8443, () => {
 			console.log("HTTPS Server running on port 8443")
-		})
-	} else {
-		const httpServer = http.createServer(expressClient.app)
-		httpServer.listen(8080, () => {
-			console.log("HTTP Server running on port 8080")
 		})
 	}
 
