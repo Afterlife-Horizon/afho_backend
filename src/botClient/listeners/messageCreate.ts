@@ -8,7 +8,7 @@ export default function (client: BotClient) {
 	return client.on("messageCreate", async message => {
 		if (message.author.bot) return
 
-		const level = client.prisma.bot_levels.upsert({
+		await client.prisma.bot_levels.upsert({
 			where: {
 				id: message.author.id
 			},
@@ -22,7 +22,6 @@ export default function (client: BotClient) {
 				username: message.author.username,
 				xp: 1
 			}
-		}).catch(err => console.error(err))
-		console.log(level)
+		})
 	})
 }
