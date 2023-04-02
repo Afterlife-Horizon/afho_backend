@@ -5,7 +5,7 @@ import BotClient from "../../../botClient/BotClient"
 import { IQueue } from "../../../types"
 
 export default async function play(client: BotClient, user: string, songs: string) {
-	const guild = client.guilds.cache.find(g => g.name === client.config.serverName)
+	const guild = client.guilds.cache.get(client.config.serverId)
 	const connectedMembers = guild?.members.cache.filter(member => member.voice.channel)
 	const requester = connectedMembers?.find(member => member.user.username === user)
 

@@ -56,6 +56,7 @@ export interface IFilters {
 }
 
 export interface IFavorite {
+	id: string
 	name: any
 	url: any
 	thumbnail: any

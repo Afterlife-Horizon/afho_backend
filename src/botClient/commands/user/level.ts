@@ -1,7 +1,10 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js"
 import getLevelFromXp from "../../../functions/getLevelFromXp"
 import BotClient from "../../BotClient"
+import { PrismaClient } from "@prisma/client"
 require("dotenv").config()
+
+const prisma = new PrismaClient()
 
 export default (client: BotClient) => {
 	return {
@@ -14,26 +17,19 @@ export default (client: BotClient) => {
 				const messageMember = interaction.options.getString("member")
 				const memberid = messageMember.replace(/\D/g, "")
 
-				client.dbClient.selectFromDB("SELECT xp FROM bot_levels WHERE id = ?", [memberid], (err, rows) => {
-					if (err != null) {
-						console.log(err)
-						interaction.reply({ content: "There was an error while executing this command!", ephemeral: true })
-					} else if (rows.length > 0) {
-						const embed = new EmbedBuilder()
-							.setTitle(`Level of ${messageMember}`)
-							.setDescription(`Level: ${getLevelFromXp(rows[0].xp)}\nXP: ${rows[0].xp}`)
-							.setColor(0x00ae86)
-							.setTimestamp()
-						interaction.reply({ embeds: [embed] })
-					} else {
-						const embed = new EmbedBuilder()
-							.setTitle(`Level of ${messageMember}`)
-							.setDescription(`Level: 0\nXP: 0`)
-							.setColor(0x00ae86)
-							.setTimestamp()
-						interaction.reply({ embeds: [embed] })
+				const row = await prisma.bot_levels.findUnique({
+					where: {
+						id: memberid
 					}
 				})
+
+				if (!row) return interaction.reply({ content: `❌ Member not found!` })
+				const embed = new EmbedBuilder()
+					.setTitle(`Level of ${messageMember}`)
+					.setDescription(`Level: ${getLevelFromXp(row[0].xp)}\nXP: ${row[0].xp}`)
+					.setColor(0x00ae86)
+					.setTimestamp()
+				await interaction.reply({ embeds: [embed] })
 			} catch (err) {
 				console.error(err)
 				await interaction.reply({ content: `❌ An error occured!` })

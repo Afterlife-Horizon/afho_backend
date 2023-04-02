@@ -213,7 +213,7 @@ const NowplayingCard: React.FC = () => {
 			</div>
 			<Card
 				className="nowplaying-card"
-				cover={<img className="nowplaying-img" alt="example" src={song.cover_src} />}
+				cover={<img className="nowplaying-img" alt="" src={song.cover_src} />}
 				actions={[
 					<button disabled={!user?.isAdmin} className="next" onClick={handleDisconnectClicked}>
 						{isDisconnecting ? <div className="small-spinner"></div> : "DISCONNECT"}

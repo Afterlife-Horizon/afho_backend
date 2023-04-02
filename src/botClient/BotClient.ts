@@ -4,7 +4,6 @@ import {
 	CreateVoiceConnectionOptions,
 	JoinVoiceChannelOptions,
 	NoSubscriberBehavior,
-	StreamType,
 	VoiceConnectionStatus,
 	createAudioPlayer,
 	createAudioResource,
@@ -22,14 +21,12 @@ import FFmpeg from "fluent-ffmpeg"
 import interactionCreate from "./listeners/interactionCreate"
 import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
-import DBClient from "../DB/DBClient"
 import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
 import { PassThrough } from "node:stream"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
-	public dbClient: DBClient
 	public config: {
 		token: string
 		clientID: string
@@ -37,7 +34,7 @@ export default class BotClient extends Client {
 		baseChannelId: string
 		openaiKey?: string
 		YOUTUBE_LOGIN_COOKIE?: string
-		serverName: string
+		serverId: string
 		adminRoleId: string
 		supabaseUrl: string
 		supabaseKey: string
@@ -59,7 +56,7 @@ export default class BotClient extends Client {
 			baseChannelId: process.env.BASE_CHANNEL_ID || "",
 			openaiKey: process.env.OPENAI_KEY,
 			YOUTUBE_LOGIN_COOKIE: process.env.YOUTUBE_LOGIN_COOKIE,
-			serverName: process.env.SERVER_NAME || "",
+			serverId: process.env.SERVER_ID || "",
 			adminRoleId: process.env.ADMIN_ROLE_ID || "",
 			supabaseUrl: process.env.SUPABASE_URL || "",
 			supabaseKey: process.env.SUPABASE_KEY || ""
@@ -71,7 +68,6 @@ export default class BotClient extends Client {
 		this.initCommands()
 		this.initListeners()
 		this.currentChannel = null
-		this.dbClient = new DBClient()
 		this.supabaseClient = createClient(this.config.supabaseUrl, this.config.supabaseKey)
 	}
 

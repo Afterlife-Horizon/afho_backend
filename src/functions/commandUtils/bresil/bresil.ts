@@ -1,0 +1,66 @@
+import { GuildMember, VoiceChannel } from "discord.js"
+import BotClient from "../../../botClient/BotClient"
+import { PrismaClient } from "@prisma/client"
+
+const prisma = new PrismaClient()
+
+export default async function bresil(client: BotClient, mover: GuildMember, moved: GuildMember) {
+	const brasilChannelId = client.config.brasilChannelId
+	const guild = client.guilds.cache.get(client.config.serverId)
+	if (!guild) return { status: 406, error: "Guild not found!" }
+
+	const voiceChannel = mover.voice
+	const movedVoiceChannel = moved.voice
+
+	if (!voiceChannel) return { status: 406, error: "You are not in a channel!" }
+	if (!movedVoiceChannel) return { status: 406, error: "The user you want to move is not in a channel!" }
+	if (voiceChannel.id !== movedVoiceChannel.id) return { status: 406, error: "You are not in the same channel!" }
+	if (movedVoiceChannel.id === brasilChannelId) return { status: 406, error: "You cannot bresil someone already in bresil!" }
+
+	const movedUser = await prisma.bot_bresil.upsert({
+		where: {
+			id: moved.user.id
+		},
+		update: {
+			bresil_received: {
+				increment: 1
+			}
+		},
+		create: {
+			id: moved.user.id,
+			username: moved.user.username,
+			bresil_received: 1,
+			bresil_sent: 0
+		}
+	})
+
+	const moverUser = await prisma.bot_bresil.upsert({
+		where: {
+			id: mover.user.id
+		},
+		update: {
+			bresil_sent: {
+				increment: 1
+			}
+		},
+		create: {
+			id: mover.user.id,
+			username: mover.user.username,
+			bresil_received: 0,
+			bresil_sent: 1
+		}
+	})
+	prisma.$disconnect()
+
+	const moveCount = movedUser.bresil_received
+	const moverCount = moverUser.bresil_sent
+
+	const brasilChannel = client.channels.cache.get(brasilChannelId) as VoiceChannel
+	await moved.voice.setChannel(brasilChannel)
+	return {
+		status: 200,
+		message: `You have moved ${moved.user.username} to the brasil channel! You have moved ${moveCount} people and have been moved ${moverCount} times!`,
+		moverCount,
+		moveCount
+	}
+}

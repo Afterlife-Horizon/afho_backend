@@ -144,6 +144,7 @@ type queueItem = {
 }
 
 type fav = {
+	id: string
 	name: string
 	url: string
 	thumbnail: string

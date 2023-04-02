@@ -1,6 +1,6 @@
 import express = require("express")
-import { APIBresil, Bresil } from "../../../types"
 import BotClient from "../../../botClient/BotClient"
+import { PrismaClient } from "@prisma/client"
 const router = express.Router()
 
 function compareData(count1, count2) {
@@ -9,32 +9,17 @@ function compareData(count1, count2) {
 	return 0
 }
 
+const prisma = new PrismaClient()
+
 export default function (client: BotClient) {
 	return router.get("/", async (_, res) => {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		try {
-			const ids: string[] = []
-			const bresils: Bresil[] = []
-			client.dbClient.selectFromDB("SELECT * FROM bot_bresil", [], (err, rows) => {
-				if (err) {
-					console.error(err)
-				} else if (rows.length > 0) {
-					rows.forEach((row: APIBresil) => {
-						ids.push(row.id)
-						bresils.push({
-							id: row.id,
-							bresil_received: row.bresil_received,
-							bresil_sent: row.bresil_sent
-						})
-					})
-				}
-			})
+			const bresils = await prisma.bot_bresil.findMany()
 
-			const guild = client.guilds.cache.find(g => g.name === client.config.serverName)
+			const guild = client.guilds.cache.get(client.config.serverId)
 
 			if (!guild) return res.status(406).json({ error: "Guild not found!" })
-
-			await guild.members.fetch()
 
 			const sendData = bresils.map(bresil => {
 				const member = guild.members.cache.find(mem => mem.user.id === bresil.id)

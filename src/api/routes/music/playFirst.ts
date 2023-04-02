@@ -18,7 +18,7 @@ export default function (client: BotClient) {
 		if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
 		try {
-			const guild = client.guilds.cache.find(g => g.name === client.config.serverName)
+			const guild = client.guilds.cache.get(client.config.serverId)
 			if (!guild) return res.status(406).send("Guild not found!")
 			const connectedMembers = guild.members.cache.filter(member => member.voice.channel)
 			const requester = connectedMembers.find(member => member.user.username === user.data.user?.user_metadata.full_name)

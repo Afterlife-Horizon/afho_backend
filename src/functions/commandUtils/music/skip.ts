@@ -2,7 +2,7 @@ import { getVoiceConnection, VoiceConnectionReadyState } from "@discordjs/voice"
 import BotClient from "../../../botClient/BotClient"
 
 export default function skip(client: BotClient, user: string) {
-	const guild = client.guilds.cache.find(g => g.name === client.config.serverName)
+	const guild = client.guilds.cache.get(client.config.serverId)
 	const member = guild?.members.cache.find(m => m.user.username === user)
 	if (!member || !guild) return { status: 500, error: "👎 **Something went wrong**" }
 	if (!member.voice.channelId) return { status: 406, error: "👎 **Please join a Voice-Channel first!**" }
