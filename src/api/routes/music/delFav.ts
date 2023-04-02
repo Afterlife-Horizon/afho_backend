@@ -1,10 +1,7 @@
 import express = require("express")
 import BotClient from "../../../botClient/BotClient"
 import { IFavorite } from "../../../types"
-import { PrismaClient } from "@prisma/client"
 const router = express.Router()
-
-const prisma = new PrismaClient()
 
 export default function delFav(client: BotClient) {
 	return router.delete("/", async (req, res) => {
@@ -28,7 +25,7 @@ export default function delFav(client: BotClient) {
 			if (!userId) return res.status(400).json({ error: "No userId" })
 			if (!name) return res.status(400).json({ error: "No song name" })
 
-			await prisma.bot_favorites.delete({
+			await client.prisma.bot_favorites.delete({
 				where: {
 					id_user_id: {
 						id: name,

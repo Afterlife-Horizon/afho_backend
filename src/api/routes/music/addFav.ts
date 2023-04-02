@@ -3,9 +3,6 @@ const router = express.Router()
 import { Playlist, Video, default as YouTube } from "youtube-sr"
 import BotClient from "../../../botClient/BotClient"
 import { IFavorite } from "../../../types"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
@@ -44,7 +41,7 @@ export default function (client: BotClient) {
 			else vid = await YouTube.searchOne(url)
 			if (!vid) return res.status(400).json({ error: "No video found" })
 
-			const newFav = await prisma.bot_favorites.create({
+			const newFav = await client.prisma.bot_favorites.create({
 				data: {
 					id: vid.id ? vid.id : "",
 					user_id: userId,
@@ -53,7 +50,6 @@ export default function (client: BotClient) {
 					thumbnail: vid.thumbnail?.url ? vid.thumbnail?.url : ""
 				}
 			})
-			prisma.$disconnect()
 
 			const favs: IFavorite[] = client.favs[req.body.userId] || []
 			favs.push({

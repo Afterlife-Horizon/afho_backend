@@ -1,8 +1,5 @@
 import { GuildMember, VoiceChannel } from "discord.js"
 import BotClient from "../../../botClient/BotClient"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
 
 export default async function bresil(client: BotClient, mover: GuildMember, moved: GuildMember) {
 	const brasilChannelId = client.config.brasilChannelId
@@ -17,7 +14,7 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 	if (voiceChannel.id !== movedVoiceChannel.id) return { status: 406, error: "You are not in the same channel!" }
 	if (movedVoiceChannel.id === brasilChannelId) return { status: 406, error: "You cannot bresil someone already in bresil!" }
 
-	const movedUser = await prisma.bot_bresil.upsert({
+	const movedUser = await client.prisma.bot_bresil.upsert({
 		where: {
 			id: moved.user.id
 		},
@@ -34,7 +31,7 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 		}
 	})
 
-	const moverUser = await prisma.bot_bresil.upsert({
+	const moverUser = await client.prisma.bot_bresil.upsert({
 		where: {
 			id: mover.user.id
 		},
@@ -50,7 +47,6 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 			bresil_sent: 1
 		}
 	})
-	prisma.$disconnect()
 
 	const moveCount = movedUser.bresil_received
 	const moverCount = moverUser.bresil_sent

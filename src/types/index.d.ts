@@ -3,6 +3,21 @@ import { Thumbnail, Video } from "youtube-sr"
 import BotClient from "../botClient/BotClient"
 import { AudioResource } from "@discordjs/voice"
 
+export interface IEnv {
+	token: string
+	clientID: string
+	brasilChannelID: string
+	baseChannelID: string
+	serverID: string
+	adminRoleID: string
+	supabaseURL: string
+	supabaseKey: string
+	cert?: string
+	certKey?: string
+	openAIKey?: string
+	youtubeCookie?: string
+}
+
 export interface IESong extends Video {
 	id: string
 	requester: User

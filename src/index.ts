@@ -1,10 +1,11 @@
-import { ActivityType, ClientOptions, GatewayIntentBits, Partials, REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from "discord.js"
+import { ClientOptions, GatewayIntentBits, Partials, REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from "discord.js"
 import BotClient from "./botClient/BotClient"
 import ExpressClient from "./api/ExpressClient"
 import http from "http"
 import https from "https"
 import fs from "node:fs"
 import { exit } from "process"
+import { IEnv } from "./types"
 
 // Check for .env file
 if (!fs.existsSync(".env")) throw new Error("No .env file found, creating one...")
@@ -25,6 +26,21 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 	if (!process.env.CERT || !process.env.CERT_KEY) console.log("No HTTPS certificate found, using HTTP instead...")
 	if (!process.env.OPENAI_KEY) console.log("No OpenAI key found, not using OpenAI API")
 }
+
+const environement = {
+	token: process.env.TOKEN,
+	clientID: process.env.CLIENT_ID,
+	brasilChannelID: process.env.BRASIL_CHANNEL_ID,
+	baseChannelID: process.env.BASE_CHANNEL_ID,
+	serverID: process.env.SERVER_ID,
+	adminRoleID: process.env.ADMIN_ROLE_ID,
+	supabaseURL: process.env.SUPABASE_URL,
+	supabaseKey: process.env.SUPABASE_KEY,
+	cert: process.env.CERT,
+	certKey: process.env.CERT_KEY,
+	openAIKey: process.env.OPENAI_KEY,
+	youtubeCookie: process.env.YOUTUBE_LOGIN_COOKIE
+} as IEnv
 
 const options = {
 	presence: {
@@ -47,7 +63,7 @@ const options = {
 	shards: "auto"
 } as ClientOptions
 
-const client = new BotClient(options)
+const client = new BotClient(options, environement)
 
 client.once("ready", () => {
 	console.log("logged in as: " + client.user?.tag)
@@ -85,24 +101,23 @@ if (process.env.METHOD) {
 if (!process.env.METHOD) {
 	const expressClient = new ExpressClient(client)
 
-	const httpServer = http.createServer(expressClient.app)
-	httpServer.listen(8080, () => {
-		console.log("HTTP Server running on port 8080")
-	})
-
-	if (process.env.CERT && process.env.CERT_KEY) {
+	if (environement.cert && environement.certKey) {
 		const credentials = {
-			key: fs.readFileSync(process.env.CERT_KEY),
-			cert: fs.readFileSync(process.env.CERT)
+			key: fs.readFileSync(environement.certKey),
+			cert: fs.readFileSync(environement.cert)
 		}
 		const httpsServer = https.createServer(credentials, expressClient.app)
 		httpsServer.listen(8443, () => {
 			console.log("HTTPS Server running on port 8443")
 		})
+	} else {
+		const httpServer = http.createServer(expressClient.app)
+		httpServer.listen(8080, () => {
+			console.log("HTTP Server running on port 8080")
+		})
 	}
 
 	// --------- Loging in bot ---------
-	if (!client.config.token || client.config.token === "") throw new Error("No token provided")
 	client.login(client.config.token).catch(err => {
 		console.error(err)
 		exit(1)

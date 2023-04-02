@@ -13,7 +13,7 @@ import {
 } from "@discordjs/voice"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
 import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
-import { ICommand, IQueue, IESong, IFavorite } from "../types"
+import { ICommand, IQueue, IESong, IFavorite, IEnv } from "../types"
 import fs from "node:fs"
 import path from "node:path"
 import FFmpeg from "fluent-ffmpeg"
@@ -24,20 +24,22 @@ import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
 import { PassThrough } from "node:stream"
+import { PrismaClient } from "@prisma/client"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
+	public prisma: PrismaClient
 	public config: {
 		token: string
 		clientID: string
 		brasilChannelId: string
 		baseChannelId: string
-		openaiKey?: string
-		YOUTUBE_LOGIN_COOKIE?: string
 		serverId: string
 		adminRoleId: string
 		supabaseUrl: string
 		supabaseKey: string
+		openaiKey?: string
+		YOUTUBE_LOGIN_COOKIE?: string
 	}
 	public commands: Map<string, ICommand>
 	public queues: Map<string, IQueue>
@@ -47,20 +49,21 @@ export default class BotClient extends Client {
 	public stream?: FFmpeg.FfmpegCommand
 	public supabaseClient: SupabaseClient<any, "public", any>
 
-	constructor(options: ClientOptions) {
+	constructor(options: ClientOptions, environment: IEnv) {
 		super(options)
 		this.config = {
-			token: process.env.TOKEN || "",
-			clientID: process.env.CLIENT_ID || "",
-			brasilChannelId: process.env.BRASIL_CHANNEL_ID || "",
-			baseChannelId: process.env.BASE_CHANNEL_ID || "",
-			openaiKey: process.env.OPENAI_KEY,
-			YOUTUBE_LOGIN_COOKIE: process.env.YOUTUBE_LOGIN_COOKIE,
-			serverId: process.env.SERVER_ID || "",
-			adminRoleId: process.env.ADMIN_ROLE_ID || "",
-			supabaseUrl: process.env.SUPABASE_URL || "",
-			supabaseKey: process.env.SUPABASE_KEY || ""
+			token: environment.token,
+			clientID: environment.clientID,
+			brasilChannelId: environment.brasilChannelID,
+			baseChannelId: environment.baseChannelID,
+			serverId: environment.serverID,
+			adminRoleId: environment.adminRoleID,
+			supabaseUrl: environment.supabaseURL,
+			supabaseKey: environment.supabaseKey,
+			openaiKey: environment.openAIKey,
+			YOUTUBE_LOGIN_COOKIE: environment.youtubeCookie
 		}
+		this.prisma = new PrismaClient()
 		this.commands = new Collection()
 		this.queues = new Collection()
 		this.favs = new Collection()

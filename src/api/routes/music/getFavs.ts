@@ -1,10 +1,7 @@
 import express = require("express")
 import BotClient from "../../../botClient/BotClient"
 import { IFavorite } from "../../../types"
-import { PrismaClient } from "@prisma/client"
 const router = express.Router()
-
-const prisma = new PrismaClient()
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
@@ -24,7 +21,7 @@ export default function (client: BotClient) {
 
 			const userId = member.user.id
 
-			const favorites: IFavorite[] = await prisma.bot_favorites.findMany({
+			const favorites: IFavorite[] = await client.prisma.bot_favorites.findMany({
 				where: {
 					user_id: userId
 				}
