@@ -213,13 +213,7 @@ const NowplayingCard: React.FC = () => {
 			</div>
 			<Card
 				className="nowplaying-card"
-				cover={
-					song.cover_src === "https://freesvg.org/img/aiga_waiting_room_bg.png" ? (
-						<img className="nowplaying-img" style={{ maxWidth: "15rem" }} alt="example" src={song.cover_src} />
-					) : (
-						<img className="nowplaying-img" alt="example" src={song.cover_src} />
-					)
-				}
+				cover={<img className="nowplaying-img" alt="example" src={song.cover_src} />}
 				actions={[
 					<button disabled={!user?.isAdmin} className="next" onClick={handleDisconnectClicked}>
 						{isDisconnecting ? <div className="small-spinner"></div> : "DISCONNECT"}

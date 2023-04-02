@@ -28,5 +28,5 @@ export const defaultSong = {
 	url: "",
 	formatedprog: "00:00",
 	duration: "00:00",
-	cover_src: "https://freesvg.org/img/aiga_waiting_room_bg.png"
+	cover_src: "https://cdn.tosavealife.com/wp-content/uploads/2018/05/Waiting-Memes-52918.jpg"
 } as song
