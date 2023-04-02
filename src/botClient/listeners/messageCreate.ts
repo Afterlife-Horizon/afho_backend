@@ -6,10 +6,9 @@ require("dotenv").config()
 
 export default function (client: BotClient) {
 	return client.on("messageCreate", async message => {
-		console.log(message)
 		if (message.author.bot) return
 
-		client.prisma.bot_levels.upsert({
+		const level = client.prisma.bot_levels.upsert({
 			where: {
 				id: message.author.id
 			},
@@ -24,5 +23,6 @@ export default function (client: BotClient) {
 				xp: 1
 			}
 		})
+		console.log(level)
 	})
 }
