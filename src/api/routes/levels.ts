@@ -19,6 +19,8 @@ export default function levels(client: BotClient) {
 			const guild = client.guilds.cache.get(client.config.serverId)
 			if (!guild) return res.status(500).json({ error: "Internal error" })
 
+			await guild.members.fetch()
+
 			const sendData = rows.map(row => {
 				const level = getLevelFromXp(row.xp)
 				const member = guild.members.cache.find(mem => mem.user.id === row.id)

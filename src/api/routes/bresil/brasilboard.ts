@@ -21,6 +21,8 @@ export default function (client: BotClient) {
 
 			if (!guild) return res.status(406).json({ error: "Guild not found!" })
 
+			await guild.members.fetch()
+
 			const sendData = bresils.map(bresil => {
 				const member = guild.members.cache.find(mem => mem.user.id === bresil.id)
 				return {
