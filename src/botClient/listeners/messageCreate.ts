@@ -6,6 +6,7 @@ require("dotenv").config()
 
 export default function (client: BotClient) {
 	return client.on("messageCreate", async message => {
+		console.log(message)
 		if (message.author.bot) return
 		if (!message.guild) return
 
