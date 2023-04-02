@@ -22,7 +22,7 @@ export default function (client: BotClient) {
 				username: message.author.username,
 				xp: 1
 			}
-		})
+		}).catch(err => console.error(err))
 		console.log(level)
 	})
 }
