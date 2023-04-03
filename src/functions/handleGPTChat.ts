@@ -1,6 +1,13 @@
 import { Message, MessageType } from "discord.js";
 import BotClient from "../botClient/BotClient";
 import { ChatCompletionRequestMessage, Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
+import fs from 'node:fs';
+
+interface IMessageType {
+  message?: string;
+  file?: string;
+}
+
 
 let conversationLog: ChatCompletionRequestMessage[] = [];
 
@@ -37,23 +44,29 @@ export default async function handleGPTChat(client: BotClient, message: Message)
         message.reply({content: "Something went wrong!"});
       });
 
-      console.log(result?.data);
-
       if (!result || result.status !== 200) return message.reply({content: "Something went wrong!"});
       
       const messages = splitTokens(result.data.choices[0].message?.content? result.data.choices[0].message?.content : "Something went wrong!")
 
-      console.log(messages);
-
       for (let i = 0; i < messages.length; i++) {
-        await message.reply({content: messages[i]});
+
+        if (messages[i].message) {
+          await message.reply({content: messages[i].message});
+        } else if (messages[i].file) {
+          // send file to channel
+          await message.reply({files: [`./messages/${messages[i].file}`]});
+          // delete file
+          fs.rm("./messages/" + messages[i].file, (err) => {
+            if (err) console.log(err);
+          })
+        }
       }
 
 }
 
-function splitTokens(message: string) {
+function splitTokens(message: string) : IMessageType[] {
 
-  if (message.length <= 2000) return [message];
+  if (message.length <= 2000) return [{message: message}];
 
   let tokens = message.split(" ");
   const codeBlock = "```";
@@ -91,5 +104,19 @@ function splitTokens(message: string) {
     }
   }
   messages.push(tokens.join(" "));
-  return messages;
+
+  // if a message is bigger than 2000 characters, create a file
+  const returnMessages: IMessageType[] = [];
+  for (let i = 0; i < messages.length; i++) {
+    if (messages[i].length > 2000) {
+      if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
+      const fileName = `message${i}.txt`;
+      fs.writeFileSync(`./messages/${fileName}`, messages[i])
+      returnMessages.push({file: fileName});
+    } else {
+      returnMessages.push({message: messages[i]});
+    }
+  }
+
+  return returnMessages;
 }
