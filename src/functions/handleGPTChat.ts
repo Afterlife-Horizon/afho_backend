@@ -46,7 +46,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
       console.log(messages);
 
       for (let i = 0; i < messages.length; i++) {
-        await message.channel.send({content: messages[i]});
+        await message.reply({content: messages[i]});
       }
 
 }
