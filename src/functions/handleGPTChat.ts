@@ -85,12 +85,14 @@ function splitTokens(message: string): IMessageType[] {
                       messageContent = "";
                       messageCount++;
                   }
-                  messageContent += messageArray[i].split(codeBlockSelector)[0] + " ";
-                  messageArray[i] = messageArray[i].split(codeBlockSelector)[1];
+                  const split = messageArray[i].split(codeBlockSelector);
+                  messageContent += split[0] + " ";
+                  messageArray[i] = split[1] + " ";
               }
 
               returnMessages.push({message: messageContent});
-              codeBlockType = messageArray[i].replace(codeBlockSelector, "");
+              codeBlockType = messageArray[i].replace(codeBlockSelector, "").split("\n")[0];
+              codeBlockMessage = messageArray[i].replace(codeBlockSelector, "").split("\n")[1];
               messageContent = "";
               messageCount++;
           }
