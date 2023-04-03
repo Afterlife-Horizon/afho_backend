@@ -60,36 +60,37 @@ function splitTokens(message: string) {
   const codeBlock = "```";
   let charCount = 0;
   const messages: string[] = [];
-  // split message into 2000 character chunks without splitting code blocks 
+  // split message into 2000 character chunks without splitting code blocks or words
   for (let i = 0; i < tokens.length; i++) {
-    if (tokens[i].includes(codeBlock)) {
-      charCount += tokens[i].length + 1;
-      if (charCount > 0) {
-        messages.push(message.substring(0, charCount));
-        message = message.substring(charCount);
-        charCount = 0;
+    if (tokens[i].startsWith(codeBlock)) {
+      let codeBlockEnd = i;
+      for (let j = i; j < tokens.length; j++) {
+        if (tokens[j].endsWith(codeBlock)) {
+          codeBlockEnd = j;
+          break;
+        }
       }
-      const codeBlockEnd = message.indexOf(codeBlock, message.indexOf(codeBlock) + 1);
-      messages.push(message.substring(0, codeBlockEnd + 3));
-      message = message.substring(codeBlockEnd + 3);
-      i = 0;
-      continue;
-    }
-    else if (charCount + tokens[i].length + 1 > 2000) {
-      messages.push(message.substring(0, charCount));
-      message = message.substring(charCount);
-      charCount = 0;
-      i = 0;
-      continue;
-    }
-    else {
-      charCount += tokens[i].length + 1;
-    }
-
-    if (i === tokens.length - 1) {
-      messages.push(message);
+      const codeBlockMessage = tokens.slice(i, codeBlockEnd + 1).join(" ");
+      if (charCount + codeBlockMessage.length > 2000) {
+        messages.push(tokens.slice(0, i).join(" "));
+        tokens = tokens.slice(i);
+        charCount = 0;
+        i = 0;
+      } else {
+        charCount += codeBlockMessage.length;
+        i = codeBlockEnd;
+      }
+    } else {
+      if (charCount + tokens[i].length > 2000) {
+        messages.push(tokens.slice(0, i).join(" "));
+        tokens = tokens.slice(i);
+        charCount = 0;
+        i = 0;
+      } else {
+        charCount += tokens[i].length;
+      }
     }
   }
-
+  messages.push(tokens.join(" "));
   return messages;
 }
