@@ -53,12 +53,8 @@ export default async function handleGPTChat(client: BotClient, message: Message)
         if (messages[i].message) {
           await message.reply({content: messages[i].message});
         } else if (messages[i].file) {
-          // send file to channel
           await message.reply({files: [`./messages/${messages[i].file}`]});
-          // delete file
-          fs.rm("./messages/" + messages[i].file, (err) => {
-            if (err) console.log(err);
-          })
+          fs.rm("./messages/" + messages[i].file, (err) => console.log(err))
         }
       }
 }
@@ -67,65 +63,75 @@ function splitTokens(message: string) : IMessageType[] {
 
   if (message.length <= 2000) return [{message: message}];
 
-  let tokens = message.split(" ");
   const codeBlock = "```";
-  let charCount = 0;
-  const messages: string[] = [];
-  // split message into 2000 character chunks without splitting code blocks or words
-  for (let i = 0; i < tokens.length; i++) {
-    if (tokens[i].startsWith(codeBlock)) {
-      let codeBlockEnd = i;
-      for (let j = i; j < tokens.length; j++) {
-        if (tokens[j].endsWith(codeBlock)) {
-          codeBlockEnd = j;
-          break;
-        }
-      }
-      const codeBlockMessage = tokens.slice(i, codeBlockEnd + 1).join(" ");
-      if (charCount + codeBlockMessage.length > 2000) {
-        messages.push(tokens.slice(0, i).join(" "));
-        tokens = tokens.slice(i);
-        charCount = 0;
-        i = 0;
-      } else {
-        charCount += codeBlockMessage.length;
-        i = codeBlockEnd;
-      }
-    } else {
-      if (charCount + tokens[i].length > 2000) {
-        messages.push(tokens.slice(0, i).join(" "));
-        tokens = tokens.slice(i);
-        charCount = 0;
-        i = 0;
-      } else {
-        charCount += tokens[i].length;
-      }
-    }
-  }
-  messages.push(tokens.join(" "));
+  // let charCount = 0;
+  // const messages: string[] = [];
+  // // split message into 2000 character chunks without splitting code blocks or words
+  // for (let i = 0; i < tokens.length; i++) {
+  //   if (tokens[i].startsWith(codeBlock)) {
+  //     let codeBlockEnd = i;
+  //     for (let j = i; j < tokens.length; j++) {
+  //       if (tokens[j].endsWith(codeBlock)) {
+  //         codeBlockEnd = j;
+  //         break;
+  //       }
+  //     }
+  //     const codeBlockMessage = tokens.slice(i, codeBlockEnd + 1).join(" ");
+  //     if (charCount + codeBlockMessage.length > 2000) {
+  //       messages.push(tokens.slice(0, i).join(" "));
+  //       tokens = tokens.slice(i);
+  //       charCount = 0;
+  //       i = 0;
+  //     } else {
+  //       charCount += codeBlockMessage.length;
+  //       i = codeBlockEnd;
+  //     }
+  //   } else {
+  //     if (charCount + tokens[i].length > 2000) {
+  //       messages.push(tokens.slice(0, i).join(" "));
+  //       tokens = tokens.slice(i);
+  //       charCount = 0;
+  //       i = 0;
+  //     } else {
+  //       charCount += tokens[i].length;
+  //     }
+  //   }
+  // }
+  // messages.push(tokens.join(" "));
 
   // if a message is bigger than 2000 characters, create a file
   const returnMessages: IMessageType[] = [];
 
-  let isFile = false;
-  for (let i = 0; i < messages.length; i++) {
-    if (messages[i].length > 2000) {
-      isFile = true;
-    }
-  }
+  // if a message is bigger than 2000 characters, create a file containing codeBlocks and add it to returnMessages
+  // if it is text only add it to returnMessages
 
-  if (isFile) {
-    if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
-    // remove codeBlock tags from messages
-    for (let i = 0; i < messages.length; i++) {
-      messages[i] = messages[i].replace(/```/g, "");
+  const codeBlocks: string[] = [];
+  const text: string[] = [];
+  const tokens = message.split(" ");
+  for (let j = 0; j < tokens.length; j++) {
+    if (tokens[j].startsWith(codeBlock)) {
+
+      let codeBlockEnd = j;
+      for (let k = j; k < tokens.length; k++) {
+        if (tokens[k].endsWith(codeBlock)) {
+          codeBlockEnd = k;
+          break;
+        }
+      }
+      const codeBlockMessage = tokens.slice(j, codeBlockEnd + 1).join(" ");
+      codeBlocks.push(codeBlockMessage);
+      j = codeBlockEnd;
+    } else {
+      text.push(tokens[j]);
     }
-    fs.writeFileSync(`./messages/message.txt`, messages.join(" "));
-    returnMessages.push({file: "message.txt"});
   }
-  else {
-    for (let i = 0; i < messages.length; i++) {
-      returnMessages.push({message: messages[i]});
+  if (text.length > 0) {
+    returnMessages.push({message: text.join(" ")});
+  }
+  if (codeBlocks.length > 0) {
+    for (let i = 0; i < codeBlocks.length; i++) {
+      fs.writeFile(`./messages/codeBlock${i}.txt`, codeBlocks[i], (err) => console.log(err))
+      returnMessages.push({file: `codeBlock${i}.txt`});
     }
   }
 
