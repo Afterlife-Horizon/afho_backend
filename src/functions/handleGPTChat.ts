@@ -1,8 +1,8 @@
 import { Message } from "discord.js";
 import BotClient from "../botClient/BotClient";
-import { Configuration, OpenAIApi } from 'openai';
+import { ChatCompletionRequestMessage, Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
 
-let conversationLog = [{"role": "user", "content": "Say this is a test!"}];
+let conversationLog: ChatCompletionRequestMessage[] = [{"role": "user", "content": "Say this is a test!"}];
 
 export default async function handleGPTChat(client: BotClient, message: Message) {
     if (!client.config.gptChatChannel || !client.config.openaiKey) return;
@@ -19,28 +19,24 @@ export default async function handleGPTChat(client: BotClient, message: Message)
       prevMessages.reverse();
 
       prevMessages.forEach((msg: Message) => {
-        if (message.content.startsWith('!')) return;
         if (msg.author.id !== client.user?.id && message.author.bot) return;
         if (msg.author.id !== message.author.id) return;
   
         conversationLog.push({"role": "user", "content": msg.content});
       });
 
-      console.log(conversationLog)
-
-      const result = await openai
-      .createCompletion({
+      const request: CreateChatCompletionRequest = {
         model: 'gpt-3.5-turbo',
-        prompt: conversationLog,
-        max_tokens: 256, // limit token usage
-      })
-      .catch((error) => {
-        console.log(`OPENAI ERR: ${error}`);
-        message.reply({content: 'Something went wrong with OpenAI, please try again later.'});
+        messages: conversationLog,
+      };
+
+
+      const result = await openai.createChatCompletion(request).catch((err) => {
+        console.log(err);
+        message.reply({content: "Something went wrong!"});
       });
-      
 
-      if (!result) return;
+      if (!result || result.status !== 200) return;
 
-      message.reply({content: result.data.choices[0].text});
+      message.reply({content: result.data.choices[0].message?.content});
 }
