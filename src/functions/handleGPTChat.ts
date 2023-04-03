@@ -98,7 +98,6 @@ function splitTokens(message: string): IMessageType[] {
       }
 
       messageContent += messageArray[i] + " ";
-      console.log(messageContent)
   }
 
   if (codeBlock) {
