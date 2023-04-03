@@ -145,8 +145,8 @@ function handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, me
 		if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
 		returnMessages.push({
 			file: {
-				name: `codeBlock${messageCount}.txt`,
-				contentType: codeBlockType
+				name: `codeBlock${messageCount}.${codeBlockType}`,
+				contentType: "text/plain"
 			}
 		})
 
