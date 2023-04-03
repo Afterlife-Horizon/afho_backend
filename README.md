@@ -17,55 +17,7 @@ This bot is created and designed by myself.
 
 1.  Create a mariaDB database using the tables:
 
-    1. Bresil table:
-
-        ```sql
-        DROP TABLE IF EXISTS `bot_bresil`;
-        /*!40101 SET @saved_cs_client     = @@character_set_client */;
-        /*!40101 SET character_set_client = utf8 */;
-        CREATE TABLE `bot_bresil`(
-        `id` varchar(255) NOT NULL,
-        `username` varchar(255) NOT NULL,
-        `bresil_received` int(11) NOT NULL DEFAULT 0,
-        `bresil_sent` int(11) NOT NULL DEFAULT 0,
-        PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        /_!40101 SET character_set_client = @saved_cs_client _/;
-        ```
-
-    2. Favorites table:
-
-        ```sql
-        DROP TABLE IF EXISTS `bot_favorites`;
-        /*!40101 SET @saved_cs_client     = @@character_set_client */;
-        /*!40101 SET character_set_client = utf8 */;
-        CREATE TABLE `bot_favorites`(
-        `id` int(11) NOT NULL AUTO_INCREMENT,
-        `user_id` text NOT NULL,
-        `name` varchar(255) NOT NULL,
-        `url` varchar(255) NOT NULL,
-        `thumbnail` varchar(255) NOT NULL,
-        PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
-        /_!40101 SET character_set_client = @saved_cs_client _/;
-        ```
-
-    3. Levels table
-
-        ```sql
-        DROP TABLE IF EXISTS `bot_levels`;
-        /_!40101 SET @saved_cs_client = @@character_set_client _/;
-        /_!40101 SET character_set_client = utf8 _/;
-        CREATE TABLE `bot_levels` (
-        `id` varchar(255) NOT NULL,
-        `username` varchar(255) NOT NULL,
-        `xp` int(11) NOT NULL,
-        PRIMARY KEY (`id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        /_!40101 SET character_set_client = @saved_cs_client _/;
-        ```
-
-    4. Add the necessary environment variables
+    ``` npx prisma migrate dev --name init ```
 
 2.  Add certificate files for the website in:
 
