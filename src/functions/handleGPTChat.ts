@@ -61,7 +61,6 @@ export default async function handleGPTChat(client: BotClient, message: Message)
           })
         }
       }
-
 }
 
 function splitTokens(message: string) : IMessageType[] {
@@ -107,13 +106,21 @@ function splitTokens(message: string) : IMessageType[] {
 
   // if a message is bigger than 2000 characters, create a file
   const returnMessages: IMessageType[] = [];
+
+  let isFile = false;
   for (let i = 0; i < messages.length; i++) {
     if (messages[i].length > 2000) {
-      if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
-      const fileName = `message${i}.txt`;
-      fs.writeFileSync(`./messages/${fileName}`, messages[i])
-      returnMessages.push({file: fileName});
-    } else {
+      isFile = true;
+    }
+  }
+
+  if (isFile) {
+    if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
+    fs.writeFileSync(`./messages/message.txt`, messages.join(" "));
+    returnMessages.push({file: "message.txt"});
+  }
+  else {
+    for (let i = 0; i < messages.length; i++) {
       returnMessages.push({message: messages[i]});
     }
   }
