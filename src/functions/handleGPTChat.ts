@@ -37,9 +37,11 @@ export default async function handleGPTChat(client: BotClient, message: Message)
         message.reply({content: "Something went wrong!"});
       });
 
-      if (!result || result.status !== 200) return;
+      if (!result || result.status !== 200) return message.reply({content: "Something went wrong!"});
       
       const messages = splitTokens(result.data.choices[0].message?.content? result.data.choices[0].message?.content : "Something went wrong!")
+
+      console.log(messages);
 
       for (let i = 0; i < messages.length; i++) {
         await message.channel.send({content: messages[i]});
