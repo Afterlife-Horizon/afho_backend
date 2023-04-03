@@ -152,7 +152,7 @@ function handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, me
 
 		codeBlockMessage = codeBlockMessage.replace(/```/g, "")
 
-		fs.writeFile(`./messages/codeBlock${messageCount}.txt`, codeBlockMessage, err => {
+		fs.writeFile(`./messages/codeBlock${messageCount}.${codeBlockType ? codeBlockType : "txt"}`, codeBlockMessage, err => {
 			if (err) console.log(err)
 		})
 	} else {
