@@ -32,7 +32,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
       .createCompletion({
         model: 'gpt-3.5-turbo',
         prompt: conversationLog,
-        // max_tokens: 256, // limit token usage
+        max_tokens: 256, // limit token usage
       })
       .catch((error) => {
         console.log(`OPENAI ERR: ${error}`);
