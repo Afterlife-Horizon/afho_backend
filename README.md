@@ -1,7 +1,4 @@
 # Afterlife Horizon Bot Project
-
-_Discord bot designed and only used for Afterlife Horizon discord server!_
-
 This bot is created and designed by myself.
 
 ## functionalities
@@ -99,11 +96,8 @@ This bot is created and designed by myself.
         #### **`./.env`**
 
         ```bash
-        # Database variables
-        DB_ADRESS="127.0.0.1"       # adress of your database
-        DB_DATABASE=""              # name of your database
-        DB_USER="root"              # user of your database
-        DB_PASSWORD=""              # password of your database
+        
+        DATABASE_URL="mysql://user:Password@127.0.0.1:3306/myDb" # Database url, encode user, password and myDb with Percent-encoding and replace them in the string 
 
         # Discord related variables
         SERVER_NAME=""              # name of your server
@@ -117,6 +111,7 @@ This bot is created and designed by myself.
 
         # optionnal variables
         # OPENAI_KEY=               # openAi key
+        # CHAT_GPT_CHANNEL_ID=      # id of chat gpt channel
         # YOUTUBE_LOGIN_COOKIE=     # youtube cookie
 
         # add these certificate files if you want to use https
@@ -221,7 +216,7 @@ This bot is created and designed by myself.
 -   `/filters`
     Allows you to add filters to the queued songs.
 
-_There are 30 commands to look at, I advise typing /help for more information..._
+_There are more than 30 commands to look at, I advise typing /help for more information..._
 
 ## Websites
 

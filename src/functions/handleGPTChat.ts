@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { Message, MessageType } from "discord.js";
 import BotClient from "../botClient/BotClient";
 import { ChatCompletionRequestMessage, Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
 
@@ -7,6 +7,8 @@ let conversationLog: ChatCompletionRequestMessage[] = [];
 export default async function handleGPTChat(client: BotClient, message: Message) {
     if (!client.config.gptChatChannel || !client.config.openaiKey) return;
     if (message.channel.id !== client.config.gptChatChannel) return;
+
+    if (message.type === MessageType.Reply) return;
 
     const configuration = new Configuration({
         apiKey: client.config.openaiKey,
