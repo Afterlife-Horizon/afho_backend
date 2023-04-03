@@ -60,79 +60,59 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 }
 
 function splitTokens(message: string) : IMessageType[] {
-
-  if (message.length <= 2000) return [{message: message}];
-
   const codeBlock = "```";
-  // let charCount = 0;
-  // const messages: string[] = [];
-  // // split message into 2000 character chunks without splitting code blocks or words
-  // for (let i = 0; i < tokens.length; i++) {
-  //   if (tokens[i].startsWith(codeBlock)) {
-  //     let codeBlockEnd = i;
-  //     for (let j = i; j < tokens.length; j++) {
-  //       if (tokens[j].endsWith(codeBlock)) {
-  //         codeBlockEnd = j;
-  //         break;
-  //       }
-  //     }
-  //     const codeBlockMessage = tokens.slice(i, codeBlockEnd + 1).join(" ");
-  //     if (charCount + codeBlockMessage.length > 2000) {
-  //       messages.push(tokens.slice(0, i).join(" "));
-  //       tokens = tokens.slice(i);
-  //       charCount = 0;
-  //       i = 0;
-  //     } else {
-  //       charCount += codeBlockMessage.length;
-  //       i = codeBlockEnd;
-  //     }
-  //   } else {
-  //     if (charCount + tokens[i].length > 2000) {
-  //       messages.push(tokens.slice(0, i).join(" "));
-  //       tokens = tokens.slice(i);
-  //       charCount = 0;
-  //       i = 0;
-  //     } else {
-  //       charCount += tokens[i].length;
-  //     }
-  //   }
-  // }
-  // messages.push(tokens.join(" "));
-
-  // if a message is bigger than 2000 characters, create a file
   const returnMessages: IMessageType[] = [];
 
-  // if a message is bigger than 2000 characters, create a file containing codeBlocks and add it to returnMessages
+  // if a message is bigger than 4000 characters, create a file containing codeBlocks and add it to returnMessages
   // if it is text only add it to returnMessages
-
-  const codeBlocks: string[] = [];
-  const text: string[] = [];
-  const tokens = message.split(" ");
-  for (let j = 0; j < tokens.length; j++) {
-    if (tokens[j].startsWith(codeBlock)) {
-
-      let codeBlockEnd = j;
-      for (let k = j; k < tokens.length; k++) {
-        if (tokens[k].endsWith(codeBlock)) {
-          codeBlockEnd = k;
-          break;
+  if (message.length > 4000) {
+    const codeBlocks: string[] = [];
+    const text: string[] = [];
+    const tokens = message.split(" ");
+    let charCount = 0;
+    for (let i = 0; i < tokens.length; i++) {
+      if (tokens[i].startsWith(codeBlock)) {
+        let codeBlockEnd = i;
+        for (let j = i; j < tokens.length; j++) {
+          if (tokens[j].endsWith(codeBlock)) {
+            codeBlockEnd = j;
+            break;
+          }
+        }
+        const codeBlockMessage = tokens.slice(i, codeBlockEnd + 1).join(" ");
+        if (charCount + codeBlockMessage.length > 4000) {
+          text.push(tokens.slice(0, i).join(" "));
+          tokens.splice(0, i);
+          charCount = 0;
+          i = 0;
+        } else {
+          charCount += codeBlockMessage.length;
+          codeBlocks.push(codeBlockMessage);
+          i = codeBlockEnd;
+        }
+      } else {
+        if (charCount + tokens[i].length > 4000) {
+          text.push(tokens.slice(0, i).join(" "));
+          tokens.splice(0, i);
+          charCount = 0;
+          i = 0;
+        } else {
+          charCount += tokens[i].length;
+          text.push(tokens[i]);
         }
       }
-      const codeBlockMessage = tokens.slice(j, codeBlockEnd + 1).join(" ");
-      codeBlocks.push(codeBlockMessage);
-      j = codeBlockEnd;
-    } else {
-      text.push(tokens[j]);
     }
-  }
-  if (text.length > 0) {
-    returnMessages.push({message: text.join(" ")});
-  }
-  if (codeBlocks.length > 0) {
-    for (let i = 0; i < codeBlocks.length; i++) {
-      fs.writeFile(`./messages/codeBlock${i}.txt`, codeBlocks[i], (err) => console.log(err))
-      returnMessages.push({file: `codeBlock${i}.txt`});
+    text.push(tokens.join(" "));
+    if (codeBlocks.length > 0) {
+      const fileName = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + ".txt";
+      fs.writeFile("./messages/" + fileName, codeBlocks.join(" "), (err) => console.log(err));
+      returnMessages.push({file: fileName});
     }
+    if (text.length > 0) {
+      returnMessages.push({message: text.join(" ")});
+    }
+  } else {
+    returnMessages.push({message: message});
   }
 
   return returnMessages;
