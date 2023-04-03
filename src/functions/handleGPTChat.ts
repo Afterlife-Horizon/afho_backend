@@ -51,6 +51,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
       for (let i = 0; i < messages.length; i++) {
 
         if (messages[i].message) {
+          if (messages[i].message === "" || messages[i].message === " ") continue;
           await message.reply({content: messages[i].message});
         } else if (messages[i].file) {
           await message.reply({files: [`./messages/${messages[i].file}`]});
@@ -60,7 +61,6 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 }
 
 function splitTokens(message: string): IMessageType[] {
-    
   let returnMessages: IMessageType[] = [];
 
   const codeBlockSelector = "```";
@@ -75,14 +75,34 @@ function splitTokens(message: string): IMessageType[] {
   let messageArray = message.split(" ");
 
   for (let i = 0; i < messageArray.length; i++) {
-      if (messageArray[i].startsWith(codeBlockSelector)) {
+      if (messageArray[i].includes(codeBlockSelector)) {
           if (!codeBlock) {
+
+              if (!messageArray[i].startsWith(codeBlockSelector)) {
+
+                  if (messageContent.length + messageArray[i].length + 1 >= 4000) {
+                      returnMessages.push({message: messageContent});
+                      messageContent = "";
+                      messageCount++;
+                  }
+                  messageContent += messageArray[i].split(codeBlockSelector)[0] + " ";
+                  messageArray[i] = messageArray[i].split(codeBlockSelector)[1];
+              }
+
               returnMessages.push({message: messageContent});
+              codeBlockType = messageArray[i].replace(codeBlockSelector, "");
               messageContent = "";
               messageCount++;
           }
+          else {
+              if (!messageArray[i].startsWith(codeBlockSelector)) {
+                  codeBlockMessage += messageArray[i].split(codeBlockSelector)[0] + " ";
+                  messageArray[i] = messageArray[i].split(codeBlockSelector)[1];
+              }
+
+              returnMessages = handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, messageCount, codeBlockType);
+          }
           codeBlock = !codeBlock;
-          codeBlockType = messageArray[i].replace(codeBlockSelector, "");
           continue;
       }
 
@@ -96,27 +116,30 @@ function splitTokens(message: string): IMessageType[] {
           messageContent = "";
           messageCount++;
       }
-
       messageContent += messageArray[i] + " ";
   }
 
-  if (codeBlock) {
-      if (codeBlockMessage.length > 4000) {
-          if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
-          returnMessages.push({file: `codeBlock${messageCount}.txt`})
+  if (!codeBlock) returnMessages.push({message: messageContent});
+  else {
+      returnMessages = handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, messageCount, codeBlockType);
+  }
+  return returnMessages;
+}
 
-          codeBlockMessage = codeBlockMessage.replace(/```/g, "");
-  
-          fs.writeFile(`./messages/codeBlock${messageCount}.txt`, codeBlockMessage, (err) => {
-              if (err) console.log(err);
-          });
-      }
-      else {
-          returnMessages.push({message: codeBlockSelector + codeBlockType + "\n" + codeBlockMessage + codeBlockSelector});
-      }
-      
-  } else {
-      returnMessages.push({message: messageContent});
+
+function handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, messageCount, codeBlockType) {
+  if (codeBlockMessage.length > 4000) {
+      if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
+      returnMessages.push({file: `codeBlock${messageCount}.txt`})
+
+      codeBlockMessage = codeBlockMessage.replace(/```/g, "");
+
+      fs.writeFile(`./messages/codeBlock${messageCount}.txt`, codeBlockMessage, (err) => {
+          if (err) console.log(err);
+      });
+  }
+  else {
+      returnMessages.push({message: codeBlockSelector + codeBlockType + "\n" + codeBlockMessage + codeBlockSelector});
   }
 
   return returnMessages;
