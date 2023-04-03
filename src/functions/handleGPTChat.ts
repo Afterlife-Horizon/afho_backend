@@ -59,63 +59,66 @@ export default async function handleGPTChat(client: BotClient, message: Message)
       }
 }
 
-function splitTokens(message: string) : IMessageType[] {
-  const codeBlock = "```";
-  const returnMessages: IMessageType[] = [];
+function splitTokens(message: string): IMessageType[] {
+    
+  let returnMessages: IMessageType[] = [];
 
-  // if a message is bigger than 4000 characters, create a file containing codeBlocks and add it to returnMessages
-  // if it is text only add it to returnMessages
-  if (message.length >= 4000) {
-    const codeBlocks: string[] = [];
-    const text: string[] = [];
-    const tokens = message.split(" ");
-    let charCount = 0;
-    for (let i = 0; i < tokens.length; i++) {
-      if (tokens[i].startsWith(codeBlock)) {
-        let codeBlockEnd = i;
-        for (let j = i; j < tokens.length; j++) {
-          if (tokens[j].endsWith(codeBlock)) {
-            codeBlockEnd = j;
-            break;
+  const codeBlockSelector = "```";
+  
+  let codeBlock = false;
+  let codeBlockType = "";
+  let codeBlockMessage = "";
+
+  let messageCount = 0;
+  let messageContent = "";
+
+  let messageArray = message.split(" ");
+
+  for (let i = 0; i < messageArray.length; i++) {
+      if (messageArray[i].startsWith(codeBlockSelector)) {
+          if (!codeBlock) {
+              returnMessages.push({message: messageContent});
+              messageContent = "";
+              messageCount++;
           }
-        }
-        const codeBlockMessage = tokens.slice(i, codeBlockEnd + 1).join(" ");
-        if (charCount + codeBlockMessage.length > 4000) {
-          text.push(tokens.slice(0, i).join(" "));
-          tokens.splice(0, i);
-          charCount = 0;
-          i = 0;
-        } else {
-          charCount += codeBlockMessage.length;
-          codeBlocks.push(codeBlockMessage);
-          i = codeBlockEnd;
-        }
-      } else {
-        if (charCount + tokens[i].length > 4000) {
-          text.push(tokens.slice(0, i).join(" "));
-          tokens.splice(0, i);
-          charCount = 0;
-          i = 0;
-        } else {
-          charCount += tokens[i].length;
-          text.push(tokens[i]);
-        }
+          codeBlock = !codeBlock;
+          codeBlockType = messageArray[i].replace(codeBlockSelector, "");
+          continue;
       }
-    }
-    text.push(tokens.join(" "));
-    if (codeBlocks.length > 0) {
-      const fileName = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + ".txt";
-      fs.writeFile("./messages/" + fileName, codeBlocks.join(" "), (err) => console.log(err));
-      returnMessages.push({file: fileName});
-    }
-    if (text.length > 0) {
-      returnMessages.push({message: text.join(" ")});
-    }
-  } else {
-    returnMessages.push({message: message});
+
+      if (codeBlock) {
+          codeBlockMessage += messageArray[i] + " ";
+          continue;
+      }
+
+      if (messageContent.length + messageArray[i].length + 1 >= 4000) {
+          returnMessages.push({message: messageContent});
+          messageContent = "";
+          messageCount++;
+      }
+
+      messageContent += messageArray[i] + " ";
+      console.log(messageContent)
   }
 
-  console.log(returnMessages);
+  if (codeBlock) {
+      if (codeBlockMessage.length > 4000) {
+          if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
+          returnMessages.push({file: `codeBlock${messageCount}.txt`})
+
+          codeBlockMessage = codeBlockMessage.replace(/```/g, "");
+  
+          fs.writeFile(`./messages/codeBlock${messageCount}.txt`, codeBlockMessage, (err) => {
+              if (err) console.log(err);
+          });
+      }
+      else {
+          returnMessages.push({message: codeBlockSelector + codeBlockType + "\n" + codeBlockMessage + codeBlockSelector});
+      }
+      
+  } else {
+      returnMessages.push({message: messageContent});
+  }
 
   return returnMessages;
 }
