@@ -66,7 +66,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 						}
 					]
 				})
-				fs.rm("./messages/" + messages[i].file, err => console.log(err))
+				fs.rm("./messages/" + messages[i].file?.name, err => console.log(err))
 			}
 		}
 	} catch (err) {
