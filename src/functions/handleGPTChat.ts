@@ -2,7 +2,7 @@ import { Message } from "discord.js";
 import BotClient from "../botClient/BotClient";
 import { ChatCompletionRequestMessage, Configuration, CreateChatCompletionRequest, OpenAIApi } from 'openai';
 
-let conversationLog: ChatCompletionRequestMessage[] = [{"role": "user", "content": "Say this is a test!"}];
+let conversationLog: ChatCompletionRequestMessage[] = [];
 
 export default async function handleGPTChat(client: BotClient, message: Message) {
     if (!client.config.gptChatChannel || !client.config.openaiKey) return;
@@ -29,7 +29,6 @@ export default async function handleGPTChat(client: BotClient, message: Message)
         model: 'gpt-3.5-turbo',
         messages: conversationLog,
       };
-
 
       const result = await openai.createChatCompletion(request).catch((err) => {
         console.log(err);
