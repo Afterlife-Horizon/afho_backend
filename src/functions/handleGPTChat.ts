@@ -34,7 +34,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
         })
         .catch((error) => {
           console.log(`OPENAI ERR: ${error}`);
-          return message.reply({content: 'Something went wrong with OpenAI, please try again later.'});
+          message.reply({content: 'Something went wrong with OpenAI, please try again later.'});
         });
 
       if (!result) return;
