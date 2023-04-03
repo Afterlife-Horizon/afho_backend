@@ -1,3 +1,4 @@
+import handleGPTChat from "../../functions/handleGPTChat"
 import BotClient from "../BotClient"
 
 require("dotenv").config()
@@ -23,5 +24,7 @@ export default function (client: BotClient) {
 				xp: 1
 			}
 		})
+		
+		handleGPTChat(client, message)
 	})
 }

@@ -39,7 +39,8 @@ export default class BotClient extends Client {
 		supabaseUrl: string
 		supabaseKey: string
 		openaiKey?: string
-		YOUTUBE_LOGIN_COOKIE?: string
+		YOUTUBE_LOGIN_COOKIE?: string,
+		gptChatChannel?: string
 	}
 	public commands: Map<string, ICommand>
 	public queues: Map<string, IQueue>
@@ -61,7 +62,8 @@ export default class BotClient extends Client {
 			supabaseUrl: environment.supabaseURL,
 			supabaseKey: environment.supabaseKey,
 			openaiKey: environment.openAIKey,
-			YOUTUBE_LOGIN_COOKIE: environment.youtubeCookie
+			YOUTUBE_LOGIN_COOKIE: environment.youtubeCookie,
+			gptChatChannel: environment.gptChatChannel
 		}
 		this.prisma = new PrismaClient()
 		this.commands = new Collection()

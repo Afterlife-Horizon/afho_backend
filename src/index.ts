@@ -24,7 +24,7 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 	if (!process.env.ADMIN_ROLE_ID) throw new Error("No admin role ID found")
 	if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) throw new Error("No Supabase credentials found")
 	if (!process.env.CERT || !process.env.CERT_KEY) console.log("No HTTPS certificate found, using HTTP instead...")
-	if (!process.env.OPENAI_KEY) console.log("No OpenAI key found, not using OpenAI API")
+	if (!process.env.OPENAI_KEY || process.env.CHAT_GPT_CHANNEL_ID) console.log("No OpenAI key found, not using OpenAI API")
 }
 
 const environement = {
@@ -39,7 +39,8 @@ const environement = {
 	cert: process.env.CERT,
 	certKey: process.env.CERT_KEY,
 	openAIKey: process.env.OPENAI_KEY,
-	youtubeCookie: process.env.YOUTUBE_LOGIN_COOKIE
+	youtubeCookie: process.env.YOUTUBE_LOGIN_COOKIE,
+	gptChatChannel: process.env.CHAT_GPT_CHANNEL_ID
 } as IEnv
 
 const options = {

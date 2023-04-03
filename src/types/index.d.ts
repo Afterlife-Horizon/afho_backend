@@ -16,6 +16,7 @@ export interface IEnv {
 	certKey?: string
 	openAIKey?: string
 	youtubeCookie?: string
+	gptChatChannel?: string
 }
 
 export interface IESong extends Video {
