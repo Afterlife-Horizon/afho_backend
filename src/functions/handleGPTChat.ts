@@ -116,6 +116,10 @@ function splitTokens(message: string) : IMessageType[] {
 
   if (isFile) {
     if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
+    // remove codeBlock tags from messages
+    for (let i = 0; i < messages.length; i++) {
+      messages[i] = messages[i].replace(/```/g, "");
+    }
     fs.writeFileSync(`./messages/message.txt`, messages.join(" "));
     returnMessages.push({file: "message.txt"});
   }
