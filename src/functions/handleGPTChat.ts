@@ -58,7 +58,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
           await message.reply({content: messages[i].message});
         } else if (messages[i].file) {
 
-          const file = fs.readFileSync("./messages/" + messages[i].file);
+          const file = fs.readFileSync("./messages/" + messages[i].file?.name);
           await message.reply({files: [{
             name: messages[i].file?.name, 
             attachment: file, 
