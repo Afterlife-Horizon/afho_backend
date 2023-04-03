@@ -2,7 +2,7 @@ import { Message } from "discord.js";
 import BotClient from "../botClient/BotClient";
 import { Configuration, OpenAIApi } from 'openai';
 
-let conversationLog: string[] = [];
+let conversationLog: Array<string> = [];
 
 export default async function handleGPTChat(client: BotClient, message: Message) {
     if (!client.config.gptChatChannel || !client.config.openaiKey) return;
@@ -26,16 +26,19 @@ export default async function handleGPTChat(client: BotClient, message: Message)
         conversationLog.push(msg.content);
       });
 
+      console.log(conversationLog)
+
       const result = await openai
-        .createCompletion({
-          model: 'gpt-3.5-turbo',
-          prompt: conversationLog,
-          // max_tokens: 256, // limit token usage
-        })
-        .catch((error) => {
-          console.log(`OPENAI ERR: ${error}`);
-          message.reply({content: 'Something went wrong with OpenAI, please try again later.'});
-        });
+      .createCompletion({
+        model: 'gpt-3.5-turbo',
+        prompt: conversationLog,
+        // max_tokens: 256, // limit token usage
+      })
+      .catch((error) => {
+        console.log(`OPENAI ERR: ${error}`);
+        message.reply({content: 'Something went wrong with OpenAI, please try again later.'});
+      });
+      
 
       if (!result) return;
 
