@@ -48,8 +48,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
       for (let i = 0; i < messages.length; i++) {
         await message.channel.send({content: messages[i]});
       }
-      
-      message.reply({content: result.data.choices[0].message?.content});
+
 }
 
 function splitTokens(message: string) {
