@@ -80,7 +80,7 @@ function splitTokens(message: string): IMessageType[] {
 
               if (!messageArray[i].startsWith(codeBlockSelector)) {
 
-                  if (messageContent.length + messageArray[i].length + 1 >= 4000) {
+                  if (messageContent.length + messageArray[i].length + 1 >= 2000) {
                       returnMessages.push({message: messageContent});
                       messageContent = "";
                       messageCount++;
@@ -128,7 +128,7 @@ function splitTokens(message: string): IMessageType[] {
 
 
 function handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, messageCount, codeBlockType) {
-  if (codeBlockMessage.length > 4000) {
+  if (codeBlockMessage.length > 2000) {
       if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
       returnMessages.push({file: `codeBlock${messageCount}.txt`})
 
