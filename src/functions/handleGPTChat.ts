@@ -2,7 +2,7 @@ import { Message } from "discord.js";
 import BotClient from "../botClient/BotClient";
 import { Configuration, OpenAIApi } from 'openai';
 
-let conversationLog = [{ role: 'system', content: 'You are a friendly chatbot.' }];
+let conversationLog: string[] = [];
 
 export default async function handleGPTChat(client: BotClient, message: Message) {
     if (!client.config.gptChatChannel || !client.config.openaiKey) return;
@@ -23,10 +23,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
         if (msg.author.id !== client.user?.id && message.author.bot) return;
         if (msg.author.id !== message.author.id) return;
   
-        conversationLog.push({
-          role: 'user',
-          content: msg.content,
-        });
+        conversationLog.push(msg.content);
       });
 
       const result = await openai
@@ -37,6 +34,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
         })
         .catch((error) => {
           console.log(`OPENAI ERR: ${error}`);
+          return message.reply({content: 'Something went wrong with OpenAI, please try again later.'});
         });
 
       if (!result) return;
