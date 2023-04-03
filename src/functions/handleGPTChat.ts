@@ -5,7 +5,10 @@ import fs from 'node:fs';
 
 interface IMessageType {
   message?: string;
-  file?: string;
+  file?: {
+    name: string;
+    contentType: string;
+  };
 }
 
 
@@ -54,7 +57,13 @@ export default async function handleGPTChat(client: BotClient, message: Message)
           if (messages[i].message === "" || messages[i].message === " ") continue;
           await message.reply({content: messages[i].message});
         } else if (messages[i].file) {
-          await message.reply({files: [`./messages/${messages[i].file}`]});
+
+          const file = fs.readFileSync("./messages/" + messages[i].file);
+          await message.reply({files: [{
+            name: messages[i].file?.name, 
+            attachment: file, 
+            contentType: messages[i].file?.contentType
+          }]});
           fs.rm("./messages/" + messages[i].file, (err) => console.log(err))
         }
       }
@@ -132,7 +141,12 @@ function splitTokens(message: string): IMessageType[] {
 function handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, messageCount, codeBlockType) {
   if (codeBlockMessage.length > 2000) {
       if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
-      returnMessages.push({file: `codeBlock${messageCount}.txt`})
+      returnMessages.push({
+        file: {
+          name: `codeBlock${messageCount}.txt`,
+          contentType: codeBlockType
+        }
+      })
 
       codeBlockMessage = codeBlockMessage.replace(/```/g, "");
 
