@@ -17,7 +17,9 @@ This bot is created and designed by myself.
 
 1.  Create a mariaDB database using the tables:
 
-    ``` npx prisma migrate dev --name init ```
+    ```bash
+     npx prisma migrate dev --name init 
+     ```
 
 2.  Add certificate files for the website in:
 
