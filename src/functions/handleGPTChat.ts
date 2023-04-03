@@ -2,7 +2,7 @@ import { Message } from "discord.js";
 import BotClient from "../botClient/BotClient";
 import { Configuration, OpenAIApi } from 'openai';
 
-let conversationLog: Array<string> = [];
+let conversationLog = [{"role": "user", "content": "Say this is a test!"}];
 
 export default async function handleGPTChat(client: BotClient, message: Message) {
     if (!client.config.gptChatChannel || !client.config.openaiKey) return;
@@ -23,7 +23,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
         if (msg.author.id !== client.user?.id && message.author.bot) return;
         if (msg.author.id !== message.author.id) return;
   
-        conversationLog.push(msg.content);
+        conversationLog.push({"role": "user", "content": msg.content});
       });
 
       console.log(conversationLog)
