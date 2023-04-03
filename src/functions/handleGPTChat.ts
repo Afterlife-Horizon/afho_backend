@@ -65,7 +65,7 @@ function splitTokens(message: string) : IMessageType[] {
 
   // if a message is bigger than 4000 characters, create a file containing codeBlocks and add it to returnMessages
   // if it is text only add it to returnMessages
-  if (message.length > 4000) {
+  if (message.length >= 4000) {
     const codeBlocks: string[] = [];
     const text: string[] = [];
     const tokens = message.split(" ");
@@ -114,6 +114,8 @@ function splitTokens(message: string) : IMessageType[] {
   } else {
     returnMessages.push({message: message});
   }
+
+  console.log(returnMessages);
 
   return returnMessages;
 }
