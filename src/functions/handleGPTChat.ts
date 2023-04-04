@@ -49,6 +49,11 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 
 		if (!result || result.status !== 200) return message.reply({ content: "Something went wrong!" })
 
+		logResponseToFile({
+			requester: message.author.username,
+			asked: message.content
+		}, result.data.choices[0].message?.content ? result.data.choices[0].message?.content : "Something went wrong!")
+
 		const messages = splitTokens(result.data.choices[0].message?.content ? result.data.choices[0].message?.content : "Something went wrong!")
 
 		for (let i = 0; i < messages.length; i++) {
@@ -160,4 +165,15 @@ function handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, me
 	}
 
 	return returnMessages
+}
+
+function logResponseToFile(demande: { requester: string, asked: string}, reponse: string) {
+	if (!fs.existsSync("./messages/")) fs.mkdirSync("./messages")
+	if (!fs.existsSync("./messages/log")) fs.mkdirSync("./messages/log")
+	if(!fs.existsSync("./messages/log/log.txt")) fs.writeFileSync("./messages/log/log.txt", "", "utf8")
+	const currentFileContent = fs.readFileSync("./messages/log/log.txt", "utf8")
+
+	const date = new Date()
+
+	fs.writeFileSync("./messages/log/log.txt", `${currentFileContent}\n[${date.toTimeString()}] ${demande.requester} | ${demande.asked} \n\t ${reponse}`, "utf8")
 }
