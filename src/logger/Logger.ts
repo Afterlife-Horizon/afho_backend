@@ -25,31 +25,31 @@ export class Logger {
                 },
             },
         });
-        Logger.logger = log4js.getLogger(process.env.LOG_LEVEL || "info");
+        this.logger = log4js.getLogger(process.env.LOG_LEVEL || "info");
     }
 
     public static log(message: string) {
-        Logger.logger.info(message);
+        this.logger.info(message);
     }
 
     public static error(message: string) {
-        Logger.logger.error(message);
+        this.logger.error(message);
     }
 
     public static debug(message: string) {
-        Logger.logger.debug(message);
+        this.logger.debug(message);
     }
 
     public static warn(message: string) {
-        Logger.logger.warn(message);
+        this.logger.warn(message);
     }
 
     public static fatal(message: string) {
-        Logger.logger.fatal(message);
+        this.logger.fatal(message);
     }
 
     public static trace(message: string) {
-        Logger.logger.trace(message);
+        this.logger.trace(message);
     }
 
 }
