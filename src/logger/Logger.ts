@@ -26,7 +26,7 @@ export class Logger {
                     level: 'debug' 
                 },
                 gpt: {
-                    appenders: ['out', 'gpt'],
+                    appenders: ['gpt'],
                     level: 'info'
                 }
             },
