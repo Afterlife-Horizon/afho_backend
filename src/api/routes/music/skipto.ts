@@ -3,6 +3,7 @@ const router = express.Router()
 import { VoiceConnectionReadyState, getVoiceConnection } from "@discordjs/voice"
 import BotClient from "../../../botClient/BotClient"
 import { Channel, TextChannel } from "discord.js"
+import { Logger } from "../../../logger/Logger"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
@@ -37,17 +38,17 @@ export default function (client: BotClient) {
 		const oldConnection = getVoiceConnection(client.currentChannel.guild.id)
 		if (!oldConnection) {
 			res.status(406).send("")
-			return textChannel.send({ content: `👎 **I'm not connected somewhere**!` }).catch((err: any) => console.log(err))
+			return textChannel.send({ content: `👎 **I'm not connected somewhere**!` }).catch((err: any) => Logger.error(err.message))
 		}
 
 		if (!queue) {
 			res.status(406).send("")
-			return textChannel.send(`👎 **Nothing playing right now**`).catch((err: any) => console.log(err))
+			return textChannel.send(`👎 **Nothing playing right now**`).catch((err: any) => Logger.error(err.message))
 		}
 
 		if (!queue.tracks || queue.tracks.length <= 1) {
 			res.status(406).send("")
-			return textChannel.send(`👎 **Nothing to skip**`).catch((err: any) => console.log(err))
+			return textChannel.send(`👎 **Nothing to skip**`).catch((err: any) => Logger.error(err.message))
 		}
 		const arg = req.body.queuePos
 
@@ -67,11 +68,11 @@ export default function (client: BotClient) {
 		const state = oldConnection.state as VoiceConnectionReadyState
 		if (!state || !state.subscription) {
 			res.status(406).send("")
-			return textChannel.send(`👎 **Something went wrong**`).catch((err: any) => console.log(err))
+			return textChannel.send(`👎 **Something went wrong**`).catch((err: any) => Logger.error(err.message))
 		}
 
 		state.subscription.player.stop()
 		res.status(200).send("OK")
-		return textChannel.send(`⏭️ **Successfully skipped ${arg} Track(s)**`).catch((err: any) => console.log(err))
+		return textChannel.send(`⏭️ **Successfully skipped ${arg} Track(s)**`).catch((err: any) => Logger.error(err.message))
 	})
 }

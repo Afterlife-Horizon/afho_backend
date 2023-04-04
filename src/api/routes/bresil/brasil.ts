@@ -3,6 +3,7 @@ const router = express.Router()
 import { Colors, EmbedBuilder, TextChannel } from "discord.js"
 import BotClient from "../../../botClient/BotClient"
 import bresil from "../../../functions/commandUtils/bresil/bresil"
+import { Logger } from "../../../logger/Logger"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
@@ -28,7 +29,7 @@ export default function (client: BotClient) {
 			})
 			res.status(200).send({ message: result.message ? result.message : "Bresil moved!" })
 		} catch (err) {
-			console.log(err)
+			if (err instanceof Error) Logger.error(err.message)
 			res.status(500).json({ error: "Internal error!" })
 		}
 	})

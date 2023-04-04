@@ -3,6 +3,7 @@ import { GuildMember, TextChannel, VoiceChannel } from "discord.js"
 import YouTube, { Playlist, Video } from "youtube-sr"
 import BotClient from "../../../botClient/BotClient"
 import { IQueue } from "../../../types"
+import { Logger } from "../../../logger/Logger"
 
 export default async function play(client: BotClient, user: string, songs: string) {
 	const guild = client.guilds.cache.get(client.config.serverId)
@@ -29,7 +30,7 @@ export default async function play(client: BotClient, user: string, songs: strin
 		try {
 			await client.joinVoiceChannel(client.currentChannel)
 		} catch (err) {
-			console.log(err)
+			if (err instanceof Error) Logger.error(err.message)
 			return { status: 406, error: `Could not join Voice Channel!` }
 		}
 	}

@@ -1,6 +1,7 @@
 import express = require("express")
 import BotClient from "../../../botClient/BotClient"
 import { IFavorite } from "../../../types"
+import { Logger } from "../../../logger/Logger"
 const router = express.Router()
 
 export default function delFav(client: BotClient) {
@@ -38,7 +39,7 @@ export default function delFav(client: BotClient) {
 
 			res.status(200).json({ data: client.favs[userId] })
 		} catch (err) {
-			console.log(err)
+			if (err instanceof Error) Logger.error(err.message)
 			res.status(500).json({ error: err })
 		}
 	})

@@ -2,6 +2,7 @@ import { GuildMember, SlashCommandBuilder } from "discord.js"
 import { AudioPlayerPausedState, AudioPlayerPlayingState, VoiceConnectionReadyState, getVoiceConnection } from "@discordjs/voice"
 import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
+import { Logger } from "../../../logger/Logger"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -12,15 +13,15 @@ export default (client: BotClient): ICommand => {
 		async execute(interaction) {
 			const member = interaction.member as GuildMember
 			const guild = interaction.guild
-			if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => console.log(err))
-			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => console.log(err))
+			if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => Logger.error(err.message))
+			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => Logger.error(err.message))
 
-			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => console.log(err))
+			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => Logger.error(err.message))
 
 			const oldConnection = getVoiceConnection(interaction.guild.id)
 			if (!oldConnection) return interaction.reply("👎 **I'm not connected somewhere!**")
 			if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId)
-				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => console.log(err))
+				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => Logger.error(err.message))
 
 			const queue = client.queues.get(interaction.guild.id)
 			if (!queue) {
@@ -31,17 +32,17 @@ export default (client: BotClient): ICommand => {
 			if (arg === undefined || isNaN(arg) || Number(arg) < 50 || Number(arg) > 300)
 				return interaction
 					.reply(`👎 **No __valid__ Bassboost-Level between 50 and 300 % provided!** (100 % == normal speed)\n Usage: \`/speed 125\``)
-					.catch(err => console.log(err))
+					.catch(err => Logger.error(err.message))
 			const speed = Number(arg)
 			queue.effects.speed = Math.floor(speed) / 100
 			queue.filtersChanged = true
 
 			const state = oldConnection.state as VoiceConnectionReadyState
-			if (!state || !state.subscription) return interaction.reply(`👎 **Something went wrong**`).catch(err => console.log(err))
+			if (!state || !state.subscription) return interaction.reply(`👎 **Something went wrong**`).catch(err => Logger.error(err.message))
 
 			const playerState = state.subscription.player.state as AudioPlayerPlayingState | AudioPlayerPausedState
 			if (!playerState || !playerState.resource || !playerState.resource.volume)
-				return interaction.reply(`👎 **Something went wrong**`).catch(err => console.log(err))
+				return interaction.reply(`👎 **Something went wrong**`).catch(err => Logger.error(err.message))
 
 			const curPos = playerState.resource?.playbackDuration || 0
 			state.subscription.player.stop()
@@ -49,7 +50,7 @@ export default (client: BotClient): ICommand => {
 
 			return interaction
 				.reply(`🎚 **Successfully changed the Speed to \`${Math.floor(speed) / 100}x\` of the Original Speed (${speed}%)**`)
-				.catch(err => console.log(err))
+				.catch(err => Logger.error(err.message))
 		}
 	}
 }

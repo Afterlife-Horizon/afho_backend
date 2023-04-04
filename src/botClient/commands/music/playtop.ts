@@ -4,6 +4,7 @@ import { getVoiceConnection } from "@discordjs/voice"
 import { Playlist, Video, default as YouTube } from "youtube-sr"
 import { ICommand, IESong } from "../../../types"
 import BotClient from "../../BotClient"
+import { Logger } from "../../../logger/Logger"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -14,19 +15,19 @@ export default (client: BotClient): ICommand => {
 		async execute(interaction) {
 			const member = interaction.member as GuildMember
 			const guild = interaction.guild
-			if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => console.log(err))
-			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => console.log(err))
+			if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => Logger.error(err.message))
+			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => Logger.error(err.message))
 
 			// get an old connection
 			const oldConnection = getVoiceConnection(guild.id)
 			if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId)
-				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => console.log(err))
+				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => Logger.error(err.message))
 			const queue = client.queues.get(guild.id)
 			if (!queue) {
-				return interaction.reply(`👎 **Nothing playing right now**`).catch(err => console.log(err))
+				return interaction.reply(`👎 **Nothing playing right now**`).catch(err => Logger.error(err.message))
 			}
 			const track = interaction.options.get("song")?.value as string
-			if (!track) return interaction.reply(`👎 Please add the wished Music via: \`/playtop <Name/Link>\``).catch(err => console.log(err))
+			if (!track) return interaction.reply(`👎 Please add the wished Music via: \`/playtop <Name/Link>\``).catch(err => Logger.error(err.message))
 
 			const youtubRegex = /^(https?:\/\/)?(www\.)?(m\.|music\.)?(youtube\.com|youtu\.?be)\/.+$/gi
 			const playlistRegex = /^.*(list=)([^#\&\?]*).*/gi
@@ -40,7 +41,7 @@ export default (client: BotClient): ICommand => {
 			const isList = playlistRegex.exec(track)
 
 			try {
-				await interaction.reply(`🔍 *Searching **${track}** ...*`).catch(err => console.log(err))
+				await interaction.reply(`🔍 *Searching **${track}** ...*`).catch(err => Logger.error(err.message))
 
 				if (isYT && isSong && !isList) {
 					song = await YouTube.getVideo(track)
@@ -62,7 +63,7 @@ export default (client: BotClient): ICommand => {
 
 					return interaction
 						.editReply(`▶️ **Queued at \`1st\`: __${video.title}__** - \`${video.durationFormatted}\``)
-						.catch(err => console.log(err))
+						.catch(err => Logger.error(err.message))
 				} else {
 					song = song ? song : playlist.videos[0]
 
@@ -81,13 +82,13 @@ export default (client: BotClient): ICommand => {
 								playlist.videos.length - 1
 							} Songs\` from the Playlist:**\n> __**${playlist.title}**__`
 						)
-						.catch(err => console.log(err))
+						.catch(err => Logger.error(err.message))
 				}
 			} catch (err: any) {
 				console.error(err)
 				return interaction
 					.reply(`❌ Could not play the Song because: \`\`\`${err.message || err}`.substring(0, 1950) + `\`\`\``)
-					.catch(err => console.log(err))
+					.catch(err => Logger.error(err.message))
 			}
 		}
 	}

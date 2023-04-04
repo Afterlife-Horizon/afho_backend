@@ -25,6 +25,7 @@ import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
 import { PassThrough } from "node:stream"
 import { PrismaClient } from "@prisma/client"
+import { Logger } from "../logger/Logger"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
@@ -276,8 +277,8 @@ export default class BotClient extends Client {
 
 		const readable = ytdl(this.getYTLink(songInfoId), requestOpts).once("error", err => console.error(err.message, "\n", err.stack))
 
-		readable.on("error", err => console.log(err))
-		readable.on("close", () => console.log("readable closed"))
+		readable.on("error", err => Logger.error(err.message))
+		readable.on("close", () => Logger.log("readable closed"))
 
 		this.passThrought = new PassThrough()
 
@@ -320,7 +321,7 @@ export default class BotClient extends Client {
 				]
 			})
 		}
-		console.log(`Playing ${playing}`)
+		Logger.log(`Playing ${playing}`)
 
 		return resource
 	}
@@ -370,7 +371,7 @@ export default class BotClient extends Client {
 					})
 
 					player.on("error", error => {
-						console.log("Error, playing next song: ", error)
+						Logger.error(`Error, playing next song: ${error.message}`)
 						const queue = this.queues.get(channel.guildId)
 						if (!queue || !queue.tracks || queue.tracks.length == 0) return
 
@@ -398,7 +399,7 @@ export default class BotClient extends Client {
 		if (!queue || !queue.tracks || queue.tracks.length == 0) return false
 
 		const channel =
-			this.channels.cache.get(this.config.baseChannelId) || (await this.channels.fetch(queue.textChannel).catch(err => console.log(err)))
+			this.channels.cache.get(this.config.baseChannelId) || (await this.channels.fetch(queue.textChannel).catch(err => Logger.error(err.message)))
 		const textChannel = channel?.isTextBased() ? (channel as TextChannel) : null
 		if (!textChannel) return false
 

@@ -4,6 +4,7 @@ import { getVoiceConnection } from "@discordjs/voice"
 import { Playlist, Video, default as YouTube } from "youtube-sr"
 import { ICommand, IQueue } from "../../../types"
 import BotClient from "../../BotClient"
+import { Logger } from "../../../logger/Logger"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -15,8 +16,8 @@ export default (client: BotClient): ICommand => {
 			try {
 				const member = interaction.member as GuildMember
 				const guild = interaction.guild
-				if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => console.log(err))
-				if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => console.log(err))
+				if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => Logger.error(err.message))
+				if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => Logger.error(err.message))
 
 				const oldConnection = getVoiceConnection(guild.id)
 				if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId) {
@@ -25,7 +26,7 @@ export default (client: BotClient): ICommand => {
 
 				client.currentChannel = member.voice.channel as VoiceChannel
 
-				if (!client.currentChannel) return interaction.reply({ content: `👎 **Something went wrong**` }).catch(err => console.log(err))
+				if (!client.currentChannel) return interaction.reply({ content: `👎 **Something went wrong**` }).catch(err => Logger.error(err.message))
 				const track = interaction.options.get("song")?.value as string
 				const args = track.split(" ")
 
@@ -46,8 +47,8 @@ export default (client: BotClient): ICommand => {
 					try {
 						await client.joinVoiceChannel(client.currentChannel)
 					} catch (err) {
-						console.log(err)
-						return await interaction.reply({ content: `Could not join Voice Channel!` }).catch(err => console.log(err))
+						if (err instanceof Error) Logger.error(err.message)
+						return await interaction.reply({ content: `Could not join Voice Channel!` }).catch(err => Logger.error(err.message))
 					}
 				}
 
@@ -82,7 +83,7 @@ export default (client: BotClient): ICommand => {
 
 						return interaction
 							.editReply({ content: `Now playing : ${video.title} - ${video.durationFormatted}!` })
-							.catch(err => console.log(err))
+							.catch(err => Logger.error(err.message))
 					}
 					queue.tracks.push(client.createSong(video, interaction.user))
 				} else {
@@ -102,7 +103,7 @@ export default (client: BotClient): ICommand => {
 
 						return interaction
 							.editReply({ content: `Now playing : ${video.title} - ${video.durationFormatted} - from playlist: ${playList.title}` })
-							.catch(err => console.log(err))
+							.catch(err => Logger.error(err.message))
 					}
 
 					playList.videos.forEach(nsong => (queue ? queue.tracks.push(client.createSong(nsong, interaction.user)) : null))
@@ -113,10 +114,10 @@ export default (client: BotClient): ICommand => {
 								video.durationFormatted
 							}\`\n> Added \`${playList.videos.length - 1} Songs\` from the Playlist:\n> ${playList.title}`
 						)
-						.catch(err => console.log(err))
+						.catch(err => Logger.error(err.message))
 				}
 			} catch (err) {
-				console.log(err)
+				if (err instanceof Error) Logger.error(err.message)
 				return
 			}
 		}

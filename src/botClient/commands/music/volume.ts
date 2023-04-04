@@ -2,6 +2,7 @@ import { GuildMember, SlashCommandBuilder } from "discord.js"
 import { AudioPlayerPausedState, AudioPlayerPlayingState, AudioPlayerState, VoiceConnectionReadyState, getVoiceConnection } from "@discordjs/voice"
 import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
+import { Logger } from "../../../logger/Logger"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -13,14 +14,14 @@ export default (client: BotClient): ICommand => {
 			const member = interaction.member as GuildMember
 			const guild = interaction.guild
 
-			if (!member || !guild) return interaction.reply("👎 **Something went wrong**").catch(err => console.log(err))
+			if (!member || !guild) return interaction.reply("👎 **Something went wrong**").catch(err => Logger.error(err.message))
 
-			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => console.log(err))
+			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => Logger.error(err.message))
 
 			const oldConnection = getVoiceConnection(guild.id)
 			if (!oldConnection) return interaction.reply("👎 **I'm not connected somewhere!**")
 			if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId)
-				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => console.log(err))
+				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => Logger.error(err.message))
 
 			const queue = client.queues.get(guild.id)
 			if (!queue) {
@@ -32,20 +33,20 @@ export default (client: BotClient): ICommand => {
 			if (!arg || isNaN(arg) || Number(arg) < 1 || Number(arg) > 150)
 				return interaction
 					.reply(`👎 **No __valid__ Volume between 1 and 150 % provided!** Usage: \`/volume 25\``)
-					.catch(err => console.log(err))
+					.catch(err => Logger.error(err.message))
 			const volume = Number(arg)
 			queue.volume = volume
 
 			const state = oldConnection.state as VoiceConnectionReadyState
-			if (!state || !state.subscription) return interaction.reply(`👎 **Something went wrong**`).catch(err => console.log(err))
+			if (!state || !state.subscription) return interaction.reply(`👎 **Something went wrong**`).catch(err => Logger.error(err.message))
 
 			const playerState = state.subscription.player.state as AudioPlayerPlayingState | AudioPlayerPausedState
 			if (!playerState || !playerState.resource || !playerState.resource.volume)
-				return interaction.reply(`👎 **Something went wrong**`).catch(err => console.log(err))
+				return interaction.reply(`👎 **Something went wrong**`).catch(err => Logger.error(err.message))
 
 			playerState.resource.volume.setVolume(volume / 100)
 
-			return interaction.reply(`🔊 **Successfully changed the Volume to \`${volume}%\`**`).catch(err => console.log(err))
+			return interaction.reply(`🔊 **Successfully changed the Volume to \`${volume}%\`**`).catch(err => Logger.error(err.message))
 		}
 	}
 }

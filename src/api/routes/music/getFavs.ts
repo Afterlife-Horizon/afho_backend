@@ -1,6 +1,7 @@
 import express = require("express")
 import BotClient from "../../../botClient/BotClient"
 import { IFavorite } from "../../../types"
+import { Logger } from "../../../logger/Logger"
 const router = express.Router()
 
 export default function (client: BotClient) {
@@ -29,7 +30,7 @@ export default function (client: BotClient) {
 
 			res.status(200).json({ favorites })
 		} catch (err) {
-			console.log(err)
+			if (err instanceof Error) Logger.error(err.message)
 			res.status(500).send("Internal Server Error")
 		}
 	})

@@ -3,6 +3,7 @@ const router = express.Router()
 import { getVoiceConnection } from "@discordjs/voice"
 import BotClient from "../../../botClient/BotClient"
 import { TextChannel } from "discord.js"
+import { Logger } from "../../../logger/Logger"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
@@ -37,17 +38,17 @@ export default function (client: BotClient) {
 		const oldConnection = getVoiceConnection(client.currentChannel.guild.id)
 		if (!oldConnection) {
 			res.status(406).send("")
-			return channel.send({ content: `👎 **I'm not connected somewhere**!` }).catch(err => console.log(err))
+			return channel.send({ content: `👎 **I'm not connected somewhere**!` }).catch(err => Logger.error(err.message))
 		}
 
 		if (!queue) {
 			res.status(406).send("")
-			return channel.send(`👎 **Nothing playing right now**`).catch(err => console.log(err))
+			return channel.send(`👎 **Nothing playing right now**`).catch(err => Logger.error(err.message))
 		}
 
 		if (!queue.tracks || queue.tracks.length <= 1) {
 			res.status(406).send("")
-			return channel.send(`👎 **Nothing to remove**`).catch(err => console.log(err))
+			return channel.send(`👎 **Nothing to remove**`).catch(err => Logger.error(err.message))
 		}
 		const arg = req.body.queuePos
 
@@ -61,6 +62,6 @@ export default function (client: BotClient) {
 		queue.tracks.splice(arg, 1)
 
 		res.status(200).send("OK")
-		return channel.send(`⏭️ **Successfully removed track number ${arg}**`).catch(err => console.log(err))
+		return channel.send(`⏭️ **Successfully removed track number ${arg}**`).catch(err => Logger.error(err.message))
 	})
 }

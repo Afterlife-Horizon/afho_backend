@@ -2,6 +2,7 @@ import { GuildMember, SlashCommandBuilder } from "discord.js"
 import { getVoiceConnection } from "@discordjs/voice"
 import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
+import { Logger } from "../../../logger/Logger"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -13,17 +14,17 @@ export default (client: BotClient): ICommand => {
 		async execute(interaction) {
 			const member = interaction.member as GuildMember
 			const guild = interaction.guild
-			if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => console.log(err))
-			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => console.log(err))
+			if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => Logger.error(err.message))
+			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => Logger.error(err.message))
 
 			const oldConnection = getVoiceConnection(guild.id)
-			if (!oldConnection) return interaction.reply("👎 **I'm not connected somewhere!**").catch(err => console.log(err))
+			if (!oldConnection) return interaction.reply("👎 **I'm not connected somewhere!**").catch(err => Logger.error(err.message))
 			if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId)
-				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => console.log(err))
+				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => Logger.error(err.message))
 
 			const queue = client.queues.get(guild.id)
 			if (!queue) {
-				return interaction.reply(`👎 **Nothing playing right now**`).catch(err => console.log(err))
+				return interaction.reply(`👎 **Nothing playing right now**`).catch(err => Logger.error(err.message))
 			}
 
 			const args = [interaction.options.get("from")?.value as number, interaction.options.get("to")?.value as number]
@@ -31,14 +32,14 @@ export default (client: BotClient): ICommand => {
 			if (!args[0] || isNaN(args[0]) || Number(args[0]) < 1 || !args[1] || isNaN(args[1]) || Number(args[1]) < 1) {
 				return interaction
 					.reply(`👎 **From where to where shall I move?** Usage: \`/move <fromPosNr.> <toPosNr.>\``)
-					.catch(err => console.log(err))
+					.catch(err => Logger.error(err.message))
 			}
 
 			queue.tracks = arrayMove(queue.tracks, args[0], args[1])
 
 			return interaction
 				.reply(`🪣 **Successfully moved the \`${client.queuePos(args[0])} Song\` to \`${client.queuePos(args[1])} Position\` in the Queue.**`)
-				.catch(err => console.log(err))
+				.catch(err => Logger.error(err.message))
 		}
 	}
 }
@@ -54,6 +55,6 @@ function arrayMove(array, from, to) {
 		}
 		return array
 	} catch (err) {
-		console.log(err)
+		if (err instanceof Error) Logger.error(err.message)
 	}
 }

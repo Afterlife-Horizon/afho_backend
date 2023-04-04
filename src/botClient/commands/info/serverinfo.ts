@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, GuildMember } from "discord.js"
 import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
+import { Logger } from "../../../logger/Logger"
 
 export default (_: BotClient): ICommand => {
 	return {
@@ -9,7 +10,7 @@ export default (_: BotClient): ICommand => {
 			const member = interaction.member as GuildMember
 			const guild = interaction.guild
 
-			if (!member || !guild) return interaction.reply("👎 **Something went wrong**").catch(err => console.log(err))
+			if (!member || !guild) return interaction.reply("👎 **Something went wrong**").catch(err => Logger.error(err.message))
 			const serverinfo = new EmbedBuilder()
 				.setTitle("Server Info")
 				.setDescription("Displaying information about the current server!")

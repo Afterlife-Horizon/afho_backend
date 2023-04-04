@@ -2,6 +2,7 @@ import { getVoiceConnection, VoiceConnectionReadyState, AudioPlayerPlayingState,
 import { GuildMember, TextChannel } from "discord.js"
 import BotClient from "../../../botClient/BotClient"
 import { IFunctionResponse } from "../../../types"
+import { Logger } from "../../../logger/Logger"
 
 interface IArgs {
 	member: GuildMember
@@ -36,7 +37,7 @@ export default async function changeFilters(client: BotClient, args: IArgs): Pro
 
 		return { status: 200 }
 	} catch (e: any) {
-		console.error(e)
+		Logger.error(e)
 		return { status: 500, error: `❌ Something went wrong` }
 	}
 }

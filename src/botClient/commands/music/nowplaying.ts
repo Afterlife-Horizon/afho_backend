@@ -2,6 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder, GuildMember, Colors } from "discord.
 import { AudioPlayerPausedState, AudioPlayerPlayingState, VoiceConnectionReadyState, getVoiceConnection } from "@discordjs/voice"
 import { ICommand, IESong } from "../../../types"
 import BotClient from "../../BotClient"
+import { Logger } from "../../../logger/Logger"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -9,26 +10,26 @@ export default (client: BotClient): ICommand => {
 		async execute(interaction) {
 			const member = interaction.member as GuildMember
 			const guild = interaction.guild
-			if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => console.log(err))
-			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => console.log(err))
+			if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => Logger.error(err.message))
+			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => Logger.error(err.message))
 
 			const oldConnection = getVoiceConnection(guild.id)
-			if (!oldConnection) return interaction.reply("👎 **I'm not connected somewhere!**").catch(err => console.log(err))
+			if (!oldConnection) return interaction.reply("👎 **I'm not connected somewhere!**").catch(err => Logger.error(err.message))
 			if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId)
-				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => console.log(err))
+				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => Logger.error(err.message))
 
 			const queue = client.queues.get(interaction.guild.id)
 			if (!queue || !queue.tracks || !queue.tracks[0]) {
-				return interaction.reply(`👎 **Nothing playing right now**`).catch(err => console.log(err))
+				return interaction.reply(`👎 **Nothing playing right now**`).catch(err => Logger.error(err.message))
 			}
 			const song = queue.tracks[0] as IESong
-			if (!song) return interaction.reply(`👎 **Something went wrong**`).catch(err => console.log(err))
+			if (!song) return interaction.reply(`👎 **Something went wrong**`).catch(err => Logger.error(err.message))
 
 			const state = oldConnection.state as VoiceConnectionReadyState
-			if (!state || !state.subscription) return interaction.reply(`👎 **Something went wrong**`).catch(err => console.log(err))
+			if (!state || !state.subscription) return interaction.reply(`👎 **Something went wrong**`).catch(err => Logger.error(err.message))
 			const playerState = state.subscription.player.state as AudioPlayerPlayingState | AudioPlayerPausedState
 			if (!playerState || !playerState.resource || !playerState.resource.volume)
-				return interaction.reply(`👎 **Something went wrong**`).catch(err => console.log(err))
+				return interaction.reply(`👎 **Something went wrong**`).catch(err => Logger.error(err.message))
 
 			const curPos = playerState.resource.playbackDuration
 
@@ -51,7 +52,7 @@ export default (client: BotClient): ICommand => {
 				)
 			if (song?.thumbnail?.url) songEmbed.setImage(`${song?.thumbnail?.url}`)
 
-			return interaction.reply({ content: `ℹ️ **Nowplaying Track**`, embeds: [songEmbed] }).catch(err => console.log(err))
+			return interaction.reply({ content: `ℹ️ **Nowplaying Track**`, embeds: [songEmbed] }).catch(err => Logger.error(err.message))
 		}
 	}
 }

@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { Logger } from './logger/Logger';
 
 interface IMessageType {
     message?: string;
@@ -82,7 +83,7 @@ function handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, me
         codeBlockMessage = codeBlockMessage.replace(/```/g, "");
 
         fs.writeFile(`./messages/codeBlock${messageCount}.txt`, codeBlockMessage, (err) => {
-            if (err) console.log(err);
+            if (err) Logger.error(err.message);
         });
     }
     else {

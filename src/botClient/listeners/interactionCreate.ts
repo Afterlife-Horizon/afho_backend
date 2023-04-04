@@ -1,8 +1,8 @@
+import { Logger } from "../../logger/Logger"
 import BotClient from "../BotClient"
 
 export default function (client: BotClient) {
 	return (
-		// ------------ Taking care of Slash commands ------------
 		client.on("interactionCreate", async interaction => {
 			if (!interaction.isChatInputCommand()) return
 
@@ -11,10 +11,10 @@ export default function (client: BotClient) {
 			if (!command) return
 
 			try {
-				// console.log(interaction);
+				Logger.log(`Command ${interaction.commandName} was executed by ${interaction.user.tag} (${interaction.user.id})`)
 				await command.execute(interaction)
 			} catch (error) {
-				console.error(error)
+				if (error instanceof Error) Logger.error(error.message)
 				await interaction.reply({ content: "There was an error while executing this command!", ephemeral: true })
 			}
 		})

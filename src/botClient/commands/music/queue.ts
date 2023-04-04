@@ -14,6 +14,7 @@ import {
 import { getVoiceConnection } from "@discordjs/voice"
 import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
+import { Logger } from "../../../logger/Logger"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -21,17 +22,17 @@ export default (client: BotClient): ICommand => {
 		async execute(interaction) {
 			const guild = interaction.guild
 			const member = interaction.member as GuildMember
-			if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => console.log(err))
-			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => console.log(err))
+			if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => Logger.error(err.message))
+			if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => Logger.error(err.message))
 
 			const oldConnection = getVoiceConnection(guild.id)
-			if (!oldConnection) return interaction.reply("👎 **I'm not connected somewhere!**").catch(err => console.log(err))
+			if (!oldConnection) return interaction.reply("👎 **I'm not connected somewhere!**").catch(err => Logger.error(err.message))
 			if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId)
-				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => console.log(err))
+				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => Logger.error(err.message))
 
 			const queue = client.queues.get(interaction.guild.id)
 			if (!queue || !queue.tracks || !queue.tracks[0]) {
-				return interaction.reply(`👎 **Nothing playing right now**`).catch(err => console.log(err))
+				return interaction.reply(`👎 **Nothing playing right now**`).catch(err => Logger.error(err.message))
 			}
 			const e2n = s => (s ? "✅ Enabled" : "❌ Disabled")
 			const song = queue.tracks[0]
@@ -74,7 +75,7 @@ export default (client: BotClient): ICommand => {
 					embeds: [queueEmbed],
 					components: [buttons]
 				})
-				.catch(err => console.log(err))
+				.catch(err => Logger.error(err.message))
 
 			if (!msg) return
 

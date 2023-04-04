@@ -2,6 +2,7 @@ import { Message, MessageType } from "discord.js"
 import BotClient from "../botClient/BotClient"
 import { ChatCompletionRequestMessage, Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai"
 import fs from "node:fs"
+import { Logger } from "../logger/Logger"
 
 interface IMessageType {
 	message?: string
@@ -16,8 +17,9 @@ let conversationLog: ChatCompletionRequestMessage[] = []
 export default async function handleGPTChat(client: BotClient, message: Message) {
 	if (!client.config.gptChatChannel || !client.config.openaiKey) return
 	if (message.channel.id !== client.config.gptChatChannel) return
-
 	if (message.type === MessageType.Reply) return
+
+	Logger.log(`GPT-3 Chat: ${message.author.username} (${message.author.id}) asked: ${message.content}`)
 
 	const configuration = new Configuration({
 		apiKey: client.config.openaiKey
@@ -43,16 +45,11 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 
 	try {
 		const result = await openai.createChatCompletion(request).catch(err => {
-			console.log(err)
+			Logger.error(err.message)
 			message.reply({ content: "Something went wrong!" })
 		})
 
 		if (!result || result.status !== 200) return message.reply({ content: "Something went wrong!" })
-
-		logResponseToFile({
-			requester: message.author.username,
-			asked: message.content
-		}, result.data.choices[0].message?.content ? result.data.choices[0].message?.content : "Something went wrong!")
 
 		const messages = splitTokens(result.data.choices[0].message?.content ? result.data.choices[0].message?.content : "Something went wrong!")
 
@@ -71,11 +68,11 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 						}
 					]
 				})
-				fs.rm("./messages/" + messages[i].file?.name, err => console.log(err))
+				fs.rm("./messages/" + messages[i].file?.name, err => { if (err) Logger.error(err.message) })
 			}
 		}
 	} catch (err) {
-		console.log(err)
+		if (err instanceof Error) Logger.error(err.message)
 		message.reply({ content: "Something went wrong!" })
 	}
 }
@@ -158,22 +155,11 @@ function handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, me
 		codeBlockMessage = codeBlockMessage.replace(/```/g, "")
 
 		fs.writeFile(`./messages/codeBlock${messageCount}.${codeBlockType ? codeBlockType : "txt"}`, codeBlockMessage, err => {
-			if (err) console.log(err)
+			if (err) Logger.error(err.message)
 		})
 	} else {
 		returnMessages.push({ message: codeBlockSelector + codeBlockType + "\n" + codeBlockMessage + codeBlockSelector })
 	}
 
 	return returnMessages
-}
-
-function logResponseToFile(demande: { requester: string, asked: string}, reponse: string) {
-	if (!fs.existsSync("./messages/")) fs.mkdirSync("./messages")
-	if (!fs.existsSync("./messages/log")) fs.mkdirSync("./messages/log")
-	if(!fs.existsSync("./messages/log/log.txt")) fs.writeFileSync("./messages/log/log.txt", "", "utf8")
-	const currentFileContent = fs.readFileSync("./messages/log/log.txt", "utf8")
-
-	const date = new Date()
-
-	fs.writeFileSync("./messages/log/log.txt", `${currentFileContent}\n[${date.toTimeString()}] ${demande.requester} | ${demande.asked} \n\t ${reponse}`, "utf8")
 }

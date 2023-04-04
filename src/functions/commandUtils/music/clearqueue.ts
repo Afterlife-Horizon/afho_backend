@@ -2,6 +2,7 @@ import { getVoiceConnection } from "@discordjs/voice"
 import { GuildMember, TextChannel } from "discord.js"
 import BotClient from "../../../botClient/BotClient"
 import { IFunctionResponse } from "../../../types"
+import { Logger } from "../../../logger/Logger"
 
 interface IArgs {
 	member: GuildMember
@@ -30,7 +31,7 @@ export default async function clearQueue(client: BotClient, args: IArgs): Promis
 
 		return { status: 200, message: `👍 **Successfully cleared the Queue**` }
 	} catch (err) {
-		console.log(err)
+		if (err instanceof Error) Logger.error(err.message)
 		return { status: 500, error: `👎 **Something went wrong**` }
 	}
 }

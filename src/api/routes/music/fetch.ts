@@ -12,6 +12,7 @@ import {
 	getVoiceConnection
 } from "@discordjs/voice"
 import BotClient from "../../../botClient/BotClient"
+import { Logger } from "../../../logger/Logger"
 
 export default function (client: BotClient) {
 	return router.get("/", async (req, res) => {
@@ -54,8 +55,8 @@ export default function (client: BotClient) {
 
 			res.send(data)
 		} catch (err) {
-			console.log(err)
-			res.end()
+			if (err instanceof Error) Logger.error(err.message)
+			res.status(500).json({ error: err })
 		}
 	})
 }

@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Colors } from "discord.js"
 import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
+import { Logger } from "../../../logger/Logger"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -43,7 +44,7 @@ export default (client: BotClient): ICommand => {
 					],
 					components: [buttons]
 				})
-				.catch(err => console.log(err))
+				.catch(err => Logger.error(err.message))
 
 			if (!commandsmsg) return
 			const collector1 = commandsmsg.createMessageComponentCollector({

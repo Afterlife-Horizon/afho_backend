@@ -11,6 +11,7 @@ import {
 import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
 import changeFilters from "../../../functions/commandUtils/music/filters"
+import { Logger } from "../../../logger/Logger"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -89,7 +90,7 @@ export default (client: BotClient): ICommand => {
 				msg.edit({
 					content: msg.content,
 					components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(Menu)]
-				}).catch(err => console.log(err))
+				}).catch(err => Logger.error(err.message))
 			})
 		}
 	}

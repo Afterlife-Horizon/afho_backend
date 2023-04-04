@@ -3,6 +3,7 @@ const router = express.Router()
 import { Playlist, Video, default as YouTube } from "youtube-sr"
 import BotClient from "../../../botClient/BotClient"
 import { IFavorite } from "../../../types"
+import { Logger } from "../../../logger/Logger"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
@@ -62,7 +63,7 @@ export default function (client: BotClient) {
 
 			res.status(200).json({ data: favs })
 		} catch (err: any) {
-			console.log(err)
+			if (err instanceof Error) Logger.error(err.message)
 			res.status(500).json({ error: err })
 		}
 	})
