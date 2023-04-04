@@ -11,6 +11,8 @@ import { Logger } from "./logger/Logger"
 // Check for .env file
 if (!fs.existsSync(".env")) throw new Error("No .env file found, creating one...")
 
+Logger.init()
+
 if (!process.env.LOG_LEVEL) Logger.warn("No log level found, using 'info' instead...")
 
 if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !== "delete") {
