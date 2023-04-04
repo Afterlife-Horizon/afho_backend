@@ -51,6 +51,8 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 
 		if (!result || result.status !== 200) return message.reply({ content: "Something went wrong!" })
 
+		Logger.logGPT(`GPT-3 Chat: ${message.author.username} (${message.author.id}) got: ${result.data.choices[0].message?.content}`)
+
 		const messages = splitTokens(result.data.choices[0].message?.content ? result.data.choices[0].message?.content : "Something went wrong!")
 
 		for (let i = 0; i < messages.length; i++) {
