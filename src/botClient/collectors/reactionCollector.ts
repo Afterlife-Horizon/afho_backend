@@ -36,10 +36,17 @@ async function createMessage(client: BotClient, channel: TextChannel, reactionRo
         .setDescription("React to the message to get the role!")
         .setTimestamp(new Date())
         .setFields(reactionRoles.map(reactionRole => {
+            const emoji = client.emojis.cache.find(emoji => emoji.name === reactionRole.emojiName);
+            if (!emoji) {
+                Logger.error("Emoji not found");
+                return { name: reactionRole.description, value: `Emoji not found: ${reactionRole.emojiName}`, inline: false}
+            }
+
+            const emojiString = emoji.toString();
             return {
                 name: reactionRole.description,
-                value: reactionRole.emojiName,
-                inline: true,
+                value: emojiString,
+                inline: false,
             }
         }));
 
