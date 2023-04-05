@@ -69,7 +69,7 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 const environement = {
 	token: process.env.TOKEN,
 	clientID: process.env.CLIENT_ID,
-	client.config.brasilChannelID: process.env.BRASIL_CHANNEL_ID,
+	brasilChannelID: process.env.BRASIL_CHANNEL_ID,
 	baseChannelID: process.env.BASE_CHANNEL_ID,
 	serverID: process.env.SERVER_ID,
 	adminRoleID: process.env.ADMIN_ROLE_ID,
