@@ -61,20 +61,14 @@ async function createaMessage(client: BotClient, channel: TextChannel, reactionR
         const role = await reaction.message.guild?.roles.fetch(reactionRole.roleID);
         if (!role) return Logger.error("Role not found");
 
-        member.roles.add(role);
+        if (member.roles.cache.has(role.id)) member.roles.remove(role);
+        else member.roles.add(role);
+
+        Logger.log(`Added role ${role} for user ${user.username}`);
+        reaction.users.remove(user);
+
     })
 
-    collector.on("remove", async (reaction, user) => {
-        if (user.bot) return;
-        const reactionRole = reactionRoles.find(role => role.emojiName === reaction.emoji.name);
-        if (!reactionRole) return Logger.error("Role not found");
-        const member = await reaction.message.guild?.members.fetch(user.id);
-        if (!member) return Logger.error("Member not found");
-
-        const role = await reaction.message.guild?.roles.fetch(reactionRole.roleID);
-        if (!role) return Logger.error("Role not found");
-        member.roles.remove(role);
-    })
 
     collector.on("end", () => {
         Logger.log("Reaction role collector ended");
