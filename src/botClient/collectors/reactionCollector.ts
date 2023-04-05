@@ -61,12 +61,15 @@ async function createaMessage(client: BotClient, channel: TextChannel, reactionR
         const role = await reaction.message.guild?.roles.fetch(reactionRole.roleID);
         if (!role) return Logger.error("Role not found");
 
-        if (member.roles.cache.has(role.id)) member.roles.remove(role);
-        else member.roles.add(role);
-
-        Logger.log(`Added role ${role} for user ${user.username}`);
+        if (member.roles.cache.has(role.id)) {
+            member.roles.remove(role);
+            Logger.log(`Removed role ${role} for user ${user.username}`);
+        }
+        else {
+            member.roles.add(role);
+            Logger.log(`Added role ${role} for user ${user.username}`);
+        }
         reaction.users.remove(user);
-
     })
 
 
