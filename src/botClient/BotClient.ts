@@ -45,7 +45,7 @@ export default class BotClient extends Client {
 			token: environment.token,
 			clientID: environment.clientID,
 			baseChannelID: environment.baseChannelID,
-			client.config.brasilChannelID: environment.client.config.brasilChannelID,
+			brasilChannelID: environment.brasilChannelID,
 			serverID: environment.serverID,
 			adminRoleID: environment.adminRoleID,
 			supabaseURL: environment.supabaseURL,
