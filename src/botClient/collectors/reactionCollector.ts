@@ -13,16 +13,16 @@ export default async function reactionCollector(client: BotClient) {
 
     const messages = await channel.messages.fetch()
     
-    messages.forEach(message => {
-        if (client.user && !(message.author.id !== client.user.id)) return;                            
-        message.delete().then(async () => {
-            await createaMessage(channel, reactionRoles);
-        })
-    });
-    
     if (messages.size === 0) {
         await createaMessage(channel, reactionRoles);
-        return;
+    }
+    else {
+        messages.forEach(message => {
+            if (client.user && !(message.author.id !== client.user.id)) return;                            
+            message.delete().then(async () => {
+                await createaMessage(channel, reactionRoles);
+            })
+        });
     }
 }
 
