@@ -12,11 +12,6 @@ export default async function reactionCollector(client: BotClient) {
     if (!channel || !channel.isTextBased()) return Logger.error("Invalid reaction role channel ID");
 
     const messages = await channel.messages.fetch()
-
-    if (messages.size === 0) {
-        await createaMessage(channel, reactionRoles);
-        return;
-    }
     
     messages.forEach(message => {
         if (client.user && !(message.author.id !== client.user.id)) return;                            
@@ -25,6 +20,10 @@ export default async function reactionCollector(client: BotClient) {
         })
     });
     
+    if (messages.size === 0) {
+        await createaMessage(channel, reactionRoles);
+        return;
+    }
 }
 
 async function createaMessage(channel: TextChannel, reactionRoles: IReactionRole[]) {
