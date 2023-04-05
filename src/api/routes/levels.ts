@@ -16,7 +16,7 @@ export default function levels(client: BotClient) {
 		try {
 			const rows = await client.prisma.bot_levels.findMany()
 
-			const guild = client.guilds.cache.get(client.config.serverId)
+			const guild = client.guilds.cache.get(client.config.serverID)
 			if (!guild) return res.status(500).json({ error: "Internal error" })
 
 			await guild.members.fetch()

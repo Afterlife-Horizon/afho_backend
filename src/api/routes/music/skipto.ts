@@ -17,7 +17,7 @@ export default function (client: BotClient) {
 
 		if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-		const guild = client.guilds.cache.get(client.config.serverId)
+		const guild = client.guilds.cache.get(client.config.serverID)
 		if (!guild) return res.status(406).send("Guild not found!")
 		await guild.members.fetch()
 		await guild.channels.fetch()
@@ -30,7 +30,7 @@ export default function (client: BotClient) {
 		if (requester.size === 0) return res.status(406).send("You are not connected to a voice channel!")
 		else if (voiceChannel?.id !== client.currentChannel?.id) return res.status(406).send("Not the same channel!")
 
-		const textChannel = (await client.channels.fetch(client.config.baseChannelId)) as TextChannel
+		const textChannel = (await client.channels.fetch(client.config.baseChannelID)) as TextChannel
 		if (!client.currentChannel) return res.status(406).send("not connected!")
 
 		const queue = client.queues.get(client.currentChannel.guild.id)

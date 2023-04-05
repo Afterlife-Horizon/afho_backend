@@ -39,7 +39,29 @@ This bot is created and designed by myself.
     2.  in Authentication tab go to URL Configurator and add the url of your website
     3.  In providers tab enable disord with the client id and secret of your discord application, copy the url
     4.  go to https://discord.com/developers/applications and add the url to the redirect uri
-7.  Add all the variables in .env files:
+7. Add roles that you want the user to be able to add to themselves in **src/constants.ts**:
+
+    ```ts
+    import { IReactionRole } from "./types";
+    
+    export const reactionRoles: IReactionRole[] = [
+        // emoji 1
+        {
+            description: "description", // description of the role
+            emojiName: "role name",     // name of the emoji without :: (ex: :smile: -> smile)
+            roleID: "role id",          // id of the role, can be found by right clicking on the role and clicking on copy id
+        },
+        // emoji 2
+        {
+            description: "description",
+            emojiName: "role name",
+            roleID: "role id",
+        },
+        // ...
+    ];
+    ```
+
+8.  Add all the variables in .env files:
 
     1. backend .env
 
@@ -50,26 +72,28 @@ This bot is created and designed by myself.
         #### **`./.env`**
 
         ```bash
-        
-        DATABASE_URL="mysql://user:Password@127.0.0.1:3306/myDb" # Database url, encode user, password and myDb with Percent-encoding and replace them in the string 
+        DATABASE_URL="mysql://user:password@127.0.0.1:3306/myDb" # Database url, encode user, password and myDb with Percent-encoding and replace them in the string 
 
         # Discord related variables
-        SERVER_NAME=""              # name of your server
-        CLIENT_ID=""                # discord client id
-        TOKEN=""                    # discord bot token
-        BASE_CHANNEL_ID=""          # id of bot message channel
-        BRASIL_CHANNEL_ID=""        # id of bresil channel
-        ADMIN_ROLE_ID=""            # id of admin role
-        SUPABASE_URL=""             # url of your supabase project
-        SUPABASE_KEY=""             # public key from supabase
+        SERVER_NAME=""                  # name of your server
+        CLIENT_ID=""                    # discord client id
+        TOKEN=""                        # discord bot token
+        BASE_CHANNEL_ID=""              # id of bot message channel
+        ADMIN_ROLE_ID=""                # id of admin role
+        REACTION_ROLE_CHANNEL_ID=""     # id of reaction role channel / optional
+        BRASIL_CHANNEL_ID=""            # id of bresil channel
+
+        # supabase related variables
+        SUPABASE_URL=""                 # url of your supabase project
+        SUPABASE_KEY=""                 # public key from supabase
 
         # optionnal variables
-        # OPENAI_KEY=               # openAi key
-        # CHAT_GPT_CHANNEL_ID=      # id of chat gpt channel
-        # YOUTUBE_LOGIN_COOKIE=     # youtube cookie
+        # OPENAI_KEY=""                   # openAi key
+        # CHAT_GPT_CHANNEL_ID=""          # id of chat gpt channel
+        # YOUTUBE_LOGIN_COOKIE=""         # youtube cookie
 
         # add these certificate files if you want to use https
-        # CERT="/home/<USER>/.ssh/<YOUR_CERT_NAME>.crt"     # certificate file
+        # CERT="/home/<USER>/.ssh/<YOUR_CERT_NAME>.crt"             # certificate file
         # CERT_KEY="/home/<USER>/.ssh/<YOUR_CERT_KEY_NAME>.key"     # private key
         ```
 
@@ -87,26 +111,26 @@ This bot is created and designed by myself.
         VITE_SUPABASE_KEY=""    # public key from supabase
         ```
 
-8.  Install the dependencies:
+9.  Install the dependencies:
 
     ```bash
     cd /path/to/project/root/frontend && npm install
     cd /path/to/project/root/ && npm install
     ```
 
-9.  Build the frontend:
+10. Build the frontend:
 
     ```bash
     cd /path/to/project/root/frontend && npm run build
     ```
 
-10. Start the bot in `/path/to/project/root/`:
+11. Start the bot in `/path/to/project/root/`:
 
     ```bash
     npm start
     ```
 
-11. To create a service:
+12. To create a service:
 
     ```bash
     sudo nano /lib/systemd/system/<SERVICENAME>.service

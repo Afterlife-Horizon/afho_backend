@@ -14,7 +14,7 @@ export default function (client: BotClient) {
 			const user = await client.supabaseClient.auth.getUser(access_token)
 			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-			const guild = client.guilds.cache.get(client.config.serverId)
+			const guild = client.guilds.cache.get(client.config.serverID)
 			if (!guild) return res.status(406).send({ error: "Server not found!" })
 
 			const member = guild.members.cache.get(user.data?.user?.user_metadata.provider_id)

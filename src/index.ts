@@ -7,6 +7,7 @@ import fs from "node:fs"
 import { exit } from "process"
 import { IEnv } from "./types"
 import { Logger } from "./logger/Logger"
+import reactionCollector from "./botClient/collectors/reactionCollector"
 
 // Check for .env file
 if (!fs.existsSync(".env")) throw new Error("No .env file found, creating one...")
@@ -58,7 +59,12 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 	
 	if (!process.env.OPENAI_KEY || !process.env.CHAT_GPT_CHANNEL_ID) 
 		Logger.warn("No OpenAI key found, not using OpenAI API")
-	
+
+	if (!process.env.REACTION_ROLE_CHANNEL_ID) 
+		Logger.warn("No roles channel ID found, not using reaction roles")
+
+	if (!process.env.YOUTUBE_LOGIN_COOKIE)
+		Logger.warn("No YouTube cookie found, not using YouTube API")
 }
 
 const environement = {
@@ -74,7 +80,8 @@ const environement = {
 	certKey: process.env.CERT_KEY,
 	openAIKey: process.env.OPENAI_KEY,
 	youtubeCookie: process.env.YOUTUBE_LOGIN_COOKIE,
-	gptChatChannel: process.env.CHAT_GPT_CHANNEL_ID
+	gptChatChannel: process.env.CHAT_GPT_CHANNEL_ID,
+	reactionRoleChannel: process.env.REACTION_ROLE_CHANNEL_ID,
 } as IEnv
 
 const options = {
@@ -87,7 +94,8 @@ const options = {
 		GatewayIntentBits.GuildVoiceStates,
 		GatewayIntentBits.GuildMembers,
 		GatewayIntentBits.GuildMessages,
-		GatewayIntentBits.MessageContent
+		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMessageReactions,
 	],
 	partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 	failIfNotExists: false,
@@ -102,6 +110,7 @@ const client = new BotClient(options, environement)
 
 client.once("ready", () => {
 	client.ready = true
+	reactionCollector(client)
 	Logger.log("Logged in as " + client.user?.tag)
 })
 
