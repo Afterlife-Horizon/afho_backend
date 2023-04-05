@@ -7,6 +7,7 @@ import fs from "node:fs"
 import { exit } from "process"
 import { IEnv } from "./types"
 import { Logger } from "./logger/Logger"
+import reactionCollector from "./botClient/collectors/reactionCollector"
 
 // Check for .env file
 if (!fs.existsSync(".env")) throw new Error("No .env file found, creating one...")
@@ -109,6 +110,7 @@ const client = new BotClient(options, environement)
 
 client.once("ready", () => {
 	client.ready = true
+	reactionCollector(client)
 	Logger.log("Logged in as " + client.user?.tag)
 })
 

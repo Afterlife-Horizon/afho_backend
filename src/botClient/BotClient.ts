@@ -92,8 +92,6 @@ export default class BotClient extends Client {
 		interactionCreate(this)
 		messageCreate(this)
 		voiceStateUpdate(this)
-
-		reactionCollector(this)
 	}
 
 	/**
