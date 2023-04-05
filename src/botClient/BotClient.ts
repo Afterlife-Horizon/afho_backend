@@ -57,7 +57,7 @@ export default class BotClient extends Client {
 		}
 
 		if (environment.reactionRoleChannel) 
-			this.config.reactionRoles = JSON.parse(fs.readFileSync(path.join(__dirname, "../..", "reactionRoles.json"), "utf-8"))
+			this.config.reactionRoles = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "reactionRoles.json"), "utf-8"))
 		
 
 		this.prisma = new PrismaClient()
