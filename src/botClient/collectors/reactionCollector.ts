@@ -30,11 +30,9 @@ async function createMessage(client: BotClient, channel: TextChannel, reactionRo
     
     const baseEmbed = new EmbedBuilder()
         .setAuthor({
-            name: "Reaction Roles",
+            name: "React to the message to toggle the role!",
         })
         .setColor(Colors.Blue)
-        .setDescription("React to the message to get the role!")
-        .setTimestamp(new Date())
         .setFields(reactionRoles.map(reactionRole => {
             const emoji = client.emojis.cache.find(emoji => emoji.name === reactionRole.emojiName);
             if (!emoji) {
