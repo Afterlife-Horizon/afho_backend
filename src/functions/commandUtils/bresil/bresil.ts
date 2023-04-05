@@ -3,7 +3,7 @@ import BotClient from "../../../botClient/BotClient"
 
 export default async function bresil(client: BotClient, mover: GuildMember, moved: GuildMember) {
 	const brasilChannelId = client.config.brasilChannelId
-	const guild = client.guilds.cache.get(client.config.serverId)
+	const guild = client.guilds.cache.get(client.config.serverID)
 	if (!guild) return { status: 406, error: "Guild not found!" }
 
 	const voiceChannel = mover.voice

@@ -10,7 +10,7 @@ export default (client: BotClient): ICommand => {
 			if (!guild) return interaction.reply({ content: "This command can only be used in a server!", ephemeral: true })
 			await guild.members.fetch()
 
-			const membersWithRole = guild.roles.cache.get(client.config.adminRoleId)?.members
+			const membersWithRole = guild.roles.cache.get(client.config.adminRoleID)?.members
 
 			const ListEmbed = new EmbedBuilder()
 				.setTitle("Users with the admin role:")

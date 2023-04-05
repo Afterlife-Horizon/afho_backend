@@ -6,7 +6,7 @@ import { IQueue } from "../../../types"
 import { Logger } from "../../../logger/Logger"
 
 export default async function play(client: BotClient, user: string, songs: string) {
-	const guild = client.guilds.cache.get(client.config.serverId)
+	const guild = client.guilds.cache.get(client.config.serverID)
 	const connectedMembers = guild?.members.cache.filter(member => member.voice.channel)
 	const requester = connectedMembers?.find(member => member.user.username === user)
 
@@ -20,7 +20,7 @@ export default async function play(client: BotClient, user: string, songs: strin
 	if (!voiceChannel) return { status: 406, error: "You are not connected to a voice channel!" }
 	client.currentChannel = voiceChannel
 
-	const channel = (await client.channels.fetch(client.config.baseChannelId)) as TextChannel
+	const channel = (await client.channels.fetch(client.config.baseChannelID)) as TextChannel
 	if (!channel) return { status: 406, error: "Could not find the base channel!" }
 
 	let queue = client.queues.get(client.currentChannel.guildId)
@@ -97,7 +97,7 @@ export default async function play(client: BotClient, user: string, songs: strin
 
 		if (!queue || queue.tracks.length == 0) {
 			const bitrate = 128
-			const newQueue = client.createQueue(song, requester.user, client.config.baseChannelId, bitrate)
+			const newQueue = client.createQueue(song, requester.user, client.config.baseChannelID, bitrate)
 			playList.videos.forEach(nsong => newQueue.tracks.push(client.createSong(nsong, requester.user)))
 			client.queues.set(client.currentChannel.guildId, newQueue)
 

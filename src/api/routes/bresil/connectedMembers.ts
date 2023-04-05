@@ -7,7 +7,7 @@ export default function (client: BotClient) {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		try {
 			await client.guilds.fetch()
-			const guild = client.guilds.cache.get(client.config.serverId)
+			const guild = client.guilds.cache.get(client.config.serverID)
 
 			if (!guild) return res.status(404).json({ error: "Guild not found" })
 

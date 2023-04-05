@@ -13,7 +13,7 @@ import {
 } from "@discordjs/voice"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
 import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
-import { ICommand, IQueue, IESong, IFavorite, IEnv } from "../types"
+import { ICommand, IQueue, IESong, IFavorite, IEnv, IClientConfig } from "../types"
 import fs from "node:fs"
 import path from "node:path"
 import FFmpeg from "fluent-ffmpeg"
@@ -30,19 +30,7 @@ import { Logger } from "../logger/Logger"
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
 	public prisma: PrismaClient
-	public config: {
-		token: string
-		clientID: string
-		brasilChannelId: string
-		baseChannelId: string
-		serverId: string
-		adminRoleId: string
-		supabaseUrl: string
-		supabaseKey: string
-		openaiKey?: string
-		YOUTUBE_LOGIN_COOKIE?: string,
-		gptChatChannel?: string
-	}
+	public config: IClientConfig
 	public commands: Map<string, ICommand>
 	public queues: Map<string, IQueue>
 	public favs: Map<string, IFavorite[]>
@@ -56,16 +44,22 @@ export default class BotClient extends Client {
 		this.config = {
 			token: environment.token,
 			clientID: environment.clientID,
-			brasilChannelId: environment.brasilChannelID,
-			baseChannelId: environment.baseChannelID,
-			serverId: environment.serverID,
-			adminRoleId: environment.adminRoleID,
-			supabaseUrl: environment.supabaseURL,
+			baseChannelID: environment.baseChannelID,
+			brasilChannelID: environment.brasilChannelID,
+			serverID: environment.serverID,
+			adminRoleID: environment.adminRoleID,
+			supabaseURL: environment.supabaseURL,
 			supabaseKey: environment.supabaseKey,
-			openaiKey: environment.openAIKey,
-			YOUTUBE_LOGIN_COOKIE: environment.youtubeCookie,
-			gptChatChannel: environment.gptChatChannel
+			openAIKey: environment.openAIKey,
+			youtubeCookie: environment.youtubeCookie,
+			gptChatChannel: environment.gptChatChannel,
+			reactionRoleChannel: environment.reactionRoleChannel
 		}
+
+		if (environment.reactionRoleChannel) 
+			this.config.reactionRoles = JSON.parse(fs.readFileSync(path.join(__dirname, "../..", "reactionRoles.json"), "utf-8"))
+		
+
 		this.prisma = new PrismaClient()
 		this.commands = new Collection()
 		this.queues = new Collection()
@@ -74,7 +68,7 @@ export default class BotClient extends Client {
 		this.initCommands()
 		this.initListeners()
 		this.currentChannel = null
-		this.supabaseClient = createClient(this.config.supabaseUrl, this.config.supabaseKey)
+		this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
 	}
 
 	private initCommands() {
@@ -267,10 +261,10 @@ export default class BotClient extends Client {
 			quality: "highestaudio"
 		}
 
-		if (this.config.YOUTUBE_LOGIN_COOKIE && this.config.YOUTUBE_LOGIN_COOKIE.length > 10) {
+		if (this.config.youtubeCookie && this.config.youtubeCookie.length > 10) {
 			requestOpts.requestOptions = {
 				headers: {
-					cookie: this.config.YOUTUBE_LOGIN_COOKIE
+					cookie: this.config.youtubeCookie
 				}
 			}
 		}
@@ -399,7 +393,7 @@ export default class BotClient extends Client {
 		if (!queue || !queue.tracks || queue.tracks.length == 0) return false
 
 		const channel =
-			this.channels.cache.get(this.config.baseChannelId) || (await this.channels.fetch(queue.textChannel).catch(err => Logger.error(err.message)))
+			this.channels.cache.get(this.config.baseChannelID) || (await this.channels.fetch(queue.textChannel).catch(err => Logger.error(err.message)))
 		const textChannel = channel?.isTextBased() ? (channel as TextChannel) : null
 		if (!textChannel) return false
 

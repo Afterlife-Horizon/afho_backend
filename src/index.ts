@@ -58,7 +58,12 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 	
 	if (!process.env.OPENAI_KEY || !process.env.CHAT_GPT_CHANNEL_ID) 
 		Logger.warn("No OpenAI key found, not using OpenAI API")
-	
+
+	if (!process.env.REACTION_ROLE_CHANNEL_ID) 
+		Logger.warn("No roles channel ID found, not using reaction roles")
+
+	if (!process.env.YOUTUBE_LOGIN_COOKIE)
+		Logger.warn("No YouTube cookie found, not using YouTube API")
 }
 
 const environement = {
@@ -74,7 +79,8 @@ const environement = {
 	certKey: process.env.CERT_KEY,
 	openAIKey: process.env.OPENAI_KEY,
 	youtubeCookie: process.env.YOUTUBE_LOGIN_COOKIE,
-	gptChatChannel: process.env.CHAT_GPT_CHANNEL_ID
+	gptChatChannel: process.env.CHAT_GPT_CHANNEL_ID,
+	reactionRoleChannel: process.env.REACTION_ROLE_CHANNEL_ID,
 } as IEnv
 
 const options = {
@@ -87,7 +93,8 @@ const options = {
 		GatewayIntentBits.GuildVoiceStates,
 		GatewayIntentBits.GuildMembers,
 		GatewayIntentBits.GuildMessages,
-		GatewayIntentBits.MessageContent
+		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMessageReactions,
 	],
 	partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 	failIfNotExists: false,

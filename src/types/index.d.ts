@@ -16,7 +16,17 @@ export interface IEnv {
 	certKey?: string
 	openAIKey?: string
 	youtubeCookie?: string
-	gptChatChannel?: string
+	gptChatChannel?: string,
+	reactionRoleChannel?: string
+}
+
+export interface IClientConfig extends IEnv {
+	reactionRoles?: IReactionRole[]
+}
+
+export interface IReactionRole {
+	emoji: string
+	roleID: string
 }
 
 export interface IESong extends Video {

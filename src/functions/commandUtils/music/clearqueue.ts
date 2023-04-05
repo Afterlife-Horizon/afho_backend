@@ -12,7 +12,7 @@ export default async function clearQueue(client: BotClient, args: IArgs): Promis
 	try {
 		const member = args.member
 		const guild = client.guilds.cache.get(member.guild.id)
-		const channel = (await client.channels.fetch(client.config.baseChannelId)) as TextChannel
+		const channel = (await client.channels.fetch(client.config.baseChannelID)) as TextChannel
 		if (!channel || !member || !guild) return { status: 500, error: `Something went wrong` }
 
 		if (!member.voice.channelId) return { status: 400, error: "👎 **Please join a Voice-Channel first!**" }
