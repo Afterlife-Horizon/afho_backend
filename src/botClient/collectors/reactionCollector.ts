@@ -1,4 +1,4 @@
-import { Collection, EmbedBuilder, Message, TextChannel } from "discord.js";
+import { Collection, Colors, EmbedBuilder, Message, TextChannel } from "discord.js";
 import { Logger } from "../../logger/Logger";
 import BotClient from "../BotClient";
 import { IReactionRole } from "../../types";
@@ -32,7 +32,7 @@ async function createMessage(client: BotClient, channel: TextChannel, reactionRo
         .setAuthor({
             name: "Reaction Roles",
         })
-        .setColor(0x00ff00)
+        .setColor(Colors.Blue)
         .setDescription("React to the message to get the role!")
         .setTimestamp(new Date())
         .setFields(reactionRoles.map(reactionRole => {
