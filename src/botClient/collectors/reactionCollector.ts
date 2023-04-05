@@ -2,7 +2,7 @@ import { Collection, EmbedBuilder, Message } from "discord.js";
 import { Logger } from "../../logger/Logger";
 import BotClient from "../BotClient";
 
-export default async function (client: BotClient) {
+export default async function reactionCollector(client: BotClient) {
     const channelId = client.config.reactionRoleChannel;
     const reactionRoles = client.config.reactionRoles;
     if (!channelId || !reactionRoles) return;
