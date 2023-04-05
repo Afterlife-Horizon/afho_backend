@@ -26,6 +26,7 @@ import ytdl, { downloadOptions } from "ytdl-core"
 import { PassThrough } from "node:stream"
 import { PrismaClient } from "@prisma/client"
 import { Logger } from "../logger/Logger"
+import { reactionRoles } from "../constante"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
@@ -57,7 +58,7 @@ export default class BotClient extends Client {
 		}
 
 		if (environment.reactionRoleChannel) 
-			this.config.reactionRoles = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "reactionRoles.json"), "utf-8"))
+			this.config.reactionRoles = reactionRoles
 		
 
 		this.prisma = new PrismaClient()
