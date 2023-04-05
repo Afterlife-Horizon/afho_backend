@@ -15,14 +15,14 @@ interface IMessageType {
 let conversationLog: ChatCompletionRequestMessage[] = []
 
 export default async function handleGPTChat(client: BotClient, message: Message) {
-	if (!client.config.gptChatChannel || !client.config.openaiKey) return
+	if (!client.config.gptChatChannel || !client.config.openAIKey) return
 	if (message.channel.id !== client.config.gptChatChannel) return
 	if (message.type === MessageType.Reply) return
 
 	Logger.log(`GPT-3 Chat: ${message.author.username} (${message.author.id}) asked: ${message.content}`)
 
 	const configuration = new Configuration({
-		apiKey: client.config.openaiKey
+		apiKey: client.config.openAIKey
 	})
 	const openai = new OpenAIApi(configuration)
 
