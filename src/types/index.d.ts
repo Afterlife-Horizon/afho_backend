@@ -25,6 +25,7 @@ export interface IClientConfig extends IEnv {
 }
 
 export interface IReactionRole {
+	description: string
 	emojiName: string
 	roleID: string
 }
