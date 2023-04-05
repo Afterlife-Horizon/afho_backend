@@ -46,22 +46,29 @@ async function createaMessage(channel: TextChannel, reactionRoles: IReactionRole
         dispose: false,
     });
 
-    collector.on("collect", (reaction, user) => {
+    collector.on("collect", async (reaction, user) => {
         if (user.bot) return;
-        const role = reactionRoles.find(role => role.emoji === reaction.emoji.name);
-        if (!role) return Logger.error("Role not found");
-        const member = reaction.message.guild?.members.cache.get(user.id);
+        const reactionRole = reactionRoles.find(role => role.emoji === reaction.emoji.name);
+        if (!reactionRole) return Logger.error("Role not found");
+        const member = await reaction.message.guild?.members.fetch(user.id);
         if (!member) return Logger.error("Member not found");
-        member.roles.add(role.roleID);
+
+        const role = await reaction.message.guild?.roles.fetch(reactionRole.roleID);
+        if (!role) return Logger.error("Role not found");
+
+        member.roles.add(role);
     })
 
-    collector.on("remove", (reaction, user) => {
+    collector.on("remove", async (reaction, user) => {
         if (user.bot) return;
-        const role = reactionRoles.find(role => role.emoji === reaction.emoji.name);
-        if (!role) return Logger.error("Role not found");
-        const member = reaction.message.guild?.members.cache.get(user.id);
+        const reactionRole = reactionRoles.find(role => role.emoji === reaction.emoji.name);
+        if (!reactionRole) return Logger.error("Role not found");
+        const member = await reaction.message.guild?.members.fetch(user.id);
         if (!member) return Logger.error("Member not found");
-        member.roles.remove(role.roleID);
+
+        const role = await reaction.message.guild?.roles.fetch(reactionRole.roleID);
+        if (!role) return Logger.error("Role not found");
+        member.roles.remove(role);
     })
 
     collector.on("end", () => {
