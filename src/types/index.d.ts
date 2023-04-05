@@ -6,7 +6,7 @@ import { AudioResource } from "@discordjs/voice"
 export interface IEnv {
 	token: string
 	clientID: string
-	brasilChannelID: string
+	client.config.brasilChannelID: string
 	baseChannelID: string
 	serverID: string
 	adminRoleID: string
