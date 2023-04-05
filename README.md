@@ -42,6 +42,8 @@ This bot is created and designed by myself.
 7. Add roles that you want the user to be able to add to themselves in **src/constants.ts**:
 
     ```ts
+    import { IReactionRole } from "./types";
+    
     export const reactionRoles: IReactionRole[] = [
         // emoji 1
         {
@@ -58,7 +60,7 @@ This bot is created and designed by myself.
         // ...
     ];
     ```
-    
+
 8.  Add all the variables in .env files:
 
     1. backend .env
