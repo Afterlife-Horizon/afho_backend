@@ -7,7 +7,8 @@ export default async function reactionCollector(client: BotClient) {
     const channelId = client.config.reactionRoleChannel;
     const reactionRoles = client.config.reactionRoles;
     if (!channelId || !reactionRoles) return;
-    const channel = client.channels.cache.get(channelId) as TextChannel;
+
+    const channel = await client.channels.fetch(channelId) as TextChannel;
     if (!channel || !channel.isTextBased()) return Logger.error("Invalid reaction role channel ID");
 
     const messages = await channel.messages.fetch()
