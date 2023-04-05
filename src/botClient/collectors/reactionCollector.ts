@@ -14,19 +14,19 @@ export default async function reactionCollector(client: BotClient) {
     const messages = await channel.messages.fetch()
     
     if (messages.size === 0) {
-        await createaMessage(channel, reactionRoles);
+        await createaMessage(client, channel, reactionRoles);
     }
     else {
         messages.forEach(message => {
             if (client.user && message.author.id !== client.user.id) return;                            
             message.delete().then(async () => {
-                await createaMessage(channel, reactionRoles);
+                await createaMessage(client, channel, reactionRoles);
             })
         });
     }
 }
 
-async function createaMessage(channel: TextChannel, reactionRoles: IReactionRole[]) {
+async function createaMessage(client: BotClient, channel: TextChannel, reactionRoles: IReactionRole[]) {
     const baseEmbed = new EmbedBuilder()
         .setAuthor({
             name: "Reaction Roles",
@@ -38,7 +38,12 @@ async function createaMessage(channel: TextChannel, reactionRoles: IReactionRole
     const newMessage = await channel.send({ embeds: [baseEmbed] })
     Logger.log("Reaction role message created");
 
-    for (const {emoji} of reactionRoles) {
+    for (const {emojiName} of reactionRoles) {
+
+        const emoji = client.emojis.cache.find(emoji => emoji.name === emojiName);
+
+        if (!emoji) return Logger.error("Emoji not found");
+
         newMessage.react(emoji);
     }
 
@@ -48,7 +53,7 @@ async function createaMessage(channel: TextChannel, reactionRoles: IReactionRole
 
     collector.on("collect", async (reaction, user) => {
         if (user.bot) return;
-        const reactionRole = reactionRoles.find(role => role.emoji === reaction.emoji.name);
+        const reactionRole = reactionRoles.find(role => role.emojiName === reaction.emoji.name);
         if (!reactionRole) return Logger.error("Role not found");
         const member = await reaction.message.guild?.members.fetch(user.id);
         if (!member) return Logger.error("Member not found");
@@ -61,7 +66,7 @@ async function createaMessage(channel: TextChannel, reactionRoles: IReactionRole
 
     collector.on("remove", async (reaction, user) => {
         if (user.bot) return;
-        const reactionRole = reactionRoles.find(role => role.emoji === reaction.emoji.name);
+        const reactionRole = reactionRoles.find(role => role.emojiName === reaction.emoji.name);
         if (!reactionRole) return Logger.error("Role not found");
         const member = await reaction.message.guild?.members.fetch(user.id);
         if (!member) return Logger.error("Member not found");
