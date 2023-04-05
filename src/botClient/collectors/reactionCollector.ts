@@ -63,11 +63,11 @@ async function createaMessage(client: BotClient, channel: TextChannel, reactionR
 
         if (member.roles.cache.has(role.id)) {
             member.roles.remove(role);
-            Logger.log(`Removed role ${role} for user ${user.username}`);
+            Logger.log(`Removed role ${role.name} for user ${user.username}`);
         }
         else {
             member.roles.add(role);
-            Logger.log(`Added role ${role} for user ${user.username}`);
+            Logger.log(`Added role ${role.name} for user ${user.username} (${user.id})})`);
         }
         reaction.users.remove(user);
     })
