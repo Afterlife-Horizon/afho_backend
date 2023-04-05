@@ -18,6 +18,7 @@ export default async function reactionCollector(client: BotClient) {
     }
     else {
         messages.forEach(message => {
+            console.log(message.author)
             if (client.user && !(message.author.id !== client.user.id)) return;                            
             message.delete().then(async () => {
                 await createaMessage(channel, reactionRoles);
