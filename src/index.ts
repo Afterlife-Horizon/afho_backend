@@ -96,7 +96,15 @@ const options = {
 		GatewayIntentBits.MessageContent,
 		GatewayIntentBits.GuildMessageReactions
 	],
-	partials: [Partials.Message, Partials.Channel, Partials.Reaction],
+	partials: [
+		Partials.Message,
+		Partials.Channel,
+		Partials.Reaction,
+		Partials.GuildMember,
+		Partials.User,
+		Partials.GuildScheduledEvent,
+		Partials.ThreadMember
+	],
 	failIfNotExists: false,
 	allowedMentions: {
 		parse: ["roles", "users"],
