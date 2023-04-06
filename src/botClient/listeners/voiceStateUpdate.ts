@@ -1,5 +1,7 @@
 import { getVoiceConnection } from "@discordjs/voice"
 import BotClient from "../BotClient"
+import { AuditLogEvent } from "discord.js"
+import { Logger } from "../../logger/Logger"
 
 export default function (client: BotClient) {
 	return (
@@ -36,6 +38,51 @@ export default function (client: BotClient) {
 					if (connection && connection.joinConfig.channelId == oldState.channelId) connection.destroy()
 					return
 				}, 15000)
+			}
+
+			// channel moves
+			if (oldState.channelId && newState.channelId && oldState.channelId != newState.channelId) {
+				const logs = await newState.guild.fetchAuditLogs<AuditLogEvent.MemberMove>()
+				const log = logs.entries.first()
+				if (log?.target?.id == newState.id) {
+					const mover = log.executor
+					const moved = newState.member
+					if (!mover || !moved) return Logger.error("Couldn't find mover or moved member")
+
+					await client.prisma.bot_bresil.upsert({
+						where: {
+							id: moved.user.id
+						},
+						update: {
+							bresil_received: {
+								increment: 1
+							}
+						},
+						create: {
+							id: moved.user.id,
+							username: moved.user.username,
+							bresil_received: 1,
+							bresil_sent: 0
+						}
+					})
+
+					await client.prisma.bot_bresil.upsert({
+						where: {
+							id: mover.id
+						},
+						update: {
+							bresil_sent: {
+								increment: 1
+							}
+						},
+						create: {
+							id: mover.id,
+							username: mover.username,
+							bresil_received: 0,
+							bresil_sent: 1
+						}
+					})
+				}
 			}
 		})
 	)
