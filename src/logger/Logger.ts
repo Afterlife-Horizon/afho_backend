@@ -10,20 +10,38 @@ export class Logger {
 				out: { type: "stdout", layout: { type: "colored" } },
 				app: { type: "file", filename: "logs/app.log" },
 				error: { type: "file", filename: "logs/error.log" },
-				gpt: { type: "file", filename: "logs/gpt.log" }
+				gpt: { type: "file", filename: "logs/gpt.log" },
+				multi: {
+					type: "multiFile",
+					base: "logs/",
+					property: "categoryName",
+					extension: ".log",
+					layout: {
+						type: "pattern",
+						pattern: "%d{yyyy-MM-dd hh:mm:ss} [%p] %m",
+						colours: {
+							trace: "blue",
+							debug: "blue",
+							info: "green",
+							warn: "yellow",
+							error: "red",
+							fatal: "red"
+						}
+					}
+				}
 			},
 			categories: {
 				default: {
-					appenders: ["out", "error"],
+					appenders: ["out", "multi"],
 					level: "ERROR",
 					enableCallStack: true
 				},
 				info: {
-					appenders: ["out", "app"],
+					appenders: ["out", "multi"],
 					level: "INFO"
 				},
 				debug: {
-					appenders: ["out", "app", "error"],
+					appenders: ["out", "app", "multi"],
 					level: "DEBUG",
 					enableCallStack: true
 				},
