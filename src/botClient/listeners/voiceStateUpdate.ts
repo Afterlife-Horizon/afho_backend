@@ -36,6 +36,8 @@ export default function (client: BotClient) {
 				const log = logs.entries.first()
 				if (!log) return Logger.error("Couldn't find log")
 
+				console.log(log.target?.id, newState.member?.user.id)
+
 				if (log?.target?.id == newState.member?.user.id) {
 					Logger.log(
 						`User ${newState.member?.user.username} moved from ${oldState.channel?.name} to ${newState.channel?.name} by ${log.executor?.username}`
