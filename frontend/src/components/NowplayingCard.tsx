@@ -206,6 +206,9 @@ const NowplayingCard: React.FC = () => {
 	return (
 		<div className="nowplaying">
 			<div className="nowplaying-card ant-card brasilboardd">
+				<Link to={"/levels"}>
+					<button>LEVELS</button>
+				</Link>
 				<Link to={"/brasilboard"}>
 					<button>BRASILBOARD</button>
 				</Link>
