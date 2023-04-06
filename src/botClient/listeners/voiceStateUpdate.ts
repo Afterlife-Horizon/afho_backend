@@ -29,61 +29,6 @@ export default function (client: BotClient) {
 			// channel joins
 			if (!oldState.channelId && newState.channelId) return
 
-			// channel moves
-			if (oldState.channelId && newState.channelId && oldState.channelId != newState.channelId) {
-				const logs = await newState.guild.fetchAuditLogs<AuditLogEvent.MemberMove>()
-
-				const log = logs.entries.first()
-				if (!log) return Logger.error("Couldn't find log")
-
-				console.log(log, newState)
-
-				if (log?.target?.id == newState.member?.user.id) {
-					Logger.log(
-						`User ${newState.member?.user.username} moved from ${oldState.channel?.name} to ${newState.channel?.name} by ${log.executor?.username}`
-					)
-					if (newState.channelId != client.config.brasilChannelID) return
-
-					const mover = log.executor
-					const moved = newState.member
-					if (!mover || !moved) return Logger.error("Couldn't find mover or moved member")
-
-					await client.prisma.bot_bresil.upsert({
-						where: {
-							id: moved.user.id
-						},
-						update: {
-							bresil_received: {
-								increment: 1
-							}
-						},
-						create: {
-							id: moved.user.id,
-							username: moved.user.username,
-							bresil_received: 1,
-							bresil_sent: 0
-						}
-					})
-
-					await client.prisma.bot_bresil.upsert({
-						where: {
-							id: mover.id
-						},
-						update: {
-							bresil_sent: {
-								increment: 1
-							}
-						},
-						create: {
-							id: mover.id,
-							username: mover.username,
-							bresil_received: 0,
-							bresil_sent: 1
-						}
-					})
-				}
-			}
-
 			// channel leaves
 			if ((!newState.channelId && oldState.channelId) || (newState.channelId && oldState.channelId)) {
 				setTimeout(() => {
