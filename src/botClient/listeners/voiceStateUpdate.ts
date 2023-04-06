@@ -10,22 +10,6 @@ export default function (client: BotClient) {
 			return (one === false && two === true) || (one === true && two === false)
 		}
 
-		// const fetchedLogs = await newState.guild.fetchAuditLogs({
-		// 	type: AuditLogEvent.MemberMove,
-		// 	limit: 1
-		// })
-
-		// const firstEntry = fetchedLogs.entries.first()
-
-		// console.log(firstEntry)
-
-		// if (firstEntry?.extra.channel.id == newState.channelId) {
-		// 	if (firstEntry?.target?.id == newState.id) {
-		// 		if (firstEntry?.executor?.id == client.user?.id) return
-		// 		console.log("moved by " + firstEntry?.executor?.tag)
-		// 	}
-		// }
-
 		if (
 			stateChange(oldState.streaming, newState.streaming) ||
 			stateChange(oldState.serverDeaf, newState.serverDeaf) ||
@@ -40,6 +24,25 @@ export default function (client: BotClient) {
 
 		// channel joins
 		if (!oldState.channelId && newState.channelId) return
+
+		// channel moves
+		if (oldState.channelId && newState.channelId && oldState.channelId != newState.channelId) {
+			const fetchedLogs = await newState.guild.fetchAuditLogs({
+				type: AuditLogEvent.MemberMove,
+				limit: 1
+			})
+
+			const firstEntry = fetchedLogs.entries.first()
+
+			console.log(firstEntry)
+
+			if (firstEntry?.extra.channel.id == newState.channelId) {
+				if (firstEntry?.executor?.id == client.user?.id) return
+				console.log("moved by " + firstEntry?.executor?.tag)
+			}
+
+			return
+		}
 
 		// channel leaves
 		if ((!newState.channelId && oldState.channelId) || (newState.channelId && oldState.channelId)) {
