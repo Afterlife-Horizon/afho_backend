@@ -7,7 +7,7 @@ export class Logger {
 	public static init() {
 		log4js.configure({
 			appenders: {
-				out: { type: "console", layout: { type: "colored" } },
+				out: { type: "stdout", layout: { type: "colored" } },
 				app: { type: "file", filename: "logs/app.log" },
 				error: { type: "file", filename: "logs/error.log" },
 				gpt: { type: "file", filename: "logs/gpt.log" }
