@@ -1,6 +1,7 @@
 import { getVoiceConnection } from "@discordjs/voice"
 import BotClient from "../BotClient"
 import { AuditLogEvent } from "discord.js"
+import { Logger } from "../../logger/Logger"
 
 export default function (client: BotClient) {
 	return client.on("voiceStateUpdate", async (oldState, newState) => {
@@ -77,6 +78,10 @@ export default function (client: BotClient) {
 					}
 				})
 			}
+
+			Logger.log(
+				`User ${newState.member?.user.username} moved from ${oldState.channel?.name} to ${newState.channel?.name} in ${newState.guild.name}`
+			)
 
 			return
 		}
