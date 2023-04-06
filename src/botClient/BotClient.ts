@@ -90,8 +90,8 @@ export default class BotClient extends Client {
 	private initListeners() {
 		interactionCreate(this)
 		messageCreate(this)
-		// voiceStateUpdate(this)
-		guildAuditLogEntryCreate(this)
+		voiceStateUpdate(this)
+		// guildAuditLogEntryCreate(this)
 	}
 
 	/**

@@ -1,5 +1,6 @@
 import { getVoiceConnection } from "@discordjs/voice"
 import BotClient from "../BotClient"
+import { AuditLogEvent } from "discord.js"
 
 export default function (client: BotClient) {
 	return client.on("voiceStateUpdate", async (oldState, newState) => {
@@ -7,6 +8,21 @@ export default function (client: BotClient) {
 
 		function stateChange(one, two) {
 			return (one === false && two === true) || (one === true && two === false)
+		}
+
+		const fetchedLogs = await newState.guild.fetchAuditLogs({
+			type: AuditLogEvent.MemberMove,
+			limit: 1
+		})
+
+		const firstEntry = fetchedLogs.entries.first()
+
+		console.log(firstEntry)
+
+		if (firstEntry?.extra.channel.id == newState.channelId) {
+			if (firstEntry?.target?.id == newState.id) {
+				if (firstEntry?.executor?.id == client.user?.id) return
+			}
 		}
 
 		if (
