@@ -55,12 +55,11 @@ export default class BotClient extends Client {
 			openAIKey: environment.openAIKey,
 			youtubeCookie: environment.youtubeCookie,
 			gptChatChannel: environment.gptChatChannel,
-			reactionRoleChannel: environment.reactionRoleChannel
+			reactionRoleChannel: environment.reactionRoleChannel,
+			websiteURL: environment.websiteURL
 		}
 
-		if (environment.reactionRoleChannel) 
-			this.config.reactionRoles = reactionRoles
-		
+		if (environment.reactionRoleChannel) this.config.reactionRoles = reactionRoles
 
 		this.prisma = new PrismaClient()
 		this.commands = new Collection()
@@ -395,7 +394,8 @@ export default class BotClient extends Client {
 		if (!queue || !queue.tracks || queue.tracks.length == 0) return false
 
 		const channel =
-			this.channels.cache.get(this.config.baseChannelID) || (await this.channels.fetch(queue.textChannel).catch(err => Logger.error(err.message)))
+			this.channels.cache.get(this.config.baseChannelID) ||
+			(await this.channels.fetch(queue.textChannel).catch(err => Logger.error(err.message)))
 		const textChannel = channel?.isTextBased() ? (channel as TextChannel) : null
 		if (!textChannel) return false
 

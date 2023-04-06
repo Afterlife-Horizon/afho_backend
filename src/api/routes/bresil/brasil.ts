@@ -10,9 +10,13 @@ export default function (client: BotClient) {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		try {
 			const { moverId, movedId } = req.body
-			const logChannel = client.channels.cache.get(client.config.baseChannelID) as TextChannel
-			const mover = client.guilds.cache.get(client.config.serverID)?.members.cache.get(moverId)
-			const member = client.guilds.cache.get(client.config.serverID)?.members.cache.get(movedId)
+			if (!moverId || !movedId) return res.status(406).json({ error: "Bad Request!" })
+
+			const guild = await client.guilds.fetch(client.config.serverID)
+
+			const logChannel = (await guild.channels.fetch(client.config.baseChannelID)) as TextChannel
+			const mover = await guild?.members.fetch(moverId)
+			const member = await guild?.members.fetch(movedId)
 			if (!mover || !member) return res.status(406).json({ error: "Member not found!" })
 
 			const result = await bresil(client, mover, member)

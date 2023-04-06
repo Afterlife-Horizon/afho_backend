@@ -1,4 +1,4 @@
-import { Collection, Colors, EmbedBuilder, Message, TextChannel } from "discord.js";
+import { Colors, EmbedBuilder, Message, TextChannel } from "discord.js";
 import { Logger } from "../../logger/Logger";
 import BotClient from "../BotClient";
 import { IReactionRole } from "../../types";
@@ -8,26 +8,6 @@ export default async function reactionCollector(client: BotClient) {
     const reactionRoles = client.config.reactionRoles;
     if (!channelId || !reactionRoles) return;
 
-    const channel = await client.channels.fetch(channelId) as TextChannel;
-    if (!channel || !channel.isTextBased()) return Logger.error("Invalid reaction role channel ID");
-
-    const messages = await channel.messages.fetch()
-    
-    if (messages.size === 0) {
-        await createMessage(client, channel, reactionRoles);
-    }
-    else {
-        messages.forEach(message => {
-            if (client.user && message.author.id !== client.user.id) return;                            
-            message.delete().then(async () => {
-                await createMessage(client, channel, reactionRoles);
-            })
-        });
-    }
-}
-
-async function createMessage(client: BotClient, channel: TextChannel, reactionRoles: IReactionRole[]) {
-    
     const baseEmbed = new EmbedBuilder()
         .setAuthor({
             name: "React to the message to toggle the role!",
@@ -48,18 +28,37 @@ async function createMessage(client: BotClient, channel: TextChannel, reactionRo
             }
         }));
 
-    const newMessage = await channel.send({ embeds: [baseEmbed] })
-    Logger.log("Reaction role message created");
+    const channel = await client.channels.fetch(channelId) as TextChannel;
+    if (!channel || !channel.isTextBased()) return Logger.error("Invalid reaction role channel ID");
 
-    for (const {emojiName} of reactionRoles) {
-
-        const emoji = client.emojis.cache.find(emoji => emoji.name === emojiName);
-        if (!emoji) return Logger.error("Emoji not found");
-
-        newMessage.react(emoji);
+    const messages = await channel.messages.fetch()
+    
+    if (messages.size > 1)  {
+        Logger.log("More than one reaction role message found, deleting all")
+        messages.forEach(async message => {
+            if (client.user && message.author.id !== client.user.id) return;
+            message.delete();
+        })
     }
+    if (messages.size === 0 || messages.size > 1) {
+        Logger.log("No reaction role message found, creating one");
+        const message = await channel.send({ embeds: [baseEmbed] })
+        addReactions(client, message, reactionRoles);
+        return await attachCollector(message, reactionRoles)
+    }
+    messages.forEach(async message => {
+        if (client.user && message.author.id !== client.user.id) return;
 
-    const collector = newMessage.createReactionCollector({
+        Logger.log("Reaction role message found, updating");
+
+        message.edit({ embeds: [baseEmbed] });
+        addReactions(client, message, reactionRoles);
+        await attachCollector(message, reactionRoles)
+    });
+}
+
+async function attachCollector(message: Message, reactionRoles: IReactionRole[]) {
+    const collector = message.createReactionCollector({
         dispose: false,
     });
 
@@ -92,4 +91,12 @@ async function createMessage(client: BotClient, channel: TextChannel, reactionRo
     collector.on("error", (error) => {
         Logger.error(error);
     })
+}
+
+function addReactions(client: BotClient, message: Message, reactionRoles: IReactionRole[]) {
+    for (const {emojiName} of reactionRoles) {
+        const emoji = client.emojis.cache.find(emoji => emoji.name === emojiName);
+        if (!emoji) return Logger.error("Emoji not found");
+        message.react(emoji);
+    }
 }

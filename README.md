@@ -1,4 +1,5 @@
 # Afterlife Horizon Bot Project
+
 This bot is created and designed by myself.
 
 ## functionalities
@@ -18,8 +19,8 @@ This bot is created and designed by myself.
 1.  Create a mariaDB database using the tables:
 
     ```bash
-     npx prisma migrate dev --name init 
-     ```
+     npx prisma migrate dev --name init
+    ```
 
 2.  Add certificate files for the website in:
 
@@ -39,26 +40,26 @@ This bot is created and designed by myself.
     2.  in Authentication tab go to URL Configurator and add the url of your website
     3.  In providers tab enable disord with the client id and secret of your discord application, copy the url
     4.  go to https://discord.com/developers/applications and add the url to the redirect uri
-7. Add roles that you want the user to be able to add to themselves in **src/constants.ts**:
+7.  Add roles that you want the user to be able to add to themselves in **src/constants.ts**:
 
     ```ts
-    import { IReactionRole } from "./types";
-    
+    import { IReactionRole } from "./types"
+
     export const reactionRoles: IReactionRole[] = [
-        // emoji 1
-        {
-            description: "description", // description of the role
-            emojiName: "role name",     // name of the emoji without :: (ex: :smile: -> smile)
-            roleID: "role id",          // id of the role, can be found by right clicking on the role and clicking on copy id
-        },
-        // emoji 2
-        {
-            description: "description",
-            emojiName: "role name",
-            roleID: "role id",
-        },
-        // ...
-    ];
+    	// emoji 1
+    	{
+    		description: "description", // description of the role
+    		emojiName: "role name", // name of the emoji without :: (ex: :smile: -> smile)
+    		roleID: "role id" // id of the role, can be found by right clicking on the role and clicking on copy id
+    	},
+    	// emoji 2
+    	{
+    		description: "description",
+    		emojiName: "role name",
+    		roleID: "role id"
+    	}
+    	// ...
+    ]
     ```
 
 8.  Add all the variables in .env files:
@@ -72,7 +73,7 @@ This bot is created and designed by myself.
         #### **`./.env`**
 
         ```bash
-        DATABASE_URL="mysql://user:password@127.0.0.1:3306/myDb" # Database url, encode user, password and myDb with Percent-encoding and replace them in the string 
+        DATABASE_URL="mysql://user:password@127.0.0.1:3306/myDb" # Database url, encode user, password and myDb with Percent-encoding and replace them in the string
 
         # Discord related variables
         SERVER_NAME=""                  # name of your server
@@ -83,7 +84,8 @@ This bot is created and designed by myself.
         REACTION_ROLE_CHANNEL_ID=""     # id of reaction role channel / optional
         BRASIL_CHANNEL_ID=""            # id of bresil channel
 
-        # supabase related variables
+        # website related variables
+        WEBSITE_URL="127.0.0.1:8080"    # url of your website: ex: https://google.com
         SUPABASE_URL=""                 # url of your supabase project
         SUPABASE_KEY=""                 # public key from supabase
 

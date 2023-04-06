@@ -16,7 +16,7 @@ export default (client: BotClient): ICommand => {
 
 				const messageMember = interaction.options.get("member")?.value as string
 				const memberid = messageMember.replace(/\D/g, "")
-				const guild = interaction.client.guilds.cache.get(client.config.serverID)
+				const guild = await interaction.client.guilds.fetch(client.config.serverID)
 				const member = await guild?.members.fetch(memberid)
 				if (!member) return await interaction.reply({ content: "❌ Member not found!" })
 

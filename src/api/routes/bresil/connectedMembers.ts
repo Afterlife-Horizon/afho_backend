@@ -11,8 +11,7 @@ export default function (client: BotClient) {
 
 			if (!guild) return res.status(404).json({ error: "Guild not found" })
 
-			await guild.members.fetch()
-			const connectedMembers = guild.members.cache.filter(m => m.voice.channel).map(m => m.user)
+			const connectedMembers = await guild.members.fetch().then(m => m.filter(m => m.voice.channel).map(m => m.user))
 
 			res.json({ data: connectedMembers })
 		} catch (err) {

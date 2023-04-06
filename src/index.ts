@@ -8,6 +8,7 @@ import { exit } from "process"
 import { IEnv } from "./types"
 import { Logger } from "./logger/Logger"
 import reactionCollector from "./botClient/collectors/reactionCollector"
+import parseWebsiteURL from "./functions/parseWebsiteURL"
 
 // Check for .env file
 if (!fs.existsSync(".env")) throw new Error("No .env file found, creating one...")
@@ -54,17 +55,14 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 		Logger.error("No Supabase credentials found")
 		throw new Error("No Supabase credentials found")
 	}
-	if (!process.env.CERT || !process.env.CERT_KEY) 
-		Logger.warn("No HTTPS certificate found, using HTTP instead...")
-	
-	if (!process.env.OPENAI_KEY || !process.env.CHAT_GPT_CHANNEL_ID) 
-		Logger.warn("No OpenAI key found, not using OpenAI API")
-
-	if (!process.env.REACTION_ROLE_CHANNEL_ID) 
-		Logger.warn("No roles channel ID found, not using reaction roles")
-
-	if (!process.env.YOUTUBE_LOGIN_COOKIE)
-		Logger.warn("No YouTube cookie found, not using YouTube API")
+	if (!process.env.WEBSITE_URL) {
+		Logger.error("No website URL found")
+		throw new Error("No website URL found")
+	}
+	if (!process.env.CERT || !process.env.CERT_KEY) Logger.warn("No HTTPS certificate found, using HTTP instead...")
+	if (!process.env.OPENAI_KEY || !process.env.CHAT_GPT_CHANNEL_ID) Logger.warn("No OpenAI key found, not using OpenAI API")
+	if (!process.env.REACTION_ROLE_CHANNEL_ID) Logger.warn("No roles channel ID found, not using reaction roles")
+	if (!process.env.YOUTUBE_LOGIN_COOKIE) Logger.warn("No YouTube cookie found, not using YouTube API")
 }
 
 const environement = {
@@ -74,6 +72,7 @@ const environement = {
 	baseChannelID: process.env.BASE_CHANNEL_ID,
 	serverID: process.env.SERVER_ID,
 	adminRoleID: process.env.ADMIN_ROLE_ID,
+	websiteURL: parseWebsiteURL(process.env.WEBSITE_URL),
 	supabaseURL: process.env.SUPABASE_URL,
 	supabaseKey: process.env.SUPABASE_KEY,
 	cert: process.env.CERT,
@@ -81,7 +80,7 @@ const environement = {
 	openAIKey: process.env.OPENAI_KEY,
 	youtubeCookie: process.env.YOUTUBE_LOGIN_COOKIE,
 	gptChatChannel: process.env.CHAT_GPT_CHANNEL_ID,
-	reactionRoleChannel: process.env.REACTION_ROLE_CHANNEL_ID,
+	reactionRoleChannel: process.env.REACTION_ROLE_CHANNEL_ID
 } as IEnv
 
 const options = {
@@ -95,7 +94,7 @@ const options = {
 		GatewayIntentBits.GuildMembers,
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.MessageContent,
-		GatewayIntentBits.GuildMessageReactions,
+		GatewayIntentBits.GuildMessageReactions
 	],
 	partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 	failIfNotExists: false,

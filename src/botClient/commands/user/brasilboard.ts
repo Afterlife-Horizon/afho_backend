@@ -3,11 +3,11 @@ import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
 require("dotenv").config()
 
-export default (_: BotClient): ICommand => {
+export default (client: BotClient): ICommand => {
 	return {
 		data: new SlashCommandBuilder().setName("brasilboard").setDescription("Get brasil leaderboard!"),
 		async execute(interaction) {
-			await interaction.reply({ content: "https://music.afterlifehorizon.net/brasilboard" })
+			await interaction.reply({ content: `${client.config.websiteURL}/brasilboard` })
 		}
 	}
 }

@@ -12,11 +12,12 @@ export interface IEnv {
 	adminRoleID: string
 	supabaseURL: string
 	supabaseKey: string
+	websiteURL: string
 	cert?: string
 	certKey?: string
 	openAIKey?: string
 	youtubeCookie?: string
-	gptChatChannel?: string,
+	gptChatChannel?: string
 	reactionRoleChannel?: string
 }
 
