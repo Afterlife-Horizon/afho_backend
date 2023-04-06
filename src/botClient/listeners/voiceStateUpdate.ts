@@ -36,7 +36,7 @@ export default function (client: BotClient) {
 				const log = logs.entries.first()
 				if (!log) return Logger.error("Couldn't find log")
 
-				console.log(log.target?.id, newState.member?.user.id)
+				console.log(log, newState)
 
 				if (log?.target?.id == newState.member?.user.id) {
 					Logger.log(
