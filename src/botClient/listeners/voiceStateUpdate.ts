@@ -45,6 +45,8 @@ export default function (client: BotClient) {
 				const logs = await newState.guild.fetchAuditLogs<AuditLogEvent.MemberMove>()
 				const log = logs.entries.first()
 				if (log?.target?.id == newState.id) {
+					if (newState.channelId != client.config.brasilChannelID) return
+
 					const mover = log.executor
 					const moved = newState.member
 					if (!mover || !moved) return Logger.error("Couldn't find mover or moved member")
