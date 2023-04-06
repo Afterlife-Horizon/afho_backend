@@ -27,7 +27,7 @@ import { PassThrough } from "node:stream"
 import { PrismaClient } from "@prisma/client"
 import { Logger } from "../logger/Logger"
 import { reactionRoles } from "../constante"
-import guildAuditLogEntryCreate from "./listeners/guildAuditLogEntryCreate"
+import guildAuditLogEntryCreate from "./listeners/channelUpdate"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
