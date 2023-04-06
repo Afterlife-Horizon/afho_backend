@@ -2,6 +2,7 @@ import { getVoiceConnection } from "@discordjs/voice"
 import BotClient from "../BotClient"
 import { AuditLogEvent } from "discord.js"
 import { Logger } from "../../logger/Logger"
+import { userInfo } from "os"
 
 export default function (client: BotClient) {
 	return (
@@ -45,6 +46,9 @@ export default function (client: BotClient) {
 				const logs = await newState.guild.fetchAuditLogs<AuditLogEvent.MemberMove>()
 				const log = logs.entries.first()
 				if (log?.target?.id == newState.id) {
+					Logger.log(
+						`User ${newState.member?.user.username} moved from ${oldState.channel?.name} to ${newState.channel?.name} by ${log.executor?.username}`
+					)
 					if (newState.channelId != client.config.brasilChannelID) return
 
 					const mover = log.executor
