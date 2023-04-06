@@ -27,17 +27,16 @@ export default function (client: BotClient) {
 			}
 
 			// channel joins
-			if (!oldState.channelId && newState.channelId) {
-				return
-			}
+			if (!oldState.channelId && newState.channelId) return
 
 			// channel moves
 			if (oldState.channelId && newState.channelId && oldState.channelId != newState.channelId) {
 				const logs = await newState.guild.fetchAuditLogs<AuditLogEvent.MemberMove>()
-				console.log(logs)
 
 				const log = logs.entries.first()
-				if (log?.target?.id == newState.id) {
+				if (!log) return Logger.error("Couldn't find log")
+
+				if (log?.target?.id == newState.member?.user.id) {
 					Logger.log(
 						`User ${newState.member?.user.username} moved from ${oldState.channel?.name} to ${newState.channel?.name} by ${log.executor?.username}`
 					)
