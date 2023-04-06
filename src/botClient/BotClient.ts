@@ -28,6 +28,7 @@ import { PrismaClient } from "@prisma/client"
 import { Logger } from "../logger/Logger"
 import { reactionRoles } from "../constante"
 import reactionCollector from "./collectors/reactionCollector"
+import guildAuditLogEntryCreate from "./listeners/guildAuditLogEntryCreate"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
@@ -91,6 +92,7 @@ export default class BotClient extends Client {
 		interactionCreate(this)
 		messageCreate(this)
 		voiceStateUpdate(this)
+		guildAuditLogEntryCreate(this)
 	}
 
 	/**

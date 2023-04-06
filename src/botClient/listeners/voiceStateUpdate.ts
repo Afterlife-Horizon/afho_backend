@@ -1,8 +1,5 @@
 import { getVoiceConnection } from "@discordjs/voice"
 import BotClient from "../BotClient"
-import { AuditLogEvent } from "discord.js"
-import { Logger } from "../../logger/Logger"
-import { userInfo } from "os"
 
 export default function (client: BotClient) {
 	return (
