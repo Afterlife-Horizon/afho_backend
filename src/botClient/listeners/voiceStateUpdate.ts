@@ -7,7 +7,7 @@ export default function (client: BotClient) {
 	return client.on("voiceStateUpdate", async (oldState, newState) => {
 		if (newState.id == client.user?.id) return
 
-		function stateChange(one, two) {
+		function stateChange(one: boolean | null, two: boolean | null) {
 			return (one === false && two === true) || (one === true && two === false)
 		}
 
