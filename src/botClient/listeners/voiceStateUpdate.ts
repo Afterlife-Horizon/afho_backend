@@ -34,8 +34,8 @@ export default function (client: BotClient) {
 			// channel moves
 			if (oldState.channelId && newState.channelId && oldState.channelId != newState.channelId) {
 				const logs = await newState.guild.fetchAuditLogs<AuditLogEvent.MemberMove>()
-				const log = logs.entries.first()
-				console.log(log?.target?.id == newState.id)
+				const log = logs.entries.last()
+				console.log(log)
 				if (log?.target?.id == newState.id) {
 					Logger.log(
 						`User ${newState.member?.user.username} moved from ${oldState.channel?.name} to ${newState.channel?.name} by ${log.executor?.username}`
