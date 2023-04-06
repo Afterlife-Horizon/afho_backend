@@ -7,7 +7,7 @@ export class Logger {
 	public static init() {
 		log4js.configure({
 			appenders: {
-				out: { type: "stdout" },
+				out: { type: "colored" },
 				app: { type: "file", filename: "logs/app.log" },
 				error: { type: "file", filename: "logs/error.log" },
 				gpt: { type: "file", filename: "logs/gpt.log" }
@@ -15,7 +15,8 @@ export class Logger {
 			categories: {
 				default: {
 					appenders: ["out", "error"],
-					level: "ERROR"
+					level: "ERROR",
+					enableCallStack: true
 				},
 				info: {
 					appenders: ["out", "app"],
@@ -23,7 +24,8 @@ export class Logger {
 				},
 				debug: {
 					appenders: ["out", "app", "error"],
-					level: "DEBUG"
+					level: "DEBUG",
+					enableCallStack: true
 				},
 				gpt: {
 					appenders: ["gpt"],
