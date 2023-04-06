@@ -18,7 +18,7 @@ export class Logger {
 					extension: ".log",
 					layout: {
 						type: "pattern",
-						pattern: "%d{yyyy-MM-dd hh:mm:ss} [%p] %m",
+						pattern: "[%d{yyyy-MM-dd hh:mm:ss}] [%p] %m",
 						colours: {
 							trace: "blue",
 							debug: "blue",
