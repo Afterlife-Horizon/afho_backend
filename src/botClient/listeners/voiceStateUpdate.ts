@@ -34,11 +34,48 @@ export default function (client: BotClient) {
 
 			const firstEntry = fetchedLogs.entries.first()
 
-			console.log(firstEntry)
-
 			if (firstEntry?.extra.channel.id == newState.channelId) {
 				if (firstEntry?.executor?.id == client.user?.id) return
-				console.log("moved by " + firstEntry?.executor?.tag)
+				if (!(newState.channel?.id == client.config.brasilChannelID)) return
+
+				const mover = firstEntry.executor
+				const moved = newState.member
+
+				if (!mover || !moved) return
+
+				await client.prisma.bot_bresil.upsert({
+					where: {
+						id: moved.user.id
+					},
+					update: {
+						bresil_received: {
+							increment: 1
+						}
+					},
+					create: {
+						id: moved.user.id,
+						username: moved.user.username,
+						bresil_received: 1,
+						bresil_sent: 0
+					}
+				})
+
+				await client.prisma.bot_bresil.upsert({
+					where: {
+						id: mover.id
+					},
+					update: {
+						bresil_sent: {
+							increment: 1
+						}
+					},
+					create: {
+						id: mover.id,
+						username: mover.username,
+						bresil_received: 0,
+						bresil_sent: 1
+					}
+				})
 			}
 
 			return
