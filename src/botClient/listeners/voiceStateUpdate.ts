@@ -31,16 +31,6 @@ export default function (client: BotClient) {
 				return
 			}
 
-			// channel leaves
-			if ((!newState.channelId && oldState.channelId) || (newState.channelId && oldState.channelId)) {
-				setTimeout(() => {
-					const connection = getVoiceConnection(newState.guild.id)
-					if (oldState.channel ? oldState.channel.members.filter(m => !m.user.bot).size >= 1 : true) return
-					if (connection && connection.joinConfig.channelId == oldState.channelId) connection.destroy()
-					return
-				}, 15000)
-			}
-
 			// channel moves
 			if (oldState.channelId && newState.channelId && oldState.channelId != newState.channelId) {
 				const logs = await newState.guild.fetchAuditLogs<AuditLogEvent.MemberMove>()
@@ -89,6 +79,16 @@ export default function (client: BotClient) {
 						}
 					})
 				}
+			}
+
+			// channel leaves
+			if ((!newState.channelId && oldState.channelId) || (newState.channelId && oldState.channelId)) {
+				setTimeout(() => {
+					const connection = getVoiceConnection(newState.guild.id)
+					if (oldState.channel ? oldState.channel.members.filter(m => !m.user.bot).size >= 1 : true) return
+					if (connection && connection.joinConfig.channelId == oldState.channelId) connection.destroy()
+					return
+				}, 15000)
 			}
 		})
 	)
