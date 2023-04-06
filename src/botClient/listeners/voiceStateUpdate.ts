@@ -22,6 +22,7 @@ export default function (client: BotClient) {
 		if (firstEntry?.extra.channel.id == newState.channelId) {
 			if (firstEntry?.target?.id == newState.id) {
 				if (firstEntry?.executor?.id == client.user?.id) return
+				console.log("moved by " + firstEntry?.executor?.tag)
 			}
 		}
 
