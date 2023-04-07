@@ -8,7 +8,7 @@ export default (client: BotClient): ICommand => {
 		data: new SlashCommandBuilder().setName("resume").setDescription("Resume the audio!"),
 		async execute(interaction) {
 			const user = interaction.user.username
-			const response = unpause(client, user)
+			const response = await unpause(client, user)
 
 			if (response.status === 200) return interaction.reply({ content: response.message })
 			return interaction.reply({ content: response.error, ephemeral: true })

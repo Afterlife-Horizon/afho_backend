@@ -10,35 +10,35 @@ import MusicContext from "../context/MusicContext"
 import useFavorites from "../hooks/useFavorites"
 import Spinner from "./Spinner"
 import { queryClient } from "../main"
-import { EnhancedUser } from "../types"
 import { supabase } from "../utils/supabaseUtils"
+import { fav } from "../types"
 
 const Favs: React.FC = () => {
 	const { user, setIsAdding, setInfo, setInfoboxColor, queue } = useContext(MusicContext)
-	if (!user?.user_metadata.provider_id) return <Spinner />
-	const userId = user?.user_metadata.provider_id || ""
-	const username = user?.user_metadata.full_name || ""
-
-	// TODO: Fix Too many re-renders
-	const { data: favs, isLoading, isError } = useFavorites(userId)
-	if (isLoading) return <Spinner />
-	if (isError) return <div>Something went wrong</div>
-
+	const { data: favs, isLoading, isError } = useFavorites(user?.user_metadata.provider_id || "")
 	const [favAdd, setFavAdd] = useState("")
 	const [page, setPage] = useState(1)
 
-	let maxPage = favs.length > 6 ? Math.ceil((favs.length - 1) / 5) : -1
+	let maxPage = favs?.length ? (favs.length > 6 ? Math.ceil((favs.length - 1) / 5) : -1) : -1
 
 	useEffect(() => {
 		if (page > maxPage + 2) setPage(maxPage + 2)
-		else if (page !== 1 && favs.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0) setPage(prev => prev - 1)
+		else if (page !== 1 && favs?.slice((page - 1) * 5 + 1, page * 5 + 1).length === 0) setPage(prev => prev - 1)
 	}, [favs])
+
+	if (!user?.user_metadata.provider_id) return <Spinner />
+	const userId = user?.user_metadata.provider_id || ""
+
+	if (isLoading) return <Spinner />
+	if (isError) return <div>Something went wrong</div>
 
 	let j = 0
 
 	async function addFav() {
 		if (favAdd === "") return
-		await fetch("/api/addFav", {
+
+		const url = "/api/addFav"
+		await fetch(url, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json"
@@ -50,31 +50,55 @@ const Favs: React.FC = () => {
 		})
 			.then(res => res.json())
 			.then(data => {
-				queryClient.setQueriesData(["favorites", userId], data.data)
+				if (data.error) {
+					if (data.status !== 500) setInfo(data)
+					else setInfo("An error occured")
+					setInfoboxColor("red")
+					return console.error(data.err)
+				}
+
+				const fav: { favorites: fav[] } | undefined = queryClient.getQueryData(["favorites", userId])
+				if (fav) {
+					const newFavs = [...fav.favorites, data.data]
+					queryClient.setQueriesData(["favorites", userId], { favorites: newFavs })
+				}
 				setFavAdd("")
 			})
 			.catch(err => console.log(err))
 	}
-	async function deleteFav(userId: string, name: string) {
-		await fetch("/api/delFav", {
+	async function deleteFav(userId: string, id: string) {
+		const url = "/api/delFav"
+
+		await fetch(url, {
 			method: "DELETE",
 			headers: {
 				"Content-Type": "application/json"
 			},
 			body: JSON.stringify({
 				userId,
-				name,
+				id,
 				access_token: (await supabase.auth.getSession()).data?.session?.access_token
 			})
 		})
 			.then(res => res.json())
 			.then(data => {
-				queryClient.setQueriesData(["favorites", userId], data.data)
+				if (data.error) {
+					if (data.status !== 500) setInfo(data)
+					else setInfo("An error occured")
+					setInfoboxColor("red")
+					return console.error(data.err)
+				}
+				const fav: { favorites: fav[] } | undefined = queryClient.getQueryData(["favorites", userId])
+				if (fav) {
+					const newFavs = fav.favorites.filter(fav => fav.id !== id)
+					queryClient.setQueriesData(["favorites", userId], { favorites: newFavs })
+				}
 			})
 			.catch(err => console.log(err))
 	}
 	async function playFav(fav: { name: string; url: string }) {
-		await fetch("/api/play", {
+		const url = "/api/play"
+		await fetch(url, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json"
@@ -99,7 +123,6 @@ const Favs: React.FC = () => {
 			})
 	}
 
-	if (userId === "") return <Spinner />
 	return (
 		<div className="favs">
 			<h3>Favorites</h3>
@@ -134,7 +157,7 @@ const Favs: React.FC = () => {
 							<div className="queue-list-item">
 								<div>
 									<button onClick={() => playFav(fav)}>PLAY</button>
-									<button onClick={() => deleteFav(userId, fav.name)}>DELETE</button>
+									<button onClick={() => deleteFav(userId, fav.id)}>DELETE</button>
 								</div>
 								<div>
 									<Image src={fav.thumbnail} width={"10rem"} />

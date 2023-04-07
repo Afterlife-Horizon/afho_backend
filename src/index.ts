@@ -63,6 +63,7 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 	if (!process.env.OPENAI_KEY || !process.env.CHAT_GPT_CHANNEL_ID) Logger.warn("No OpenAI key found, not using OpenAI API")
 	if (!process.env.REACTION_ROLE_CHANNEL_ID) Logger.warn("No roles channel ID found, not using reaction roles")
 	if (!process.env.YOUTUBE_LOGIN_COOKIE) Logger.warn("No YouTube cookie found, not using YouTube API")
+	if (process.env.NODE_ENV === "development") Logger.warn("Running in development mode, no webserver will be started")
 }
 
 const environement = {
@@ -148,20 +149,25 @@ if (process.env.METHOD) {
 if (!process.env.METHOD) {
 	const expressClient = new ExpressClient(client)
 
-	const httpServer = http.createServer(expressClient.app)
-	httpServer.listen(8080, () => {
-		Logger.log("HTTP Server running on port 8080")
-	})
+	const PORT = process.env.PORT || 8080
+	const HTTPS_PORT = process.env.HTTPS_PORT || 8443
 
-	if (environement.cert && environement.certKey) {
-		const credentials = {
-			key: fs.readFileSync(environement.certKey),
-			cert: fs.readFileSync(environement.cert)
-		}
-		const httpsServer = https.createServer(credentials, expressClient.app)
-		httpsServer.listen(8443, () => {
-			Logger.log("HTTPS Server running on port 8443")
+	if (process.env.NODE_ENV !== "development") {
+		const httpServer = http.createServer(expressClient.app)
+		httpServer.listen(PORT, () => {
+			Logger.log("HTTP Server running on port 8080")
 		})
+
+		if (environement.cert && environement.certKey) {
+			const credentials = {
+				key: fs.readFileSync(environement.certKey),
+				cert: fs.readFileSync(environement.cert)
+			}
+			const httpsServer = https.createServer(credentials, expressClient.app)
+			httpsServer.listen(HTTPS_PORT, () => {
+				Logger.log("HTTPS Server running on port 8443")
+			})
+		}
 	}
 
 	// --------- Loging in bot ---------

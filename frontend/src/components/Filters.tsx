@@ -87,9 +87,10 @@ const Filters: React.FC = () => {
 		event.preventDefault()
 
 		const changeSongFilter = async (callback: testCallback) => {
+			const url = "/api/filters"
 			await axios
 				.post(
-					"/api/filters",
+					url,
 					{
 						filters: { ...effects },
 						access_token: (await supabase.auth.getSession()).data?.session?.access_token

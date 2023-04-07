@@ -11,7 +11,7 @@ interface IArgs {
 export default async function clearQueue(client: BotClient, args: IArgs): Promise<IFunctionResponse> {
 	try {
 		const member = args.member
-		const guild = client.guilds.cache.get(member.guild.id)
+		const guild = await client.guilds.fetch(member.guild.id)
 		const channel = (await client.channels.fetch(client.config.baseChannelID)) as TextChannel
 		if (!channel || !member || !guild) return { status: 500, error: `Something went wrong` }
 

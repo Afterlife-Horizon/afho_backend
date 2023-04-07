@@ -27,6 +27,7 @@ import { PassThrough } from "node:stream"
 import { PrismaClient } from "@prisma/client"
 import { Logger } from "../logger/Logger"
 import { reactionRoles } from "../constante"
+import getFavs from "../api/routes/music/getFavs"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
@@ -42,6 +43,7 @@ export default class BotClient extends Client {
 
 	constructor(options: ClientOptions, environment: IEnv) {
 		super(options)
+		this.ready = false
 		this.config = {
 			token: environment.token,
 			clientID: environment.clientID,
@@ -64,7 +66,8 @@ export default class BotClient extends Client {
 		this.commands = new Collection()
 		this.queues = new Collection()
 		this.favs = new Collection()
-		this.ready = false
+		this.getFavs()
+
 		this.initCommands()
 		this.initListeners()
 		this.currentChannel = null
@@ -90,6 +93,15 @@ export default class BotClient extends Client {
 		interactionCreate(this)
 		messageCreate(this)
 		voiceStateUpdate(this)
+	}
+
+	private async getFavs() {
+		const data = await this.prisma.bot_favorites.findMany()
+		data.forEach(fav => {
+			const currentFav = this.favs.get(fav.user_id) || []
+			currentFav.push(fav)
+			this.favs.set(fav.user_id, currentFav)
+		})
 	}
 
 	/**
@@ -393,7 +405,7 @@ export default class BotClient extends Client {
 		if (!queue || !queue.tracks || queue.tracks.length == 0) return false
 
 		const channel =
-			this.channels.cache.get(this.config.baseChannelID) ||
+			(await this.channels.fetch(this.config.baseChannelID).catch(err => Logger.error(err.message))) ||
 			(await this.channels.fetch(queue.textChannel).catch(err => Logger.error(err.message)))
 		const textChannel = channel?.isTextBased() ? (channel as TextChannel) : null
 		if (!textChannel) return false

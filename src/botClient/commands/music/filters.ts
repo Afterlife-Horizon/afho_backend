@@ -18,7 +18,7 @@ export default (client: BotClient): ICommand => {
 		data: new SlashCommandBuilder().setName("filters").setDescription("Set filters!"),
 		async execute(interaction) {
 			const member = interaction.member as GuildMember
-			const guild = client.guilds.cache.get(member.guild.id)
+			const guild = await client.guilds.fetch(member.guild.id)
 			const channel = (await client.channels.fetch(client.config.baseChannelID)) as TextChannel
 
 			if (!guild || !channel) return await interaction.reply({ content: `👎 **Something went wrong**`, ephemeral: true })

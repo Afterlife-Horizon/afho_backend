@@ -1,8 +1,8 @@
 import { getVoiceConnection, VoiceConnectionReadyState } from "@discordjs/voice"
 import BotClient from "../../../botClient/BotClient"
 
-export default function pause(client: BotClient, user: string) {
-	const guild = client.guilds.cache.get(client.config.serverID)
+export default async function pause(client: BotClient, user: string) {
+	const guild = await client.guilds.fetch(client.config.serverID)
 	const connectedMembers = guild?.members.cache.filter(member => member.voice.channel)
 	const member = connectedMembers?.find(member => member.user.username === user)
 

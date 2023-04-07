@@ -29,6 +29,7 @@ import musicFetch from "./routes/music/fetch"
 import musicGetFavs from "./routes/music/getFavs"
 import musicAddFav from "./routes/music/addFav"
 import musicRemoveFav from "./routes/music/delFav"
+import { Logger } from "../logger/Logger"
 
 export default class ExpressClient {
 	public app: Express
@@ -58,7 +59,13 @@ export default class ExpressClient {
 			.use("/api/getFavs", musicGetFavs(this.client))
 			.use("/api/addFav", musicAddFav(this.client))
 			.use("/api/delFav", musicRemoveFav(this.client))
-			.use(connectHistoryApiFallback({ verbose: false }))
-			.use(express.static(path.join(__dirname, "../../frontend/dist")))
+
+		if (process.env.NODE_ENV !== "development") {
+			this.app.use(connectHistoryApiFallback({ verbose: false })).use(express.static(path.join(__dirname, "../../frontend/dist")))
+		} else {
+			this.app.listen(4000, () => {
+				Logger.log("API is now listening on port 4000")
+			})
+		}
 	}
 }

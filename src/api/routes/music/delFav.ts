@@ -14,30 +14,33 @@ export default function delFav(client: BotClient) {
 			const user = await client.supabaseClient.auth.getUser(access_token)
 			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-			const guild = client.guilds.cache.get(client.config.serverID)
+			const guild = await client.guilds.fetch(client.config.serverID)
 			if (!guild) return res.status(406).send({ error: "Server not found!" })
 
-			const member = guild.members.cache.get(user.data?.user?.user_metadata.provider_id)
+			const member = await guild.members.fetch(user.data?.user?.user_metadata.provider_id)
 			if (!member) return res.status(406).send({ error: "Member not found!" })
 
-			const userId = member.user.id
-			const name = req.body.name
+			const userId = user.data?.user?.user_metadata.provider_id
+			const id = req.body.id
 
 			if (!userId) return res.status(400).json({ error: "No userId" })
-			if (!name) return res.status(400).json({ error: "No song name" })
+			if (!id) return res.status(400).json({ error: "No song id given" })
 
 			await client.prisma.bot_favorites.delete({
 				where: {
 					id_user_id: {
-						id: name,
+						id,
 						user_id: userId
 					}
 				}
 			})
 
-			client.favs[userId] = client.favs[userId].filter((fav: IFavorite) => fav.name !== name)
+			const prevFavs = client.favs.get(userId) || []
+			const newFavs = prevFavs.filter((fav: IFavorite) => fav.id !== id)
 
-			res.status(200).json({ data: client.favs[userId] })
+			client.favs.set(userId, newFavs)
+
+			res.status(200).json({ data: client.favs.get(userId) })
 		} catch (err) {
 			if (err instanceof Error) Logger.error(err.message)
 			res.status(500).json({ error: err })

@@ -14,7 +14,8 @@ type DATA = {
 }[]
 
 export default async function getConnectionmembers(): Promise<{ data: DATA }> {
-	const res = await fetch("/api/connectedMembers")
+	const url = "/api/connectedMembers"
+	const res = await fetch(url)
 
 	if (res.ok) return res.json()
 	throw new Error("Something went wrong")

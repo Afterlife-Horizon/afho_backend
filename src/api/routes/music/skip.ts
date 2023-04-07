@@ -15,7 +15,7 @@ export default function (client: BotClient) {
 
 		if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-		const response = skip(client, user.data.user?.user_metadata.full_name)
+		const response = await skip(client, user.data.user?.user_metadata.full_name)
 
 		if (response.error) return res.status(response.status).json({ error: response.error })
 		return res.status(response.status).json({ message: response.message ? response.message : "👍" })

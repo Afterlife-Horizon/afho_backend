@@ -1,7 +1,9 @@
 import { apiUser } from "../types"
 
 export default async function getUser(access_token: string, token_type: string): Promise<apiUser> {
-	const res = await fetch("/api/loginaccess", {
+	const url = "/api/loginaccess"
+
+	const res = await fetch(url, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json"

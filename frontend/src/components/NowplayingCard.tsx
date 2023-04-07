@@ -38,7 +38,8 @@ const NowplayingCard: React.FC = () => {
 			return setInfoboxColor("orange")
 		}
 
-		const res = await fetch("/api/skip", {
+		const url = "/api/skip"
+		const res = await fetch(url, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -73,7 +74,8 @@ const NowplayingCard: React.FC = () => {
 		}
 
 		if (isPaused) {
-			const res = await fetch("/api/unpause", {
+			const url = "/api/unpause"
+			const res = await fetch(url, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -96,7 +98,8 @@ const NowplayingCard: React.FC = () => {
 				setInfoboxColor("red")
 			}
 		} else {
-			const res = await fetch("/api/pause", {
+			const url = "/api/pause"
+			const res = await fetch(url, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -137,7 +140,8 @@ const NowplayingCard: React.FC = () => {
 			return setInfoboxColor("orange")
 		}
 
-		const res = await fetch("/api/stop", {
+		const url = "/api/stop"
+		const res = await fetch(url, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -171,7 +175,8 @@ const NowplayingCard: React.FC = () => {
 			return setInfoboxColor("orange")
 		}
 
-		const res = await fetch("/api/disconnect", {
+		const url = "/api/disconnect"
+		const res = await fetch(url, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({

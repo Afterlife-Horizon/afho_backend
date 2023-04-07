@@ -1,8 +1,8 @@
 import { getVoiceConnection } from "@discordjs/voice"
 import BotClient from "../../../botClient/BotClient"
 
-export default function shuffle(client: BotClient, user: string) {
-	const guild = client.guilds.cache.get(client.config.serverID)
+export default async function shuffle(client: BotClient, user: string) {
+	const guild = await client.guilds.fetch(client.config.serverID)
 	const member = guild?.members.cache.find(m => m.user.username === user)
 	if (!guild || !member) return { status: 500, error: "👎 **Something went wrong**" }
 

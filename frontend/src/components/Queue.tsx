@@ -43,9 +43,10 @@ const Queue = () => {
 	const handleRemove = (id: number) => {
 		return (_event: React.MouseEvent<HTMLButtonElement>) => {
 			const remove = async (callback: testCallback) => {
+				const url = "/api/remove"
 				await axios
 					.post(
-						"/api/remove",
+						url,
 						{
 							queuePos: id,
 							access_token: (await supabase.auth.getSession()).data?.session?.access_token
@@ -87,9 +88,10 @@ const Queue = () => {
 	const handleskipto = (id: number) => {
 		return (event: React.MouseEvent<HTMLButtonElement>) => {
 			const skipto = async (callback: testCallback) => {
+				const url = "/api/skipto"
 				await axios
 					.post(
-						"/api/skipto",
+						url,
 						{
 							queuePos: id,
 							access_token: (await supabase.auth.getSession()).data?.session?.access_token
@@ -132,9 +134,10 @@ const Queue = () => {
 		event.preventDefault()
 		setIsAdding(true)
 		const addSong = async (callback: testCallback) => {
+			const url = "/api/play"
 			await axios
 				.post(
-					"/api/play",
+					url,
 					{
 						songs: link,
 						access_token: (await supabase.auth.getSession()).data?.session?.access_token
@@ -175,9 +178,10 @@ const Queue = () => {
 		event.preventDefault()
 		setIsAddingFirst(true)
 		const AddFirst = async (callback: testCallback) => {
+			const url = "/api/playfirst"
 			await axios
 				.post(
-					"/api/playfirst",
+					url,
 					{
 						songs: link,
 						access_token: (await supabase.auth.getSession()).data?.session?.access_token
@@ -221,8 +225,9 @@ const Queue = () => {
 		event.preventDefault()
 		setIsShuffling(true)
 		const shuffleSongs = async (callback: testCallback) => {
+			const url = "/api/shuffle"
 			await axios
-				.post("/api/shuffle", {
+				.post(url, {
 					access_token: (await supabase.auth.getSession()).data?.session?.access_token
 				})
 				.then(res => {
@@ -254,8 +259,9 @@ const Queue = () => {
 		event.preventDefault()
 		setIsClearing(true)
 		const clearSongs = async (callback: testCallback) => {
+			const url = "/api/clearqueue"
 			await axios
-				.post("/api/clearqueue", {
+				.post(url, {
 					access_token: (await supabase.auth.getSession()).data?.session?.access_token
 				})
 				.then(res => {

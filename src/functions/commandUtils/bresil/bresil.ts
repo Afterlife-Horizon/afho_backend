@@ -2,7 +2,7 @@ import { GuildMember, VoiceChannel } from "discord.js"
 import BotClient from "../../../botClient/BotClient"
 
 export default async function bresil(client: BotClient, mover: GuildMember, moved: GuildMember) {
-	const guild = client.guilds.cache.get(client.config.serverID)
+	const guild = await client.guilds.fetch(client.config.serverID)
 	if (!guild) return { status: 406, error: "Guild not found!" }
 
 	const voiceChannel = mover.voice
@@ -50,7 +50,7 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 	const moveCount = movedUser.bresil_received
 	const moverCount = moverUser.bresil_sent
 
-	const brasilChannel = client.channels.cache.get(client.config.brasilChannelID) as VoiceChannel
+	const brasilChannel = (await client.channels.fetch(client.config.brasilChannelID)) as VoiceChannel
 	await moved.voice.setChannel(brasilChannel)
 	return {
 		status: 200,

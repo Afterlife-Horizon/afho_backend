@@ -16,7 +16,8 @@ type user = {
 }
 
 export default async function getBresilCounts(): Promise<COUNTS> {
-	const res = await fetch("/api/brasilBoard")
+	const url = "/api/brasilBoard"
+	const res = await fetch(url)
 
 	if (res.ok) return res.json()
 	throw new Error("Something went wrong")

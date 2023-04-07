@@ -18,11 +18,11 @@ export default function (client: BotClient) {
 	return router.get("/", async (req, res) => {
 		try {
 			if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
-			const guild = client.guilds.cache.get(client.config.serverID)
+			const guild = await client.guilds.fetch(client.config.serverID)
 			if (!guild) return res.status(406).send("Server not found!")
 
 			await guild.members.fetch()
-			const admins = guild.roles.cache.get(client.config.adminRoleID)?.members
+			const admins = (await guild.roles.fetch(client.config.adminRoleID))?.members
 
 			if (!admins) return res.status(406).send("Admins not found!")
 

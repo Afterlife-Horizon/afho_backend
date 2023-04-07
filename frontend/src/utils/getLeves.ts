@@ -1,5 +1,6 @@
 export default async function getLevels() {
-	const res = await fetch("/api/levels")
+	const url = "/api/levels"
+	const res = await fetch(url)
 
 	if (res.ok) return res.json()
 

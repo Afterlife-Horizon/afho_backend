@@ -17,10 +17,10 @@ export default function (client: BotClient) {
 
 		if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-		const guild = client.guilds.cache.get(client.config.serverID)
+		const guild = await client.guilds.fetch(client.config.serverID)
 		if (!guild) return res.status(406).send("Server not found!")
 
-		const admins = guild.roles.cache.get(client.config.adminRoleID)?.members
+		const admins = (await guild.roles.fetch(client.config.adminRoleID))?.members
 
 		if (!admins) return res.status(406).send("Admins not found!")
 

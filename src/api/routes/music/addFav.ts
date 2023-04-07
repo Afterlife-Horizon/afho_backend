@@ -15,12 +15,12 @@ export default function (client: BotClient) {
 			if (!access_token) return res.status(406).send({ error: "No Access Token!" })
 
 			const user = await client.supabaseClient.auth.getUser(access_token)
-			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
+			if (!user || user.error) return res.status(406).send({ error: "Invalid Access Token!" })
 
-			const guild = client.guilds.cache.get(client.config.serverID)
+			const guild = await client.guilds.fetch(client.config.serverID)
 			if (!guild) return res.status(406).send({ error: "Server not found!" })
 
-			const member = guild.members.cache.get(user.data?.user?.user_metadata.provider_id)
+			const member = await guild.members.fetch(user.data?.user?.user_metadata.provider_id)
 			if (!member) return res.status(406).send({ error: "Member not found!" })
 
 			const url = req.body.url
@@ -52,16 +52,18 @@ export default function (client: BotClient) {
 				}
 			})
 
-			const favs: IFavorite[] = client.favs[req.body.userId] || []
-			favs.push({
+			const data = {
 				id: newFav.id,
 				name: newFav.name,
 				url: newFav.url,
 				thumbnail: newFav.thumbnail
-			})
-			client.favs[req.body.userId] = favs
+			}
 
-			res.status(200).json({ data: favs })
+			const favs: IFavorite[] = client.favs.get(req.body.userId) || []
+			favs.push(data)
+			client.favs.set(req.body.userId, favs)
+
+			res.status(200).json({ data })
 		} catch (err: any) {
 			if (err instanceof Error) Logger.error(err.message)
 			res.status(500).json({ error: err })

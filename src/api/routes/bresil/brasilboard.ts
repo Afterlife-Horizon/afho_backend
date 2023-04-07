@@ -17,7 +17,7 @@ export default function (client: BotClient) {
 		try {
 			const bresils = await prisma.bot_bresil.findMany()
 
-			const guild = client.guilds.cache.get(client.config.serverID)
+			const guild = await client.guilds.fetch(client.config.serverID)
 
 			if (!guild) return res.status(406).json({ error: "Guild not found!" })
 

@@ -13,7 +13,7 @@ export default (client: BotClient): ICommand => {
 
 			if (!user) return interaction.reply("👎 **Something went wrong**").catch(err => Logger.error(err.message))
 
-			const response = shuffle(client, user)
+			const response = await shuffle(client, user)
 
 			if (response.error) return interaction.reply({ content: response.error, ephemeral: true })
 

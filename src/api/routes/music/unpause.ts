@@ -15,7 +15,7 @@ export default function (client: BotClient) {
 
 		if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-		const response = unpause(client, user.data.user?.user_metadata.full_name)
+		const response = await unpause(client, user.data.user?.user_metadata.full_name)
 
 		if (response.status === 200) return res.status(200).json({ message: response.message })
 		return res.status(406).json({ error: response.error })
