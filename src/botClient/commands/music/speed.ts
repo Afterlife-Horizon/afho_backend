@@ -46,7 +46,9 @@ export default (client: BotClient): ICommand => {
 
 			const curPos = playerState.resource?.playbackDuration || 0
 			state.subscription.player.stop()
-			state.subscription.player.play(await client.getResource(queue, queue.tracks[0].id, curPos))
+			const resource = client.getResource(queue, queue.tracks[0].id, curPos)
+			if (!resource) return interaction.reply(`👎 **Something went wrong**`).catch(err => Logger.error(err.message))
+			state.subscription.player.play(resource)
 
 			return interaction
 				.reply(`🎚 **Successfully changed the Speed to \`${Math.floor(speed) / 100}x\` of the Original Speed (${speed}%)**`)

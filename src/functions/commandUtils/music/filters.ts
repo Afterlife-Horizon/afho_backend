@@ -33,7 +33,9 @@ export default async function changeFilters(client: BotClient, args: IArgs): Pro
 		const curPos = playerState.resource.playbackDuration
 
 		state.subscription?.player.stop()
-		state.subscription?.player.play(client.getResource(queue, queue.tracks[0].id, curPos))
+		const resource = client.getResource(queue, queue.tracks[0].id, curPos)
+		if (!resource) return { status: 400, error: `👎 **Something went wrong**` }
+		state.subscription?.player.play(resource)
 
 		return { status: 200 }
 	} catch (e: any) {

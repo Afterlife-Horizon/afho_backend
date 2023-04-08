@@ -19,7 +19,8 @@ export default (client: BotClient): ICommand => {
 					return interaction.reply({ content: "👎 **Please join a Voice-Channel first!**" }).catch(err => Logger.error(err.message))
 
 				const oldConnection = getVoiceConnection(guild.id)
-				if (!oldConnection) return interaction.reply({ content: "👎 **I'm not connected somewhere!**" }).catch(err => Logger.error(err.message))
+				if (!oldConnection)
+					return interaction.reply({ content: "👎 **I'm not connected somewhere!**" }).catch(err => Logger.error(err.message))
 				if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId)
 					return interaction.reply({ content: "👎 **We are not in the same Voice-Channel**!" }).catch(err => Logger.error(err.message))
 
@@ -56,7 +57,9 @@ export default (client: BotClient): ICommand => {
 				queue.filtersChanged = true
 				// seek
 				state.subscription.player.stop()
-				state.subscription.player.play(await client.getResource(queue, queue.tracks[0].id, newPos))
+				const resource = client.getResource(queue, queue.tracks[0].id, newPos)
+				if (!resource) return interaction.reply(`👎 **Something went wrong**`).catch(err => Logger.error(err.message))
+				state.subscription.player.play(resource)
 
 				interaction
 					.reply({ content: `⏪ **Rewinded for \`${arg}s\` to \`${client.formatDuration(newPos)}\`**!` })

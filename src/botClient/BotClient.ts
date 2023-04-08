@@ -1,6 +1,7 @@
 import {
 	AudioPlayer,
 	AudioPlayerStatus,
+	AudioResource,
 	CreateVoiceConnectionOptions,
 	JoinVoiceChannelOptions,
 	NoSubscriberBehavior,
@@ -23,7 +24,7 @@ import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
-import { PassThrough } from "node:stream"
+import { PassThrough, Readable } from "node:stream"
 import { PrismaClient } from "@prisma/client"
 import { Logger } from "../logger/Logger"
 import { reactionRoles } from "../constante"
@@ -363,6 +364,7 @@ export default class BotClient extends Client {
 					if (!songInfo.id) return rej("No song id found")
 
 					const resource = this.getResource(curQueue, songInfo.id, 0)
+					if (!resource) return rej("No resource found")
 
 					player.play(resource)
 
@@ -536,30 +538,39 @@ export default class BotClient extends Client {
 					queue.previous = queue.tracks[0]
 					if (queue.trackloop && !queue.skipped) {
 						if (queue.paused) queue.paused = false
-						player.play(this.getResource(queue, queue.tracks[0].id, 0))
+
+						const ressource = this.getResource(queue, queue.tracks[0].id, 0)
+						if (!ressource) return
+						player.play(ressource)
 					} else if (queue.queueloop && !queue.skipped) {
 						const skipped = queue.tracks.shift()
 						if (!skipped) return
 						queue.tracks.push(skipped)
 						if (queue.paused) queue.paused = false
-						player.play(this.getResource(queue, queue.tracks[0].id, 0))
+						const ressource = this.getResource(queue, queue.tracks[0].id, 0)
+						if (!ressource) return
+						player.play(ressource)
 					} else {
 						if (queue.skipped) queue.skipped = false
 						if (queue.paused) queue.paused = false
 						queue.tracks.shift()
-						player.play(this.getResource(queue, queue.tracks[0].id, 0))
+						const ressource = this.getResource(queue, queue.tracks[0].id, 0)
+						if (!ressource) return
+						player.play(ressource)
 					}
 				} else if (queue && queue.tracks && queue.tracks.length <= 1) {
 					queue.previous = queue.tracks[0]
 					if (queue.trackloop || (queue.queueloop && !queue.skipped)) {
-						player.play(this.getResource(queue, queue.tracks[0].id, 0))
+						const ressource = this.getResource(queue, queue.tracks[0].id, 0)
+						if (!ressource) return
+						player.play(ressource)
 					} else {
 						if (queue.skipped) queue.skipped = false
 						queue.tracks = []
 					}
 				}
 			} catch (e) {
-				console.error(e)
+				if (e instanceof Error) Logger.error(e.message)
 			}
 		}
 	}

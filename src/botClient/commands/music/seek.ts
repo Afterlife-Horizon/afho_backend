@@ -49,7 +49,9 @@ export default (client: BotClient): ICommand => {
 				if (!state || !state.subscription) return interaction.reply(`👎 **Something went wrong**`).catch(err => Logger.error(err.message))
 
 				state.subscription.player.stop()
-				state.subscription.player.play(await client.getResource(queue, queue.tracks[0].id, newPos))
+				const resource = client.getResource(queue, queue.tracks[0].id, newPos)
+				if (!resource) return interaction.reply(`👎 **Something went wrong**`).catch(err => Logger.error(err.message))
+				state.subscription.player.play(resource)
 
 				interaction.reply({ content: `⏩ **Seeked to \`${client.formatDuration(newPos)}\`**!` }).catch(err => Logger.error(err.message))
 			} catch (e: any) {
