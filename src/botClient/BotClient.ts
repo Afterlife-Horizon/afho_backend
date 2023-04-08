@@ -299,7 +299,7 @@ export default class BotClient extends Client {
 				.seekInput(this.formatDuration(seekTime))
 				.format("mp3")
 				.output(this.passThrought)
-				.on("error", err => Logger.error(err.message))
+				.on("error", err => console.log(err))
 			this.stream.run()
 
 			this.passThrought.on("error", () => readable.destroy())
