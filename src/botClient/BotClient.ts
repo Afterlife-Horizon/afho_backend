@@ -238,98 +238,103 @@ export default class BotClient extends Client {
 	 * @returns a discord audio resource
 	 */
 	public getResource(queue: IQueue, songInfoId: string, seekTime: number) {
-		let Qargs = ""
-		const effects = queue.effects
+		try {
+			let Qargs = ""
+			const effects = queue.effects
 
-		if (effects.normalizer) Qargs += `,dynaudnorm=f=200`
-		if (effects.bassboost) Qargs += `,bass=g=${effects.bassboost}`
-		if (effects.speed) Qargs += `,atempo=${effects.speed}`
-		if (effects["3d"]) Qargs += `,apulsator=hz=0.03`
-		if (effects.subboost) Qargs += `,asubboost`
-		if (effects.mcompand) Qargs += `,mcompand`
-		if (effects.haas) Qargs += `,haas`
-		if (effects.gate) Qargs += `,agate`
-		if (effects.karaoke) Qargs += `,stereotools=mlev=0.03`
-		if (effects.flanger) Qargs += `,flanger`
-		if (effects.pulsator) Qargs += `,apulsator=hz=1`
-		if (effects.surrounding) Qargs += `,surround`
-		if (effects.vaporwave) Qargs += `,aresample=48000,asetrate=48000*0.8`
-		if (effects.nightcore) Qargs += `,aresample=48000,asetrate=48000*1.5`
-		if (effects.phaser) Qargs += `,aphaser=in_gain=0.4`
-		if (effects.tremolo) Qargs += `,tremolo`
-		if (effects.vibrato) Qargs += `,vibrato=f=6.5`
-		if (effects.reverse) Qargs += `,areverse`
-		if (effects.treble) Qargs += `,treble=g=5`
-		if (Qargs.startsWith(",")) Qargs = Qargs.substring(1)
+			if (effects.normalizer) Qargs += `,dynaudnorm=f=200`
+			if (effects.bassboost) Qargs += `,bass=g=${effects.bassboost}`
+			if (effects.speed) Qargs += `,atempo=${effects.speed}`
+			if (effects["3d"]) Qargs += `,apulsator=hz=0.03`
+			if (effects.subboost) Qargs += `,asubboost`
+			if (effects.mcompand) Qargs += `,mcompand`
+			if (effects.haas) Qargs += `,haas`
+			if (effects.gate) Qargs += `,agate`
+			if (effects.karaoke) Qargs += `,stereotools=mlev=0.03`
+			if (effects.flanger) Qargs += `,flanger`
+			if (effects.pulsator) Qargs += `,apulsator=hz=1`
+			if (effects.surrounding) Qargs += `,surround`
+			if (effects.vaporwave) Qargs += `,aresample=48000,asetrate=48000*0.8`
+			if (effects.nightcore) Qargs += `,aresample=48000,asetrate=48000*1.5`
+			if (effects.phaser) Qargs += `,aphaser=in_gain=0.4`
+			if (effects.tremolo) Qargs += `,tremolo`
+			if (effects.vibrato) Qargs += `,vibrato=f=6.5`
+			if (effects.reverse) Qargs += `,areverse`
+			if (effects.treble) Qargs += `,treble=g=5`
+			if (Qargs.startsWith(",")) Qargs = Qargs.substring(1)
 
-		const encoderArgs = Qargs ? ["-af", Qargs] : ["-af", "bass=g=2,dynaudnorm=f=200"]
+			const encoderArgs = Qargs ? ["-af", Qargs] : ["-af", "bass=g=2,dynaudnorm=f=200"]
 
-		const requestOpts: downloadOptions = {
-			filter: "audioonly",
-			highWaterMark: 1 << 62,
-			liveBuffer: 1 << 62,
-			dlChunkSize: 0,
-			// begin: seekTime,
-			quality: "highestaudio"
-		}
+			const requestOpts: downloadOptions = {
+				filter: "audioonly",
+				highWaterMark: 1 << 62,
+				liveBuffer: 1 << 62,
+				dlChunkSize: 0,
+				// begin: seekTime,
+				quality: "highestaudio"
+			}
 
-		if (this.config.youtubeCookie && this.config.youtubeCookie.length > 10) {
-			requestOpts.requestOptions = {
-				headers: {
-					cookie: this.config.youtubeCookie
+			if (this.config.youtubeCookie && this.config.youtubeCookie.length > 10) {
+				requestOpts.requestOptions = {
+					headers: {
+						cookie: this.config.youtubeCookie
+					}
 				}
 			}
-		}
 
-		const readable = ytdl(this.getYTLink(songInfoId), requestOpts).once("error", err => console.error(err.message, "\n", err.stack))
+			const readable = ytdl(this.getYTLink(songInfoId), requestOpts).once("error", err => console.error(err.message, "\n", err.stack))
 
-		readable.on("error", err => Logger.error(err.message))
-		readable.on("close", () => Logger.log("readable closed"))
+			readable.on("error", err => Logger.error(err.message))
+			readable.on("close", () => Logger.log("readable closed"))
 
-		this.passThrought = new PassThrough()
+			this.passThrought = new PassThrough()
 
-		this.stream = FFmpeg(readable)
-			.audioChannels(2)
-			.audioBitrate(128)
-			.audioFrequency(48000)
-			.audioCodec("libmp3lame")
-			.addOptions(encoderArgs)
-			.seekInput(this.formatDuration(seekTime))
-			.format("mp3")
-			.output(this.passThrought)
-			.on("error", err => null)
-		this.stream.run()
+			this.stream = FFmpeg(readable)
+				.audioChannels(2)
+				.audioBitrate(128)
+				.audioFrequency(48000)
+				.audioCodec("libmp3lame")
+				.addOptions(encoderArgs)
+				.seekInput(this.formatDuration(seekTime))
+				.format("mp3")
+				.output(this.passThrought)
+				.on("error", err => null)
+			this.stream.run()
 
-		this.passThrought.on("error", () => readable.destroy())
-		this.passThrought.on("close", () => {
-			readable.destroy()
-			this.stream = undefined
-			this.passThrought = undefined
-		})
-
-		const resource = createAudioResource(this.passThrought)
-
-		const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? queue.volume / 100 : 1
-		resource.volume?.setVolume(volume)
-		resource.playbackDuration = seekTime
-
-		const playing = `${queue.tracks[0]?.title} / ${queue.tracks[0]?.channel?.name}`
-
-		const user = this.user
-		if (user) {
-			user.setPresence({
-				status: "online",
-				activities: [
-					{
-						name: playing,
-						type: ActivityType.Listening
-					}
-				]
+			this.passThrought.on("error", () => readable.destroy())
+			this.passThrought.on("close", () => {
+				readable.destroy()
+				this.stream = undefined
+				this.passThrought = undefined
 			})
-		}
-		Logger.log(`Playing ${playing}`)
 
-		return resource
+			const resource = createAudioResource(this.passThrought)
+
+			const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? queue.volume / 100 : 1
+			resource.volume?.setVolume(volume)
+			resource.playbackDuration = seekTime
+
+			const playing = `${queue.tracks[0]?.title} / ${queue.tracks[0]?.channel?.name}`
+
+			const user = this.user
+			if (user) {
+				user.setPresence({
+					status: "online",
+					activities: [
+						{
+							name: playing,
+							type: ActivityType.Listening
+						}
+					]
+				})
+			}
+			Logger.log(`Playing ${playing}`)
+
+			return resource
+		} catch (e) {
+			if (e instanceof Error) Logger.error(e.message)
+			return null
+		}
 	}
 
 	/**
