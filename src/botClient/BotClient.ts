@@ -283,13 +283,7 @@ export default class BotClient extends Client {
 				}
 			}
 
-			let readable = new Readable()
-			try {
-				readable = ytdl(this.getYTLink(songInfoId), requestOpts)
-			} catch (e) {
-				console.log(e)
-			}
-
+			const readable = ytdl(this.getYTLink(songInfoId), requestOpts)
 			if (!readable) throw new Error("No readable stream found")
 
 			readable.on("error", err => Logger.error(err.message))
@@ -306,7 +300,7 @@ export default class BotClient extends Client {
 				.seekInput(this.formatDuration(seekTime))
 				.format("mp3")
 				.output(this.passThrought)
-				.on("error", err => console.log(err))
+				.on("error", err => null)
 			this.stream.run()
 
 			this.passThrought.on("error", () => readable.destroy())
