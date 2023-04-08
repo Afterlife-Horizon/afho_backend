@@ -1,23 +1,29 @@
 import express = require("express")
 import BotClient from "../../../botClient/BotClient"
 import shuffle from "../../../functions/commandUtils/music/shuffle"
+import { Logger } from "../../../logger/Logger"
 const router = express.Router()
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
-		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
+		try {
+			if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 
-		const access_token = req.body.access_token
+			const access_token = req.body.access_token
 
-		if (!access_token) return res.status(406).send({ error: "No Access Token!" })
+			if (!access_token) return res.status(406).send({ error: "No Access Token!" })
 
-		const user = await client.supabaseClient.auth.getUser(access_token)
+			const user = await client.supabaseClient.auth.getUser(access_token)
 
-		if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
+			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-		const response = await shuffle(client, user.data.user?.user_metadata.full_name)
+			const response = await shuffle(client, user.data.user?.user_metadata.full_name)
 
-		if (response.error) return res.status(response.status).json({ error: response.error })
-		return res.status(response.status).json({ message: response.message ? response.message : "👍" })
+			if (response.error) return res.status(response.status).json({ error: response.error })
+			return res.status(response.status).json({ message: response.message ? response.message : "👍" })
+		} catch (err) {
+			if (err instanceof Error) Logger.error(err.message)
+			return res.status(500).json({ error: err })
+		}
 	})
 }
