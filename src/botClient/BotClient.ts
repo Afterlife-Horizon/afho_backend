@@ -283,7 +283,14 @@ export default class BotClient extends Client {
 				}
 			}
 
-			const readable = ytdl(this.getYTLink(songInfoId), requestOpts)
+			let readable = new Readable()
+			try {
+				readable = ytdl(this.getYTLink(songInfoId), requestOpts)
+			} catch (e) {
+				console.log(e)
+			}
+
+			if (!readable) throw new Error("No readable stream found")
 
 			readable.on("error", err => Logger.error(err.message))
 			readable.on("close", () => Logger.log("readable closed"))
