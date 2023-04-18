@@ -12,6 +12,7 @@ interface IMessageType {
 	}
 }
 
+let maxLength = 2000
 let conversationLog: ChatCompletionRequestMessage[] = []
 
 export default async function handleGPTChat(client: BotClient, message: Message) {
@@ -109,7 +110,7 @@ function splitTokens(message: string): IMessageType[] {
 		if (messageArray[i].includes(codeBlockSelector)) {
 			if (!codeBlock) {
 				if (!messageArray[i].startsWith(codeBlockSelector)) {
-					if (messageContent.length + messageArray[i].length + 1 >= 2000) {
+					if (messageContent.length + messageArray[i].length + 1 >= maxLength) {
 						returnMessages.push({ message: messageContent })
 						messageContent = ""
 						messageCount++
@@ -141,7 +142,7 @@ function splitTokens(message: string): IMessageType[] {
 			continue
 		}
 
-		if (messageContent.length + messageArray[i].length + 1 >= 4000) {
+		if (messageContent.length + messageArray[i].length + 1 >= maxLength) {
 			returnMessages.push({ message: messageContent })
 			messageContent = ""
 			messageCount++
@@ -157,7 +158,7 @@ function splitTokens(message: string): IMessageType[] {
 }
 
 function handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, messageCount, codeBlockType) {
-	if (codeBlockMessage.length > 2000) {
+	if (codeBlockMessage.length > maxLength) {
 		if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
 		returnMessages.push({
 			file: {
