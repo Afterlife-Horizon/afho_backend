@@ -29,17 +29,17 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 
 	await message.channel.sendTyping()
 
-	let prevMessages = await (await message.channel.messages.fetch({ limit: 100 })).filter(msg => !msg.author.bot)
+	let prevMessages = (await message.channel.messages.fetch()).reverse()
 	let count = 0
 	const messages = new Collection<string, Message>()
 	for (const message of prevMessages.entries()) {
+		if (message[1].author.bot) continue
 		count += message[1].content.length
 		if (count > 1800) break
 		messages.set(message[0], message[1])
 	}
 
 	console.log(messages.size, JSON.stringify(messages).length)
-	messages.reverse()
 
 	messages.forEach((msg: Message) => {
 		if (msg.author.id !== client.user?.id && message.author.bot) return
