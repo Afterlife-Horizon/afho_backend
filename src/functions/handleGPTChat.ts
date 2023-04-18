@@ -30,12 +30,11 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 
 	let prevMessages = await message.channel.messages.fetch({ limit: 30 })
 	let count = 0
-	let i = 0
 	const messages = new Collection<string, Message>()
-	while (count < 1800) {
-		count += prevMessages[i].content.length
-		messages.set(prevMessages[i].id, prevMessages[i])
-		i++
+	for (const message of prevMessages.entries()) {
+		count += message[1].content.length
+		if (count > 1800) break
+		messages.set(message[0], message[1])
 	}
 
 	messages.reverse()
