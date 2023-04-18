@@ -29,7 +29,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 
 	await message.channel.sendTyping()
 
-	let prevMessages = await message.channel.messages.fetch({ limit: 2 })
+	let prevMessages = await message.channel.messages.fetch({ limit: 30 })
 	let count = 0
 	const messages = new Collection<string, Message>()
 	for (const message of prevMessages.entries()) {
