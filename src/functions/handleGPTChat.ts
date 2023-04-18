@@ -1,6 +1,6 @@
 import { Collection, Message, MessageType } from "discord.js"
 import BotClient from "../botClient/BotClient"
-import { ChatCompletionRequestMessage, Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai"
+import { ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum, Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai"
 import fs from "node:fs"
 import { Logger } from "../logger/Logger"
 
@@ -29,7 +29,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 
 	await message.channel.sendTyping()
 
-	let prevMessages = await message.channel.messages.fetch({ limit: 15 })
+	let prevMessages = await (await message.channel.messages.fetch({ limit: 100 })).filter(msg => !msg.author.bot)
 	let count = 0
 	const messages = new Collection<string, Message>()
 	for (const message of prevMessages.entries()) {
@@ -45,7 +45,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 		if (msg.author.id !== client.user?.id && message.author.bot) return
 		if (msg.author.id !== message.author.id) return
 
-		conversationLog.push({ role: "user", content: msg.content })
+		conversationLog.push({ role: ChatCompletionRequestMessageRoleEnum.User, content: msg.content })
 	})
 
 	const request: CreateChatCompletionRequest = {
