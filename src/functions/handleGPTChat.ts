@@ -46,7 +46,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 		conversationLog.push({ role: "user", content: msg.content })
 	})
 
-	console.log(JSON.stringify(conversationLog))
+	console.log(JSON.stringify(conversationLog).length)
 
 	const request: CreateChatCompletionRequest = {
 		model: "gpt-3.5-turbo",
