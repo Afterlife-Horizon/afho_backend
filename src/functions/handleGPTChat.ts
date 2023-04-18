@@ -39,7 +39,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 		messages.set(message[0], message[1])
 	}
 
-	console.log(messages.size, JSON.stringify(messages))
+	console.log(messages.size, JSON.stringify(messages.map(msg => msg.content)))
 
 	messages.forEach((msg: Message) => {
 		if (msg.author.id !== client.user?.id && message.author.bot) return
