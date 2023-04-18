@@ -114,3 +114,4 @@ build/
 .fleet/
 .vscode/
 .dist/
+package-lock.json
