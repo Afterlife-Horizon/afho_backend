@@ -13,9 +13,9 @@ interface IMessageType {
 }
 
 let maxLength = 2000
-let conversationLog: ChatCompletionRequestMessage[] = []
 
 export default async function handleGPTChat(client: BotClient, message: Message) {
+	let conversationLog: ChatCompletionRequestMessage[] = []
 	if (!client.config.gptChatChannel || !client.config.openAIKey) return
 	if (message.channel.id !== client.config.gptChatChannel) return
 	if (message.type === MessageType.Reply) return
@@ -29,7 +29,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 
 	await message.channel.sendTyping()
 
-	let prevMessages = (await message.channel.messages.fetch({ limit: 30 })).reverse()
+	let prevMessages = await message.channel.messages.fetch({ limit: 15 })
 	let count = 0
 	const messages = new Collection<string, Message>()
 	for (const message of prevMessages.entries()) {
@@ -44,8 +44,6 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 
 		conversationLog.push({ role: "user", content: msg.content })
 	})
-
-	console.log(JSON.stringify(conversationLog).length)
 
 	const request: CreateChatCompletionRequest = {
 		model: "gpt-3.5-turbo",
