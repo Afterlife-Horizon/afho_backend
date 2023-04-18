@@ -1,4 +1,4 @@
-import { Message, MessageType } from "discord.js"
+import { Collection, Message, MessageType } from "discord.js"
 import BotClient from "../botClient/BotClient"
 import { ChatCompletionRequestMessage, Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai"
 import fs from "node:fs"
@@ -28,10 +28,19 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 
 	await message.channel.sendTyping()
 
-	let prevMessages = await message.channel.messages.fetch({ limit: 15 })
-	prevMessages.reverse()
+	let prevMessages = await message.channel.messages.fetch({ limit: 30 })
+	let count = 0
+	let i = 0
+	const messages = new Collection<string, Message>()
+	while (count < 1800) {
+		count += prevMessages[i].content.length
+		messages.set(prevMessages[i].id, prevMessages[i])
+		i++
+	}
 
-	prevMessages.forEach((msg: Message) => {
+	messages.reverse()
+
+	messages.forEach((msg: Message) => {
 		if (msg.author.id !== client.user?.id && message.author.bot) return
 		if (msg.author.id !== message.author.id) return
 
@@ -70,7 +79,9 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 						}
 					]
 				})
-				fs.rm("./messages/" + messages[i].file?.name, err => { if (err) Logger.error(err.message) })
+				fs.rm("./messages/" + messages[i].file?.name, err => {
+					if (err) Logger.error(err.message)
+				})
 			}
 		}
 	} catch (err) {
