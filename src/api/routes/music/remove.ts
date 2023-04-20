@@ -19,7 +19,7 @@ export default function (client: BotClient) {
 			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
 			const guild = await client.guilds.fetch(client.config.serverID)
-			if (!guild) return res.status(406).send("Guild not found!")
+			if (!guild) return res.status(406).send({ error: "Guild not found!" })
 
 			const connectedMembers = guild.members.cache.filter(member => member.voice.channel)
 			const requester = connectedMembers.find(member => member.user.username === user.data.user?.user_metadata.full_name)
@@ -27,34 +27,34 @@ export default function (client: BotClient) {
 				c => c.type === 2 && c.members.find(m => m.user.username === user.data.user?.user_metadata.full_name) !== undefined
 			)
 
-			if (!requester) return res.status(406).send("You are not connected to a voice channel!")
-			else if (voiceChannel?.id !== client.currentChannel?.id) return res.status(406).send("Not the same channel!")
+			if (!requester) return res.status(406).send({ error: "You are not connected to a voice channel!" })
+			else if (voiceChannel?.id !== client.currentChannel?.id) return res.status(406).send({ error: "Not the same channel!" })
 
 			const channel = (await client.channels.fetch(client.config.baseChannelID)) as TextChannel
-			if (!channel) return res.status(406).send("Channel not found!")
+			if (!channel) return res.status(406).send({ error: "Channel not found!" })
 			if (!client.currentChannel) return res.status(406).send("not connected!")
 
 			const queue = client.queues.get(client.currentChannel.guild.id)
 
 			const oldConnection = getVoiceConnection(client.currentChannel.guild.id)
 			if (!oldConnection) {
-				res.status(406).send("")
+				res.status(406).send({ error: "Not connected somewhere!" })
 				return channel.send({ content: `👎 **I'm not connected somewhere**!` }).catch(err => Logger.error(err.message))
 			}
 
 			if (!queue) {
-				res.status(406).send("")
+				res.status(406).send({ error: "Nothing playing right now!" })
 				return channel.send(`👎 **Nothing playing right now**`).catch(err => Logger.error(err.message))
 			}
 
 			if (!queue.tracks || queue.tracks.length <= 1) {
-				res.status(406).send("")
+				res.status(406).send({ error: "Nothing to remove!" })
 				return channel.send(`👎 **Nothing to remove**`).catch(err => Logger.error(err.message))
 			}
 			const arg = req.body.queuePos
 
 			if (!arg || isNaN(arg) || Number(arg) > queue.tracks.length) {
-				res.status(406).send("")
+				res.status(406).send({ error: "Invalid Queue Position!" })
 				return channel.send({ content: `👎 **There are just ${queue.tracks.length} Songs in the Queue, can't remove the ${arg}th Song.**` })
 			}
 
