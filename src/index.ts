@@ -147,28 +147,7 @@ if (process.env.METHOD) {
 }
 
 if (!process.env.METHOD) {
-	const expressClient = new ExpressClient(client)
-
-	const PORT = process.env.PORT || 8080
-	const HTTPS_PORT = process.env.HTTPS_PORT || 8443
-
-	if (process.env.NODE_ENV !== "development") {
-		const httpServer = http.createServer(expressClient.app)
-		httpServer.listen(PORT, () => {
-			Logger.log("HTTP Server running on port 8080")
-		})
-
-		if (environement.cert && environement.certKey) {
-			const credentials = {
-				key: fs.readFileSync(environement.certKey),
-				cert: fs.readFileSync(environement.cert)
-			}
-			const httpsServer = https.createServer(credentials, expressClient.app)
-			httpsServer.listen(HTTPS_PORT, () => {
-				Logger.log("HTTPS Server running on port 8443")
-			})
-		}
-	}
+	new ExpressClient(client)
 
 	// --------- Loging in bot ---------
 	client.login(client.config.token).catch(err => {

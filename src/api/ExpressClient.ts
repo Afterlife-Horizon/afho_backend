@@ -37,6 +37,7 @@ export default class ExpressClient {
 	constructor(client: BotClient) {
 		this.client = client
 		this.app = express()
+		const PORT = process.env.PORT || 4000
 		this.app
 			.use(express.json())
 			.use("/api/levels", levels(this.client))
@@ -59,13 +60,8 @@ export default class ExpressClient {
 			.use("/api/getFavs", musicGetFavs(this.client))
 			.use("/api/addFav", musicAddFav(this.client))
 			.use("/api/delFav", musicRemoveFav(this.client))
-
-		if (process.env.NODE_ENV !== "development") {
-			this.app.use(connectHistoryApiFallback({ verbose: false })).use(express.static(path.join(__dirname, "../../frontend/dist")))
-		} else {
-			this.app.listen(4000, () => {
+			.listen(PORT, () => {
 				Logger.log("API is now listening on port 4000")
 			})
-		}
 	}
 }

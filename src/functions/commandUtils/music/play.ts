@@ -13,7 +13,7 @@ export default async function play(client: BotClient, user: string, songs: strin
 		const requester = connectedMembers?.find(member => member.user.username === user)
 
 		if (!guild) return { status: 406, error: "Guild not found!" }
-		if (!requester) return { status: 406, error: "Could not find you in the guild!" }
+		if (!requester) return { status: 406, error: "You are not connected to a voice channel!" }
 
 		const voiceChannel = guild.channels.cache.find(
 			c => c.type === 2 && c.members.find(m => m.user.username === requester.user.username) !== undefined
