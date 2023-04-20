@@ -8,6 +8,7 @@ import { Logger } from "../../../logger/Logger"
 export default async function play(client: BotClient, user: string, songs: string) {
 	try {
 		const guild = await client.guilds.fetch(client.config.serverID)
+		guild?.members.fetch()
 		const connectedMembers = guild?.members.cache.filter(member => member.voice.channel)
 		const requester = connectedMembers?.find(member => member.user.username === user)
 
