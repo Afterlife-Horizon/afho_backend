@@ -100,7 +100,7 @@ export default class BotClient extends Client {
 		const data = await this.prisma.bot_favorites.findMany()
 		data.forEach(fav => {
 			const currentFav = this.favs.get(fav.user_id) || []
-			currentFav.push(fav)
+			currentFav.push({...fav, type: fav.type as "video" | "playlist"})
 			this.favs.set(fav.user_id, currentFav)
 		})
 	}
