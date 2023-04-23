@@ -17,7 +17,8 @@ export default (client: BotClient): ICommand => {
 				const member = interaction.member as GuildMember
 				const guild = interaction.guild
 				if (!guild) return interaction.reply("👎 **Something went wrong**").catch(err => Logger.error(err.message))
-				if (!member.voice.channelId) return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => Logger.error(err.message))
+				if (!member.voice.channelId)
+					return interaction.reply("👎 **Please join a Voice-Channel first!**").catch(err => Logger.error(err.message))
 
 				const oldConnection = getVoiceConnection(guild.id)
 				if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId) {
@@ -26,7 +27,8 @@ export default (client: BotClient): ICommand => {
 
 				client.currentChannel = member.voice.channel as VoiceChannel
 
-				if (!client.currentChannel) return interaction.reply({ content: `👎 **Something went wrong**` }).catch(err => Logger.error(err.message))
+				if (!client.currentChannel)
+					return interaction.reply({ content: `👎 **Something went wrong**` }).catch(err => Logger.error(err.message))
 				const track = interaction.options.get("song")?.value as string
 				const args = track.split(" ")
 
@@ -36,12 +38,20 @@ export default (client: BotClient): ICommand => {
 				const playlistRegex = /^.*(list=)([^#\&\?]*).*/gi
 				const songRegex = /^.*(watch\?v=)([^#\&\?]*).*/gi
 
+				const spotifyRegex = /^.*(open\.spotify\.com)\/.+$/gi
+				const spotifySongRegex = /^(https:\/\/open.spotify.com\/(track\/))(.*)$.*/gi
+				const spotifyPlaylistRegex = /^https:\/\/open.spotify.com\/user\/spotify\/playlist\/([a-zA-Z0-9]+)(.*)$.*/gi
+
 				let song: Video | undefined = undefined
 				let playList: Playlist | undefined = undefined
 
 				const isYoutube = youtubRegex.exec(track)
 				const isYoutubeSong = songRegex.exec(track)
 				const isYoutubePlaylist = playlistRegex.exec(track)
+
+				const isSpotify = spotifyRegex.exec(track)
+				const isSpotifySong = spotifySongRegex.exec(track)
+				const isSpotifyPlaylist = spotifyPlaylistRegex.exec(track)
 
 				if (!oldConnection) {
 					try {
@@ -58,16 +68,27 @@ export default (client: BotClient): ICommand => {
 					client.queues.delete(guild.id)
 					queue = undefined
 				}
-				if (isYoutube && isYoutubeSong && !isYoutubePlaylist) {
-					song = await YouTube.getVideo(track)
-				} else if (isYoutube && isYoutubePlaylist && !isYoutubeSong) {
-					playList = await YouTube.getPlaylist(track).then(playlist => playlist.fetch())
-				} else if (isYoutube && isYoutubePlaylist && isYoutubeSong) {
-					song = await YouTube.getVideo(track)
-					playList = await YouTube.getPlaylist(track).then(playlist => playlist.fetch())
-				} else {
-					song = await YouTube.searchOne(track)
+
+				if (!isYoutube && !isSpotify) {
+					return interaction.editReply({ content: `Please enter a valid youtube or spotify link!` })
 				}
+				if (isYoutube) {
+					if (isYoutube && isYoutubeSong && !isYoutubePlaylist) {
+						song = await YouTube.getVideo(track)
+					} else if (isYoutube && isYoutubePlaylist && !isYoutubeSong) {
+						playList = await YouTube.getPlaylist(track).then(playlist => playlist.fetch())
+					} else if (isYoutube && isYoutubePlaylist && isYoutubeSong) {
+						song = await YouTube.getVideo(track)
+						playList = await YouTube.getPlaylist(track).then(playlist => playlist.fetch())
+					} else {
+						song = await YouTube.searchOne(track)
+					}
+				}
+				if (isSpotify) {
+					getSongNameFromSpotify(track)
+					return interaction.editReply({ content: `Spotify is not supported yet!` })
+				}
+
 				if (song === null && playList === null) {
 					interaction.editReply({ content: `No song were found!` })
 					return
@@ -122,4 +143,11 @@ export default (client: BotClient): ICommand => {
 			}
 		}
 	}
+}
+async function getSongNameFromSpotify(track: string) {
+	const id = track.split("/").pop()
+	console.log(id)
+	const res = await fetch(`https://api.spotify.com/v1/tracks/${id}`)
+	const data = await res.json()
+	console.log(data)
 }
