@@ -86,16 +86,16 @@ export default (client: BotClient): ICommand => {
 					}
 				} else if (isSpotify) {
 					if (isSpotifySong && !isSpotifyPlaylist) {
-						getSongNameFromSpotify(client, track)
-						song = await YouTube.searchOne(track)
+						const name = await getSongNameFromSpotify(client, track)
+						song = await YouTube.searchOne(name)
 					} else if (isSpotifyPlaylist && !isSpotifySong)
 						return interaction.editReply({ content: `Spotify playlists are not supported yet!` })
 					else if (isSpotifyPlaylist && isSpotifySong) {
-						getSongNameFromSpotify(client, track)
-						song = await YouTube.searchOne(track)
+						const name = await getSongNameFromSpotify(client, track)
+						song = await YouTube.searchOne(name)
 					} else {
-						getSongNameFromSpotify(client, track)
-						song = await YouTube.searchOne(track)
+						const name = await getSongNameFromSpotify(client, track)
+						song = await YouTube.searchOne(name)
 					}
 				}
 
