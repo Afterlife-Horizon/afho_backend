@@ -20,6 +20,7 @@ model bot_favorites {
   name      String @db.VarChar(255)
   url       String @db.VarChar(255)
   thumbnail String @db.VarChar(255)
+  type      EType
 
   @@unique([id, user_id], map: "id_user_id")
 }
@@ -28,4 +29,9 @@ model bot_levels {
   id       String @id @db.VarChar(255)
   username String @db.VarChar(255)
   xp       Int
+}
+
+enum EType {
+  video
+  playlist
 }

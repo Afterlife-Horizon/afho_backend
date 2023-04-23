@@ -48,7 +48,8 @@ export default function (client: BotClient) {
 					user_id: userId,
 					name: vid.title ? vid.title : "",
 					url: vid.url ? vid.url : "",
-					thumbnail: vid.thumbnail?.url ? vid.thumbnail?.url : ""
+					thumbnail: vid.thumbnail?.url ? vid.thumbnail?.url : "",
+					type: vid.type === "playlist" ? "playlist" : "video"
 				}
 			})
 
@@ -56,13 +57,14 @@ export default function (client: BotClient) {
 				id: newFav.id,
 				name: newFav.name,
 				url: newFav.url,
-				thumbnail: newFav.thumbnail
+				thumbnail: newFav.thumbnail,
+				type: newFav.type as "video" | "playlist"
 			}
 
 			const favs: IFavorite[] = client.favs.get(req.body.userId) || []
 			favs.push(data)
 			client.favs.set(req.body.userId, favs)
-			
+
 			res.status(200).json({ data })
 		} catch (err: any) {
 			if (err instanceof Error) Logger.error(err.message)

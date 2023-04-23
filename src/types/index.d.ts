@@ -85,9 +85,10 @@ export interface IFilters {
 
 export interface IFavorite {
 	id: string
-	name: any
-	url: any
-	thumbnail: any
+	name: string
+	url: string
+	thumbnail: string
+	type: "video" | "playlist"
 }
 
 export interface ICommand {

@@ -22,7 +22,7 @@ export default function (client: BotClient) {
 			const member = await guild.members.fetch(user.data?.user?.user_metadata.provider_id)
 			if (!member) return res.status(406).send({ error: "Member not found!" })
 
-			const favorites: IFavorite[] = await client.prisma.bot_favorites.findMany({
+			const favorites = await client.prisma.bot_favorites.findMany({
 				where: {
 					user_id: user.data?.user?.user_metadata.provider_id
 				},
