@@ -85,8 +85,8 @@ export default class BotClient extends Client {
 			},
 			body: new URLSearchParams({
 				grant_type: "client_credentials",
-				clientId: this.config.spotifyClientID,
-				clientSecret: this.config.spotifyClientSecret
+				client_id: this.config.spotifyClientID,
+				client_secret: this.config.spotifyClientSecret
 			})
 		})
 
