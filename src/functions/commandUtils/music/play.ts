@@ -89,13 +89,16 @@ export default async function play(client: BotClient, user: string, songs: strin
 		} else if (isSpotify) {
 			if (isSpotifySong && !isSpotifyPlaylist) {
 				const spotifyInfo = await getSongNameFromSpotify(client, track)
+				console.log(`${spotifyInfo.name} - ${spotifyInfo.artists[0].name}`)
 				song = await YouTube.searchOne(`${spotifyInfo.name} ${spotifyInfo.artists[0]}`)
 			} else if (isSpotifyPlaylist && !isSpotifySong) return { status: 406, error: `Spotify playlists are not supported yet!` }
 			else if (isSpotifyPlaylist && isSpotifySong) {
 				const spotifyInfo = await getSongNameFromSpotify(client, track)
+				console.log(`${spotifyInfo.name} - ${spotifyInfo.artists[0].name}`)
 				song = await YouTube.searchOne(`${spotifyInfo.name} ${spotifyInfo.artists[0]}`)
 			} else {
 				const spotifyInfo = await getSongNameFromSpotify(client, track)
+				console.log(`${spotifyInfo.name} - ${spotifyInfo.artists[0].name}`)
 				song = await YouTube.searchOne(`${spotifyInfo.name} - ${spotifyInfo.artists[0].name}`)
 			}
 		}
