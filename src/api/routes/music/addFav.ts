@@ -62,7 +62,7 @@ export default function (client: BotClient) {
 			const favs: IFavorite[] = client.favs.get(req.body.userId) || []
 			favs.push(data)
 			client.favs.set(req.body.userId, favs)
-
+			
 			res.status(200).json({ data })
 		} catch (err: any) {
 			if (err instanceof Error) Logger.error(err.message)

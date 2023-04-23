@@ -28,9 +28,7 @@ export default function (client: BotClient) {
 				},
 				orderBy: {
 					name: "asc"
-				},
-				skip: req.body.skip * 5 || 0,
-				take: 5
+				}
 			})
 
 			res.status(200).json({ favorites })
