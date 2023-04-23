@@ -5,6 +5,7 @@ import BotClient from "../../../botClient/BotClient"
 import { IQueue } from "../../../types"
 import { Logger } from "../../../logger/Logger"
 import getSongNameFromSpotify from "../../getInfoFromSpotify"
+import getPlaylistInfoFromSpotify from "../../getPlaylistInfoFromSpotify"
 
 export default async function play(client: BotClient, user: string, songs: string) {
 	try {
@@ -90,8 +91,17 @@ export default async function play(client: BotClient, user: string, songs: strin
 			if (isSpotifySong && !isSpotifyPlaylist) {
 				const spotifyInfo = await getSongNameFromSpotify(client, track)
 				song = await YouTube.searchOne(`${spotifyInfo.artists[0].name} - ${spotifyInfo.name}`)
-			} else if (isSpotifyPlaylist && !isSpotifySong) return { status: 406, error: `Spotify playlists are not supported yet!` }
-			else if (isSpotifyPlaylist && isSpotifySong) {
+			} else if (isSpotifyPlaylist && !isSpotifySong) {
+				const playlistInfo = await getPlaylistInfoFromSpotify(client, track)
+				for (const song of playlistInfo.tracks) {
+					const video = await YouTube.searchOne(`${song.artists[0].name} - ${song.name}`)
+					if (video) {
+						if (!playList) playList = new Playlist({ title: playlistInfo.name, url: track, videos: [] })
+						playList.videos.push(video)
+					}
+				}
+				return { status: 406, error: `Spotify playlists are not supported yet!` }
+			} else if (isSpotifyPlaylist && isSpotifySong) {
 				const spotifyInfo = await getSongNameFromSpotify(client, track)
 				song = await YouTube.searchOne(`${spotifyInfo.artists[0].name} - ${spotifyInfo.name}`)
 			} else {

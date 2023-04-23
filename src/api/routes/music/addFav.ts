@@ -4,6 +4,7 @@ import { Playlist, Video, default as YouTube } from "youtube-sr"
 import BotClient from "../../../botClient/BotClient"
 import { IFavorite } from "../../../types"
 import { Logger } from "../../../logger/Logger"
+import getSongNameFromSpotify from "../../../functions/getInfoFromSpotify"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
@@ -35,11 +36,35 @@ export default function (client: BotClient) {
 			const isYoutubeSong = songRegex.exec(url)
 			const isYoutubePlaylist = playlistRegex.exec(url)
 
+			const spotifyRegex = /^.*(open\.spotify\.com)\/.+$/gi
+			const spotifySongRegex = /^(https:\/\/open.spotify.com\/(track\/))(.*)$.*/gi
+			const spotifyPlaylistRegex = /^https:\/\/open.spotify.com\/user\/spotify\/playlist\/([a-zA-Z0-9]+)(.*)$.*/gi
+			const isSpotify = spotifyRegex.exec(url)
+			const isSpotifySong = spotifySongRegex.exec(url)
+			const isSpotifyPlaylist = spotifyPlaylistRegex.exec(url)
+
 			let vid: Playlist | Video | undefined = undefined
-			if (isYoutube && isYoutubeSong && !isYoutubePlaylist) vid = await YouTube.getVideo(url)
-			else if (isYoutube && isYoutubePlaylist && isYoutubeSong) vid = await YouTube.getVideo(url)
-			else if (isYoutube && isYoutubePlaylist && !isYoutubeSong) vid = await YouTube.getPlaylist(url)
-			else vid = await YouTube.searchOne(url)
+
+			if (!isYoutube && !isSpotify) return res.status(400).json({ error: "Invalid url" })
+			else if (isYoutube) {
+				if (isYoutubeSong && !isYoutubePlaylist) vid = await YouTube.getVideo(url)
+				else if (isYoutube && isYoutubePlaylist && isYoutubeSong) vid = await YouTube.getVideo(url)
+				else if (isYoutube && isYoutubePlaylist && !isYoutubeSong) vid = await YouTube.getPlaylist(url)
+				else vid = await YouTube.searchOne(url)
+			} else if (isSpotify) {
+				if (isSpotifySong && !isSpotifyPlaylist) {
+					const spotifyInfo = await getSongNameFromSpotify(client, url)
+					vid = await YouTube.searchOne(`${spotifyInfo.artists[0].name} - ${spotifyInfo.name}`)
+				} else if (isSpotifyPlaylist && !isSpotifySong) return res.status(400).json({ error: `Spotify playlists are not supported yet!` })
+				else if (isSpotifyPlaylist && isSpotifySong) {
+					const spotifyInfo = await getSongNameFromSpotify(client, url)
+					vid = await YouTube.searchOne(`${spotifyInfo.artists[0].name} - ${spotifyInfo.name}`)
+				} else {
+					const spotifyInfo = await getSongNameFromSpotify(client, url)
+					vid = await YouTube.searchOne(`${spotifyInfo.artists[0].name} - ${spotifyInfo.name}`)
+				}
+			}
+
 			if (!vid) return res.status(400).json({ error: "No video found" })
 
 			const newFav = await client.prisma.bot_favorites.create({
