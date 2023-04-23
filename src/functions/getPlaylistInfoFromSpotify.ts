@@ -10,5 +10,5 @@ export default async function getPlaylistInfoFromSpotify(client: BotClient, play
 		}
 	})
 	const data = await res.json()
-	return { name: data.name, tracks: data.tracks.items }
+	return { name: data.name, items: data.tracks.items }
 }

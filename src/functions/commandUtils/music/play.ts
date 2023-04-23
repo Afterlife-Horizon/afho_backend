@@ -93,8 +93,8 @@ export default async function play(client: BotClient, user: string, songs: strin
 				song = await YouTube.searchOne(`${spotifyInfo.artists[0].name} - ${spotifyInfo.name}`)
 			} else if (isSpotifyPlaylist && !isSpotifySong) {
 				const playlistInfo = await getPlaylistInfoFromSpotify(client, track)
-				for (const song of playlistInfo.tracks) {
-					const video = await YouTube.searchOne(`${song.artists[0].name} - ${song.name}`)
+				for (const song of playlistInfo.items) {
+					const video = await YouTube.searchOne(`${song.track.artists[0].name} - ${song.track.name}`)
 					if (video) {
 						if (!playList) playList = new Playlist({ title: playlistInfo.name, url: track, videos: [] })
 						playList.videos.push(video)
