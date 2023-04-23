@@ -91,6 +91,7 @@ export default class BotClient extends Client {
 		})
 
 		if (!res.ok) {
+			console.log(res)
 			Logger.error("Error while getting the spotify token")
 			throw new Error("Error while getting the spotify token")
 		}
