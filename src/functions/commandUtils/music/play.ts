@@ -6,6 +6,7 @@ import { IQueue } from "../../../types"
 import { Logger } from "../../../logger/Logger"
 import getSongNameFromSpotify from "../../getInfoFromSpotify"
 import getPlaylistInfoFromSpotify from "../../getPlaylistInfoFromSpotify"
+import type { Track, Playlist as SPlaylist } from "spotify-types"
 
 export default async function play(client: BotClient, user: string, songs: string) {
 	try {
@@ -94,8 +95,9 @@ export default async function play(client: BotClient, user: string, songs: strin
 			} else if (isSpotifyPlaylist && !isSpotifySong) {
 				const playlistInfo = await getPlaylistInfoFromSpotify(client, track)
 				console.log(playlistInfo)
-				for (const song of playlistInfo.items) {
-					const video = await YouTube.searchOne(`${song.track.artists[0]?.name} - ${song.track.name}`)
+				for (const playlistTrack of playlistInfo.items) {
+					const spotifySong = playlistTrack.track as Track
+					const video = await YouTube.searchOne(`${spotifySong.artists[0].name} - ${spotifySong.name}`)
 					if (video) {
 						if (!playList) playList = new Playlist({ title: playlistInfo.name, url: track, videos: [] })
 						playList.videos.push(video)

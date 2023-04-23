@@ -1,5 +1,5 @@
 import BotClient from "../botClient/BotClient"
-
+import type { Track, Playlist as SPlaylist } from "spotify-types"
 export default async function getSongNameFromSpotify(client: BotClient, track: string) {
 	const id = track.split("/").pop()
 	const access_token = await client.getSpotifyToken()
@@ -9,6 +9,6 @@ export default async function getSongNameFromSpotify(client: BotClient, track: s
 			Authorization: `Bearer ${access_token}`
 		}
 	})
-	const data = await res.json()
+	const data: Track = await res.json()
 	return { name: data.name, artists: data.artists }
 }
