@@ -85,7 +85,7 @@ export default (client: BotClient): ICommand => {
 					}
 				}
 				if (isSpotify) {
-					getSongNameFromSpotify(track)
+					getSongNameFromSpotify(client, track)
 					return interaction.editReply({ content: `Spotify is not supported yet!` })
 				}
 
@@ -144,10 +144,16 @@ export default (client: BotClient): ICommand => {
 		}
 	}
 }
-async function getSongNameFromSpotify(track: string) {
+async function getSongNameFromSpotify(client: BotClient, track: string) {
 	const id = track.split("/").pop()
 	console.log(id)
-	const res = await fetch(`https://api.spotify.com/v1/tracks/${id}`)
+	const access_token = await client.getSpotifyToken()
+	const res = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
+		method: "GET",
+		headers: {
+			Authorization: `Bearer ${access_token}`
+		}
+	})
 	const data = await res.json()
 	console.log(data)
 }

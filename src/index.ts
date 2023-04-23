@@ -59,6 +59,10 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 		Logger.error("No website URL found")
 		throw new Error("No website URL found")
 	}
+	if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
+		Logger.error("No Spotify credentials found")
+		throw new Error("No Spotify credentials found")
+	}
 	if (!process.env.CERT || !process.env.CERT_KEY) Logger.warn("No HTTPS certificate found, using HTTP instead...")
 	if (!process.env.OPENAI_KEY || !process.env.CHAT_GPT_CHANNEL_ID) Logger.warn("No OpenAI key found, not using OpenAI API")
 	if (!process.env.REACTION_ROLE_CHANNEL_ID) Logger.warn("No roles channel ID found, not using reaction roles")
@@ -81,7 +85,9 @@ const environement = {
 	openAIKey: process.env.OPENAI_KEY,
 	youtubeCookie: process.env.YOUTUBE_LOGIN_COOKIE,
 	gptChatChannel: process.env.CHAT_GPT_CHANNEL_ID,
-	reactionRoleChannel: process.env.REACTION_ROLE_CHANNEL_ID
+	reactionRoleChannel: process.env.REACTION_ROLE_CHANNEL_ID,
+	spotifyClientID: process.env.SPOTIFY_CLIENT_ID,
+	spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET
 } as IEnv
 
 const options = {

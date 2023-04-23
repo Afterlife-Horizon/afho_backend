@@ -24,11 +24,10 @@ import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
-import { PassThrough, Readable } from "node:stream"
+import { PassThrough } from "node:stream"
 import { PrismaClient } from "@prisma/client"
 import { Logger } from "../logger/Logger"
 import { reactionRoles } from "../constante"
-import getFavs from "../api/routes/music/getFavs"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
@@ -58,7 +57,9 @@ export default class BotClient extends Client {
 			youtubeCookie: environment.youtubeCookie,
 			gptChatChannel: environment.gptChatChannel,
 			reactionRoleChannel: environment.reactionRoleChannel,
-			websiteURL: environment.websiteURL
+			websiteURL: environment.websiteURL,
+			spotifyClientID: environment.spotifyClientID,
+			spotifyClientSecret: environment.spotifyClientSecret
 		}
 
 		if (environment.reactionRoleChannel) this.config.reactionRoles = reactionRoles
@@ -71,8 +72,31 @@ export default class BotClient extends Client {
 
 		this.initCommands()
 		this.initListeners()
+		this.getSpotifyToken()
 		this.currentChannel = null
 		this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
+	}
+
+	async getSpotifyToken() {
+		const res = await fetch("https://accounts.spotify.com/api/token", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded"
+			},
+			body: new URLSearchParams({
+				grant_type: "client_credentials",
+				clientId: this.config.spotifyClientID,
+				clientSecret: this.config.spotifyClientSecret
+			})
+		})
+
+		if (!res.ok) {
+			Logger.error("Error while getting the spotify token")
+			throw new Error("Error while getting the spotify token")
+		}
+
+		const data = await res.json()
+		return data.access_token
 	}
 
 	private initCommands() {
@@ -100,7 +124,7 @@ export default class BotClient extends Client {
 		const data = await this.prisma.bot_favorites.findMany()
 		data.forEach(fav => {
 			const currentFav = this.favs.get(fav.user_id) || []
-			currentFav.push({...fav, type: fav.type as "video" | "playlist"})
+			currentFav.push({ ...fav, type: fav.type as "video" | "playlist" })
 			this.favs.set(fav.user_id, currentFav)
 		})
 	}

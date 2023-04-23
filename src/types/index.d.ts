@@ -13,6 +13,8 @@ export interface IEnv {
 	supabaseURL: string
 	supabaseKey: string
 	websiteURL: string
+	spotifyClientID: string
+	spotifyClientSecret: string
 	cert?: string
 	certKey?: string
 	openAIKey?: string
