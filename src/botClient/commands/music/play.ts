@@ -99,6 +99,8 @@ export default (client: BotClient): ICommand => {
 					}
 				}
 
+				console.log(song)
+
 				if (song === null && playList === null) {
 					interaction.editReply({ content: `No song were found!` })
 					return
