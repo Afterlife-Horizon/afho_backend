@@ -10,5 +10,5 @@ export default async function getSongNameFromSpotify(client: BotClient, track: s
 		}
 	})
 	const data = await res.json()
-	return data.name
+	return { name: data.name, artists: data.artists }
 }
