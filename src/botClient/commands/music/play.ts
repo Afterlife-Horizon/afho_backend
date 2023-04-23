@@ -72,6 +72,7 @@ export default (client: BotClient): ICommand => {
 				if (!isYoutube && !isSpotify) {
 					return interaction.editReply({ content: `Please enter a valid youtube or spotify link!` })
 				}
+
 				if (isYoutube) {
 					if (isYoutube && isYoutubeSong && !isYoutubePlaylist) {
 						song = await YouTube.getVideo(track)
@@ -83,10 +84,19 @@ export default (client: BotClient): ICommand => {
 					} else {
 						song = await YouTube.searchOne(track)
 					}
-				}
-				if (isSpotify) {
-					getSongNameFromSpotify(client, track)
-					return interaction.editReply({ content: `Spotify is not supported yet!` })
+				} else if (isSpotify) {
+					if (isSpotifySong && !isSpotifyPlaylist) {
+						getSongNameFromSpotify(client, track)
+						song = await YouTube.searchOne(track)
+					} else if (isSpotifyPlaylist && !isSpotifySong)
+						return interaction.editReply({ content: `Spotify playlists are not supported yet!` })
+					else if (isSpotifyPlaylist && isSpotifySong) {
+						getSongNameFromSpotify(client, track)
+						song = await YouTube.searchOne(track)
+					} else {
+						getSongNameFromSpotify(client, track)
+						song = await YouTube.searchOne(track)
+					}
 				}
 
 				if (song === null && playList === null) {
@@ -155,5 +165,5 @@ async function getSongNameFromSpotify(client: BotClient, track: string) {
 		}
 	})
 	const data = await res.json()
-	console.log(data)
+	return data.name
 }
