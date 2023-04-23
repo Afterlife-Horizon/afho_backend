@@ -90,11 +90,7 @@ export default class BotClient extends Client {
 			})
 		})
 
-		if (!res.ok) {
-			console.log(res)
-			Logger.error("Error while getting the spotify token")
-			throw new Error("Error while getting the spotify token")
-		}
+		if (!res.ok) return Logger.error(`Error while getting the spotify token:\n${JSON.stringify(res)}`)
 
 		const data = await res.json()
 		return data.access_token

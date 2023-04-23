@@ -4,6 +4,7 @@ import YouTube, { Playlist, Video } from "youtube-sr"
 import BotClient from "../../../botClient/BotClient"
 import { IQueue } from "../../../types"
 import { Logger } from "../../../logger/Logger"
+import getSongNameFromSpotify from "../../getSongNameFromSpotify"
 
 export default async function play(client: BotClient, user: string, songs: string) {
 	try {
@@ -49,6 +50,10 @@ export default async function play(client: BotClient, user: string, songs: strin
 		const playlistRegex = /^.*(list=)([^#\&\?]*).*/gi
 		const songRegex = /^.*(watch\?v=)([^#\&\?]*).*/gi
 
+		const spotifyRegex = /^.*(open\.spotify\.com)\/.+$/gi
+		const spotifySongRegex = /^(https:\/\/open.spotify.com\/(track\/))(.*)$.*/gi
+		const spotifyPlaylistRegex = /^https:\/\/open.spotify.com\/user\/spotify\/playlist\/([a-zA-Z0-9]+)(.*)$.*/gi
+
 		let song: Video | undefined = undefined
 		let playList: Playlist | undefined = undefined
 
@@ -56,21 +61,45 @@ export default async function play(client: BotClient, user: string, songs: strin
 		const isYoutubeSong = songRegex.exec(track)
 		const isYoutubePlaylist = playlistRegex.exec(track)
 
+		const isSpotify = spotifyRegex.exec(track)
+		const isSpotifySong = spotifySongRegex.exec(track)
+		const isSpotifyPlaylist = spotifyPlaylistRegex.exec(track)
+
 		await channel.send({ content: `Searching ${track} ...` })
 		if (!oldConnection && queue) {
 			client.queues.delete(client.currentChannel.guildId)
 			queue = undefined
 		}
-		if (isYoutube && isYoutubeSong && !isYoutubePlaylist) {
-			song = await YouTube.getVideo(track)
-		} else if (isYoutube && isYoutubePlaylist && !isYoutubeSong) {
-			playList = await YouTube.getPlaylist(track).then(playlist => playlist.fetch())
-		} else if (isYoutube && isYoutubePlaylist && isYoutubeSong) {
-			song = await YouTube.getVideo(track)
-			playList = await YouTube.getPlaylist(track).then(playlist => playlist.fetch())
-		} else {
-			song = await YouTube.searchOne(track)
+
+		if (!isYoutube && !isSpotify) {
+			return { status: 406, error: `Please enter a valid youtube or spotify link!` }
 		}
+
+		if (isYoutube) {
+			if (isYoutube && isYoutubeSong && !isYoutubePlaylist) {
+				song = await YouTube.getVideo(track)
+			} else if (isYoutube && isYoutubePlaylist && !isYoutubeSong) {
+				playList = await YouTube.getPlaylist(track).then(playlist => playlist.fetch())
+			} else if (isYoutube && isYoutubePlaylist && isYoutubeSong) {
+				song = await YouTube.getVideo(track)
+				playList = await YouTube.getPlaylist(track).then(playlist => playlist.fetch())
+			} else {
+				song = await YouTube.searchOne(track)
+			}
+		} else if (isSpotify) {
+			if (isSpotifySong && !isSpotifyPlaylist) {
+				const name = await getSongNameFromSpotify(client, track)
+				song = await YouTube.searchOne(name)
+			} else if (isSpotifyPlaylist && !isSpotifySong) return { status: 406, error: `Spotify playlists are not supported yet!` }
+			else if (isSpotifyPlaylist && isSpotifySong) {
+				const name = await getSongNameFromSpotify(client, track)
+				song = await YouTube.searchOne(name)
+			} else {
+				const name = await getSongNameFromSpotify(client, track)
+				song = await YouTube.searchOne(name)
+			}
+		}
+
 		if (song === null && playList === null) {
 			channel.send({ content: `No song were found!` })
 			return { status: 400, error: "no songs found" }
