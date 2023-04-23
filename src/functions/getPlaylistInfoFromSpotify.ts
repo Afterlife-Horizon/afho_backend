@@ -1,5 +1,4 @@
 import BotClient from "../botClient/BotClient"
-import type { Playlist as SPlaylist } from "spotify-types"
 
 export default async function getPlaylistInfoFromSpotify(client: BotClient, playlist: string) {
 	console.log(playlist)
@@ -11,7 +10,7 @@ export default async function getPlaylistInfoFromSpotify(client: BotClient, play
 			Authorization: `Bearer ${access_token}`
 		}
 	})
-	const data: SPlaylist = await res.json()
+	const data = await res.json()
 	console.log(data)
-	return { name: data.name, items: data.tracks }
+	return { name: data.name, items: data.tracks.items }
 }
