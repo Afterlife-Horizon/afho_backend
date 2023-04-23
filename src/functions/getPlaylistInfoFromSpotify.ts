@@ -2,6 +2,7 @@ import BotClient from "../botClient/BotClient"
 import type { Playlist as SPlaylist } from "spotify-types"
 
 export default async function getPlaylistInfoFromSpotify(client: BotClient, playlist: string) {
+	console.log(playlist)
 	const id = playlist.split("/").pop()
 	const access_token = await client.getSpotifyToken()
 	const res = await fetch(`https://api.spotify.com/v1/playlists/${id}`, {
