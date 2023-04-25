@@ -122,6 +122,15 @@ export default class BotClient extends Client {
 		})
 	}
 
+	async initTimes() {
+		const members = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch())
+		members.forEach(member => {
+			if (member.user.bot) return
+			if (!member.voice) return
+			this.times.set(member.id, new Date())
+		})
+	}
+
 	async getSpotifyToken() {
 		const res = await fetch("https://accounts.spotify.com/api/token", {
 			method: "POST",
