@@ -50,14 +50,14 @@ export default function (client: BotClient) {
 					user_id: oldState.member.id
 				},
 				update: {
-					time: {
+					time_spent: {
 						increment: timeSpentSeconds
 					}
 				},
 				create: {
 					user_id: oldState.member.id,
 					username: oldState.member.user.username,
-					time: timeSpentSeconds
+					time_spent: timeSpentSeconds
 				}
 			})
 
