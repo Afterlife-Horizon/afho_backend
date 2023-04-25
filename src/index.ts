@@ -122,11 +122,21 @@ const options = {
 
 const client = new BotClient(options, environement)
 
+async function timer() {
+	for (const [id] of client.times) {
+		await client.pushTime(id)
+		client.times.set(id, new Date())
+	}
+	console.log("Times updated")
+	setTimeout(timer, 1000 * 60)
+}
+
 client.once("ready", async () => {
 	client.ready = true
 	reactionCollector(client)
 	await client.initTimes()
 	Logger.log("Logged in as " + client.user?.tag)
+	await timer()
 })
 
 process.on("SIGTERM", async () => {
