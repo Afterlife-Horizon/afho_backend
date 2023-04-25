@@ -33,7 +33,7 @@ export default function (client: BotClient) {
 		}
 		if (!newState.channelId && oldState.channelId) {
 			if (!oldState.member?.id) return
-			client.pushTime({ id: oldState.member.id })
+			client.pushTime(oldState.member.id)
 			client.times.delete(oldState.member.id)
 		}
 

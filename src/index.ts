@@ -122,10 +122,10 @@ const options = {
 
 const client = new BotClient(options, environement)
 
-client.once("ready", () => {
+client.once("ready", async () => {
 	client.ready = true
 	reactionCollector(client)
-	client.initTimes()
+	await client.initTimes()
 	Logger.log("Logged in as " + client.user?.tag)
 })
 

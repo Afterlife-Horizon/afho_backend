@@ -81,21 +81,14 @@ export default class BotClient extends Client {
 
 	async stop() {
 		const connection = getVoiceConnection(this.config.serverID)
-		if (connection) {
-			connection.destroy()
-			this.currentChannel = null
-		}
+		if (connection) connection.disconnect()
 
-		for (const [id] of this.times) {
-			await this.pushTime({ id })
-		}
-
-		this.times.clear()
+		for (const [id] of this.times) await this.pushTime(id)
 
 		this.destroy()
 	}
 
-	async pushTime({ id }) {
+	async pushTime(id: string) {
 		const time = this.times.get(id)
 		if (!time) return
 
@@ -123,12 +116,9 @@ export default class BotClient extends Client {
 	}
 
 	async initTimes() {
-		const members = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch())
-		members.forEach(member => {
-			if (member.user.bot) return
-			if (!member.voice) return
-			this.times.set(member.id, new Date())
-		})
+		const guild = await this.guilds.fetch(this.config.serverID)
+		const connectedMembers = await guild.members.fetch().then(m => m.filter(m => m.voice.channel).map(m => m.user))
+		connectedMembers.forEach(member => this.times.set(member.id, new Date()))
 	}
 
 	async getSpotifyToken() {
