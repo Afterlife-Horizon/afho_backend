@@ -4,6 +4,8 @@ import { AuditLogEvent } from "discord.js"
 import { Logger } from "../../logger/Logger"
 
 export default function (client: BotClient) {
+	const times = new Map<string, Date>()
+
 	return client.on("voiceStateUpdate", async (oldState, newState) => {
 		if (newState.id == client.user?.id) return
 
@@ -19,15 +21,51 @@ export default function (client: BotClient) {
 			stateChange(oldState.selfMute, newState.selfMute) ||
 			stateChange(oldState.selfVideo, newState.selfVideo) ||
 			stateChange(oldState.suppress, newState.suppress)
-		) {
+		)
 			return
+
+		if (!oldState.channelId && newState.channelId) {
+			// channel joins
+			if (!newState.member?.id) return Logger.log("No member id found")
+			if (!newState.guild.id) return Logger.log("No guild id found")
+			if (!newState.channelId) return Logger.log("No channel id found")
+
+			times.set(newState.member.id, new Date())
 		}
 
-		// channel joins
-		if (!oldState.channelId && newState.channelId) return
+		// manage channel joins and leaves to increase time in the channels
+		if (!newState.channelId && oldState.channelId) {
+			if (!oldState.member?.id) return Logger.log("No member id found")
+			if (!oldState.guild.id) return Logger.log("No guild id found")
+			if (!oldState.channelId) return Logger.log("No channel id found")
 
-		// channel moves
+			const time = times.get(oldState.member.id)
+			if (!time) return
+
+			const timeSpent = new Date().getTime() - time.getTime()
+			const timeSpentSeconds = Math.round(timeSpent / 1000)
+
+			await client.prisma.bot_time.upsert({
+				where: {
+					user_id: oldState.member.id
+				},
+				update: {
+					time: {
+						increment: timeSpentSeconds
+					}
+				},
+				create: {
+					user_id: oldState.member.id,
+					username: oldState.member.user.username,
+					time: timeSpentSeconds
+				}
+			})
+
+			times.delete(oldState.member.id)
+		}
+
 		if (oldState.channelId && newState.channelId && oldState.channelId != newState.channelId) {
+			// channel moves
 			const fetchedLogs = await newState.guild.fetchAuditLogs({
 				type: AuditLogEvent.MemberMove,
 				limit: 1

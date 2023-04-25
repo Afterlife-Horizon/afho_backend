@@ -30,3 +30,9 @@ model bot_levels {
   username String @db.VarChar(255)
   xp       Int
 }
+
+model bot_time {
+  user_id String @id @db.VarChar(255)
+  username String @db.VarChar(255)
+  time_spent    BigInt
+}
