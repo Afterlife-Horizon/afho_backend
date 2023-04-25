@@ -34,5 +34,5 @@ model bot_levels {
 model bot_time {
   user_id String @id @db.VarChar(255)
   username String @db.VarChar(255)
-  time_spent    BigInt
+  time_spent    Int @default(0)
 }
