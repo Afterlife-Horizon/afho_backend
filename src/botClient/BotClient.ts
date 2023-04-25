@@ -40,6 +40,7 @@ export default class BotClient extends Client {
 	public passThrought?: PassThrough
 	public stream?: FFmpeg.FfmpegCommand
 	public supabaseClient: SupabaseClient<any, "public", any>
+	public times: Map<string, Date>
 
 	constructor(options: ClientOptions, environment: IEnv) {
 		super(options)
@@ -75,6 +76,50 @@ export default class BotClient extends Client {
 		this.getSpotifyToken()
 		this.currentChannel = null
 		this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
+		this.times = new Map<string, Date>()
+	}
+
+	async stop() {
+		const connection = getVoiceConnection(this.config.serverID)
+		if (connection) {
+			connection.destroy()
+			this.currentChannel = null
+		}
+
+		for (const [id] of this.times) {
+			await this.pushTime({ id })
+		}
+
+		this.times.clear()
+
+		this.destroy()
+	}
+
+	async pushTime({ id }) {
+		const time = this.times.get(id)
+		if (!time) return
+
+		const timeSpent = new Date().getTime() - time.getTime()
+		const timeSpentSeconds = Math.round(timeSpent / 1000)
+
+		const member = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch(id))
+		if (!member) return
+
+		await this.prisma.bot_time.upsert({
+			where: {
+				user_id: id
+			},
+			update: {
+				time_spent: {
+					increment: timeSpentSeconds
+				}
+			},
+			create: {
+				user_id: id,
+				username: member.user.username,
+				time_spent: timeSpentSeconds
+			}
+		})
 	}
 
 	async getSpotifyToken() {

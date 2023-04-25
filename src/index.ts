@@ -128,6 +128,18 @@ client.once("ready", () => {
 	Logger.log("Logged in as " + client.user?.tag)
 })
 
+process.on("SIGTERM", async () => {
+	Logger.log("Gracefully shutting down!")
+	await client.stop()
+	exit(0)
+})
+
+process.on("SIGINT", async () => {
+	Logger.log("Gracefully shutting down!")
+	await client.stop()
+	exit(0)
+})
+
 if (process.env.METHOD) {
 	const rest = new REST({ version: "10" }).setToken(client.config.token)
 	if (process.env.METHOD === "add") {

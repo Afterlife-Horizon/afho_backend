@@ -4,8 +4,6 @@ import { AuditLogEvent } from "discord.js"
 import { Logger } from "../../logger/Logger"
 
 export default function (client: BotClient) {
-	const times = new Map<string, Date>()
-
 	return client.on("voiceStateUpdate", async (oldState, newState) => {
 		if (newState.id == client.user?.id) return
 
@@ -24,44 +22,19 @@ export default function (client: BotClient) {
 		)
 			return
 
+		// manage channel joins and leaves to increase time in the channels
 		if (!oldState.channelId && newState.channelId) {
 			// channel joins
 			if (!newState.member?.id) return Logger.log("No member id found")
 			if (!newState.guild.id) return Logger.log("No guild id found")
 			if (!newState.channelId) return Logger.log("No channel id found")
 
-			times.set(newState.member.id, new Date())
+			client.times.set(newState.member.id, new Date())
 		}
-
-		// manage channel joins and leaves to increase time in the channels
 		if (!newState.channelId && oldState.channelId) {
-			if (!oldState.member?.id) return Logger.log("No member id found")
-			if (!oldState.guild.id) return Logger.log("No guild id found")
-			if (!oldState.channelId) return Logger.log("No channel id found")
-
-			const time = times.get(oldState.member.id)
-			if (!time) return
-
-			const timeSpent = new Date().getTime() - time.getTime()
-			const timeSpentSeconds = Math.round(timeSpent / 1000)
-
-			await client.prisma.bot_time.upsert({
-				where: {
-					user_id: oldState.member.id
-				},
-				update: {
-					time_spent: {
-						increment: timeSpentSeconds
-					}
-				},
-				create: {
-					user_id: oldState.member.id,
-					username: oldState.member.user.username,
-					time_spent: timeSpentSeconds
-				}
-			})
-
-			times.delete(oldState.member.id)
+			if (!oldState.member?.id) return
+			client.pushTime({ id: oldState.member.id })
+			client.times.delete(oldState.member.id)
 		}
 
 		if (oldState.channelId && newState.channelId && oldState.channelId != newState.channelId) {
