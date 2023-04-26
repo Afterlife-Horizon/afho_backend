@@ -12,6 +12,7 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 
 		if (!voiceChannel) return { status: 406, error: "You are not in a channel!" }
 		if (!movedVoiceChannel) return { status: 406, error: "The user you want to move is not in a channel!" }
+		console.log(voiceChannel.id, movedVoiceChannel.id)
 		if (voiceChannel.id !== movedVoiceChannel.id) return { status: 406, error: "You are not in the same channel!" }
 		if (movedVoiceChannel.id === client.config.brasilChannelID) return { status: 406, error: "You cannot bresil someone already in bresil!" }
 		if (moved.user.id === client.user?.id) return { status: 406, error: "😨You cannot bresil the bot!" }
