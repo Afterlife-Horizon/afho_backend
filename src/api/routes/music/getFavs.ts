@@ -26,7 +26,7 @@ export default function (client: BotClient) {
 					user_id: user.data?.user?.user_metadata.provider_id
 				},
 				orderBy: {
-					name: "asc"
+					date_added: "desc"
 				}
 			})
 

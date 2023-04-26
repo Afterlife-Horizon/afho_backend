@@ -21,6 +21,7 @@ model bot_favorites {
   url       String @db.VarChar(255)
   thumbnail String @db.VarChar(255)
   type      String @db.VarChar(255)
+  date_added DateTime @default(now())
 
   @@unique([id, user_id], map: "id_user_id")
 }
