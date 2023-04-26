@@ -7,14 +7,14 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 		const guild = await client.guilds.fetch(client.config.serverID)
 		if (!guild) return { status: 406, error: "Guild not found!" }
 
-		const voiceChannel = mover.voice
-		const movedVoiceChannel = moved.voice
+		const moverVoiceState = mover.voice
+		const movedVoiceState = moved.voice
 
-		if (!voiceChannel) return { status: 406, error: "You are not in a channel!" }
-		if (!movedVoiceChannel) return { status: 406, error: "The user you want to move is not in a channel!" }
-		console.log(voiceChannel.id, movedVoiceChannel.id)
-		if (voiceChannel.id !== movedVoiceChannel.id) return { status: 406, error: "You are not in the same channel!" }
-		if (movedVoiceChannel.id === client.config.brasilChannelID) return { status: 406, error: "You cannot bresil someone already in bresil!" }
+		if (!moverVoiceState) return { status: 406, error: "You are not in a channel!" }
+		if (!movedVoiceState) return { status: 406, error: "The user you want to move is not in a channel!" }
+		if (moverVoiceState.channel?.id !== movedVoiceState.channel?.id) return { status: 406, error: "You are not in the same channel!" }
+		if (movedVoiceState.channel?.id === client.config.brasilChannelID)
+			return { status: 406, error: "You cannot bresil someone already in bresil!" }
 		if (moved.user.id === client.user?.id) return { status: 406, error: "😨You cannot bresil the bot!" }
 
 		const movedUser = await client.prisma.bot_bresil.upsert({
