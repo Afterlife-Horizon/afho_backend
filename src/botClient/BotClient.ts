@@ -118,7 +118,7 @@ export default class BotClient extends Client {
 	async initTimes() {
 		const guild = await this.guilds.fetch(this.config.serverID)
 		const connectedMembers = await guild.members.fetch().then(m => m.filter(m => m.voice.channel).map(m => m.user))
-		connectedMembers.forEach(member => this.times.set(member.id, new Date()))
+		connectedMembers.forEach(member => (!member.bot ? this.times.set(member.id, new Date()) : null))
 	}
 
 	async getSpotifyToken() {

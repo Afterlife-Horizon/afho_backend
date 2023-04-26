@@ -28,11 +28,16 @@ export default function (client: BotClient) {
 			if (!newState.member?.id) return Logger.log("No member id found")
 			if (!newState.guild.id) return Logger.log("No guild id found")
 			if (!newState.channelId) return Logger.log("No channel id found")
+			if (newState.member.id == client.user?.id) return
+			Logger.log(`User ${newState.member.user.username} joined ${newState.channel?.name} in ${newState.guild.name}`)
 
 			client.times.set(newState.member.id, new Date())
 		}
+
 		if (!newState.channelId && oldState.channelId) {
 			if (!oldState.member?.id) return
+			if (oldState.member.id == client.user?.id) return
+			Logger.log(`User ${oldState.member.user.username} left ${oldState.channel?.name} in ${oldState.guild.name}`)
 			client.pushTime(oldState.member.id)
 			client.times.delete(oldState.member.id)
 		}
