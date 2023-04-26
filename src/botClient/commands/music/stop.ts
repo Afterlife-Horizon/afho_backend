@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js"
-import { ICommand } from "../../../types"
-import BotClient from "../../BotClient"
 import musicStop from "../../../functions/commandUtils/music/musicStop"
+import type { ICommand } from "../../../types"
+import type BotClient from "../../BotClient"
 
 export default (client: BotClient): ICommand => {
 	return {

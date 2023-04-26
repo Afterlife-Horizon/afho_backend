@@ -1,5 +1,5 @@
 import { getVoiceConnection, VoiceConnectionReadyState } from "@discordjs/voice"
-import BotClient from "../../../botClient/BotClient"
+import type BotClient from "../../../botClient/BotClient"
 
 export default async function pause(client: BotClient, user: string) {
 	const guild = await client.guilds.fetch(client.config.serverID)

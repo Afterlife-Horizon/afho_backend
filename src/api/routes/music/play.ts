@@ -1,6 +1,6 @@
 import express = require("express")
 const router = express.Router()
-import BotClient from "../../../botClient/BotClient"
+import type BotClient from "../../../botClient/BotClient"
 import play from "../../../functions/commandUtils/music/play"
 import { Logger } from "../../../logger/Logger"
 

@@ -11,7 +11,7 @@ import {
 	VoiceConnectionSignallingState,
 	getVoiceConnection
 } from "@discordjs/voice"
-import BotClient from "../../../botClient/BotClient"
+import type BotClient from "../../../botClient/BotClient"
 import { Logger } from "../../../logger/Logger"
 
 export default function (client: BotClient) {

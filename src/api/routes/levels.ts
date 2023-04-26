@@ -1,7 +1,7 @@
 import express = require("express")
 import getLevelFromXp from "../../functions/getLevelFromXp"
-import BotClient from "../../botClient/BotClient"
 import { Logger } from "../../logger/Logger"
+import type BotClient from "../../botClient/BotClient"
 
 function compareData(count1, count2) {
 	if (count1.xp > count2.xp) return -1

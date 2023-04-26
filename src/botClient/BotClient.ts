@@ -1,7 +1,6 @@
 import {
 	AudioPlayer,
 	AudioPlayerStatus,
-	AudioResource,
 	CreateVoiceConnectionOptions,
 	JoinVoiceChannelOptions,
 	NoSubscriberBehavior,
@@ -14,7 +13,6 @@ import {
 } from "@discordjs/voice"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
 import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
-import { ICommand, IQueue, IESong, IFavorite, IEnv, IClientConfig } from "../types"
 import fs from "node:fs"
 import path from "node:path"
 import FFmpeg from "fluent-ffmpeg"
@@ -28,6 +26,9 @@ import { PassThrough } from "node:stream"
 import { PrismaClient } from "@prisma/client"
 import { Logger } from "../logger/Logger"
 import { reactionRoles } from "../constante"
+
+import type { ICommand, IEnv, IClientConfig } from "../types"
+import type { IQueue, IESong, IFavorite } from "../types/music"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null

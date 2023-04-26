@@ -2,9 +2,10 @@
 import { GuildMember, SlashCommandBuilder } from "discord.js"
 import { getVoiceConnection } from "@discordjs/voice"
 import { Playlist, Video, default as YouTube } from "youtube-sr"
-import { ICommand, IESong } from "../../../types"
-import BotClient from "../../BotClient"
 import { Logger } from "../../../logger/Logger"
+import type { ICommand } from "../../../types"
+import type { IESong } from "../../../types/music"
+import type BotClient from "../../BotClient"
 
 export default (client: BotClient): ICommand => {
 	return {

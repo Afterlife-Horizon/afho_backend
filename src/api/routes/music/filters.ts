@@ -1,10 +1,10 @@
 import express = require("express")
 const router = express.Router()
 import { GuildMember } from "discord.js"
-import BotClient from "../../../botClient/BotClient"
 import changeFilters from "../../../functions/commandUtils/music/filters"
-import { IFilters } from "../../../types"
 import { Logger } from "../../../logger/Logger"
+import type BotClient from "../../../botClient/BotClient"
+import type { IFilters } from "../../../types/music"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {

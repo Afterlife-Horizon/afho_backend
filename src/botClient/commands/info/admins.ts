@@ -1,6 +1,6 @@
-import { SlashCommandBuilder, EmbedBuilder, ChatInputCommandInteraction, ApplicationCommand, CommandInteraction } from "discord.js"
+import { SlashCommandBuilder, EmbedBuilder, CommandInteraction } from "discord.js"
 import { ICommand } from "../../../types"
-import BotClient from "../../BotClient"
+import type BotClient from "../../BotClient"
 
 export default (client: BotClient): ICommand => {
 	return {

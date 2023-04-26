@@ -1,4 +1,4 @@
-import BotClient from "../botClient/BotClient"
+import type BotClient from "../botClient/BotClient"
 
 export default async function getPlaylistInfoFromSpotify(client: BotClient, playlist: string) {
 	console.log(playlist)

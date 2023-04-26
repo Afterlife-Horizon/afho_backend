@@ -53,6 +53,9 @@ export class Logger {
 		})
 		this.logger = log4js.getLogger(process.env.LOG_LEVEL || "info")
 		this.gptLogger = log4js.getLogger("gpt")
+
+		this.log("Logger initialized")
+		if (process.env.LOG_LEVEL) this.log(`Log level: ${process.env.LOG_LEVEL}`)
 	}
 
 	public static logGPT(message: string) {

@@ -1,8 +1,8 @@
 import { getVoiceConnection, VoiceConnectionReadyState, AudioPlayerPlayingState, AudioPlayerPausedState } from "@discordjs/voice"
 import { GuildMember, TextChannel } from "discord.js"
-import BotClient from "../../../botClient/BotClient"
-import { IFunctionResponse } from "../../../types"
 import { Logger } from "../../../logger/Logger"
+import type { IFunctionResponse } from "../../../types"
+import type BotClient from "../../../botClient/BotClient"
 
 interface IArgs {
 	member: GuildMember

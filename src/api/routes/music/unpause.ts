@@ -1,5 +1,5 @@
 import express = require("express")
-import BotClient from "../../../botClient/BotClient"
+import type BotClient from "../../../botClient/BotClient"
 import unpause from "../../../functions/commandUtils/music/unpause"
 import { Logger } from "../../../logger/Logger"
 const router = express.Router()

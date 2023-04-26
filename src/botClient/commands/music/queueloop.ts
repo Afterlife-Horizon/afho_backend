@@ -1,8 +1,8 @@
 import { GuildMember, SlashCommandBuilder } from "discord.js"
 import { getVoiceConnection } from "@discordjs/voice"
-import { ICommand } from "../../../types"
-import BotClient from "../../BotClient"
 import { Logger } from "../../../logger/Logger"
+import type { ICommand } from "../../../types"
+import type BotClient from "../../BotClient"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -26,7 +26,9 @@ export default (client: BotClient): ICommand => {
 
 			queue.queueloop = !queue.queueloop
 
-			return interaction.reply(`🔂 **Queue-Loop is now \`${queue.queueloop ? "Enabled" : "Disabled"}\`**`).catch(err => Logger.error(err.message))
+			return interaction
+				.reply(`🔂 **Queue-Loop is now \`${queue.queueloop ? "Enabled" : "Disabled"}\`**`)
+				.catch(err => Logger.error(err.message))
 		}
 	}
 }

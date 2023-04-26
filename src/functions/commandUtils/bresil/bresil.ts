@@ -1,5 +1,5 @@
 import { GuildMember, VoiceChannel } from "discord.js"
-import BotClient from "../../../botClient/BotClient"
+import type BotClient from "../../../botClient/BotClient"
 import { Logger } from "../../../logger/Logger"
 
 export default async function bresil(client: BotClient, mover: GuildMember, moved: GuildMember) {

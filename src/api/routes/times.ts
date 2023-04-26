@@ -1,7 +1,7 @@
-import BotClient from "../../botClient/BotClient"
 import express = require("express")
-import { Logger } from "../../logger/Logger"
 const router = express.Router()
+import { Logger } from "../../logger/Logger"
+import type BotClient from "../../botClient/BotClient"
 
 export default function (client: BotClient) {
 	return router.get("/", async (req, res) => {

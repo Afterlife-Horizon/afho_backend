@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js"
-import { ICommand } from "../../../types"
-import BotClient from "../../BotClient"
+import type { ICommand } from "../../../types"
+import type BotClient from "../../../botClient/BotClient"
 require("dotenv").config()
 
 export default (client: BotClient): ICommand => {

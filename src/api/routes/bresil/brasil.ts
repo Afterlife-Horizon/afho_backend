@@ -1,7 +1,7 @@
 import express from "express"
 const router = express.Router()
 import { Colors, EmbedBuilder, TextChannel } from "discord.js"
-import BotClient from "../../../botClient/BotClient"
+import type BotClient from "../../../botClient/BotClient"
 import bresil from "../../../functions/commandUtils/bresil/bresil"
 import { Logger } from "../../../logger/Logger"
 

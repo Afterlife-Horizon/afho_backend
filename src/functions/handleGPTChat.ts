@@ -1,8 +1,8 @@
-import { Collection, Message, MessageType } from "discord.js"
 import BotClient from "../botClient/BotClient"
-import { ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum, Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai"
-import fs from "node:fs"
 import { Logger } from "../logger/Logger"
+import { Collection, Message, MessageType } from "discord.js"
+import fs from "node:fs"
+import { ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum, Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai"
 
 interface IMessageType {
 	message?: string

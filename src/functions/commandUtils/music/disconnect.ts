@@ -1,5 +1,5 @@
-import BotClient from "../../../botClient/BotClient"
-import { IFunctionResponse } from "../../../types"
+import type { IFunctionResponse } from "../../../types"
+import type BotClient from "../../../botClient/BotClient"
 
 export default async function disconnect(client: BotClient): Promise<IFunctionResponse> {
 	try {

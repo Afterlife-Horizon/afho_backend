@@ -1,8 +1,6 @@
 import { ClientOptions, GatewayIntentBits, Partials, REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from "discord.js"
 import BotClient from "./botClient/BotClient"
 import ExpressClient from "./api/ExpressClient"
-import http from "http"
-import https from "https"
 import fs from "node:fs"
 import { exit } from "process"
 import { IEnv } from "./types"
@@ -11,7 +9,7 @@ import reactionCollector from "./botClient/collectors/reactionCollector"
 import parseWebsiteURL from "./functions/parseWebsiteURL"
 
 // Check for .env file
-if (!fs.existsSync(".env")) throw new Error("No .env file found, creating one...")
+if (!fs.existsSync(".env")) throw new Error("No .env file found...")
 
 Logger.init()
 

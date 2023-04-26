@@ -1,8 +1,9 @@
 import { SlashCommandBuilder, EmbedBuilder, GuildMember, Colors } from "discord.js"
 import { AudioPlayerPausedState, AudioPlayerPlayingState, VoiceConnectionReadyState, getVoiceConnection } from "@discordjs/voice"
-import { ICommand, IESong } from "../../../types"
-import BotClient from "../../BotClient"
 import { Logger } from "../../../logger/Logger"
+import type { IQueue } from "../../../types/music"
+import type { ICommand } from "../../../types"
+import type BotClient from "../../BotClient"
 
 export default (client: BotClient): ICommand => {
 	return {
@@ -18,11 +19,11 @@ export default (client: BotClient): ICommand => {
 			if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId)
 				return interaction.reply("👎 **We are not in the same Voice-Channel**!").catch(err => Logger.error(err.message))
 
-			const queue = client.queues.get(interaction.guild.id)
+			const queue = client.queues.get(interaction.guild.id) as IQueue
 			if (!queue || !queue.tracks || !queue.tracks[0]) {
 				return interaction.reply(`👎 **Nothing playing right now**`).catch(err => Logger.error(err.message))
 			}
-			const song = queue.tracks[0] as IESong
+			const song = queue.tracks[0]
 			if (!song) return interaction.reply(`👎 **Something went wrong**`).catch(err => Logger.error(err.message))
 
 			const state = oldConnection.state as VoiceConnectionReadyState

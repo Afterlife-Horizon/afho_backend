@@ -1,5 +1,5 @@
 import express = require("express")
-import BotClient from "../../../botClient/BotClient"
+import type BotClient from "../../../botClient/BotClient"
 import { Logger } from "../../../logger/Logger"
 const router = express.Router()
 

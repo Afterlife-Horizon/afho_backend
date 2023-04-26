@@ -1,7 +1,7 @@
 import express = require("express")
-import BotClient from "../../../botClient/BotClient"
 import disconnect from "../../../functions/commandUtils/music/disconnect"
 import { Logger } from "../../../logger/Logger"
+import type BotClient from "../../../botClient/BotClient"
 
 const router = express.Router()
 

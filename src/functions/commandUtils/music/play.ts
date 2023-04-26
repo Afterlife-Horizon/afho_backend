@@ -1,13 +1,13 @@
 import { getVoiceConnection } from "@discordjs/voice"
 import { GuildMember, TextChannel, VoiceChannel } from "discord.js"
 import YouTube, { Playlist, Video } from "youtube-sr"
-import BotClient from "../../../botClient/BotClient"
-import { IQueue } from "../../../types"
+import getSongNameFromSpotify from "../../../functions/getInfoFromSpotify"
 import { Logger } from "../../../logger/Logger"
-import getSongNameFromSpotify from "../../getInfoFromSpotify"
-import getPlaylistInfoFromSpotify from "../../getPlaylistInfoFromSpotify"
+import type BotClient from "../../../botClient/BotClient"
+import type { IQueue } from "../../../types/music"
+import type { IFunctionResponse } from "../../../types"
 
-export default async function play(client: BotClient, user: string, songs: string) {
+export default async function play(client: BotClient, user: string, songs: string): Promise<IFunctionResponse> {
 	try {
 		const guild = await client.guilds.fetch(client.config.serverID)
 		await guild?.members.fetch()

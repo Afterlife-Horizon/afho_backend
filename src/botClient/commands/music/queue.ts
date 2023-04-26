@@ -1,20 +1,8 @@
-import {
-	SlashCommandBuilder,
-	EmbedBuilder,
-	ActionRowBuilder,
-	ButtonBuilder,
-	ButtonStyle,
-	GuildMember,
-	Colors,
-	APIActionRowComponent,
-	APIMessageActionRowComponent,
-	APITextInputComponent,
-	APIButtonComponent
-} from "discord.js"
+import { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, GuildMember, Colors } from "discord.js"
 import { getVoiceConnection } from "@discordjs/voice"
-import { ICommand } from "../../../types"
-import BotClient from "../../BotClient"
 import { Logger } from "../../../logger/Logger"
+import type { ICommand } from "../../../types"
+import type BotClient from "../../BotClient"
 
 export default (client: BotClient): ICommand => {
 	return {

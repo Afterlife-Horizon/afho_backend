@@ -1,9 +1,8 @@
 import express = require("express")
-import BotClient from "../../../botClient/BotClient"
-import { GuildMember } from "discord.js"
+const router = express.Router()
 import clearQueue from "../../../functions/commandUtils/music/clearqueue"
 import { Logger } from "../../../logger/Logger"
-const router = express.Router()
+import type BotClient from "../../../botClient/BotClient"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {

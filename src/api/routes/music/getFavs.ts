@@ -1,8 +1,7 @@
 import express = require("express")
-import BotClient from "../../../botClient/BotClient"
-import { IFavorite } from "../../../types"
 import { Logger } from "../../../logger/Logger"
 const router = express.Router()
+import type BotClient from "../../../botClient/BotClient"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {

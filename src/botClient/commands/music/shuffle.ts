@@ -1,9 +1,8 @@
-import { GuildMember, SlashCommandBuilder } from "discord.js"
-import { getVoiceConnection } from "@discordjs/voice"
-import { ICommand } from "../../../types"
-import BotClient from "../../BotClient"
+import { SlashCommandBuilder } from "discord.js"
 import shuffle from "../../../functions/commandUtils/music/shuffle"
 import { Logger } from "../../../logger/Logger"
+import type { ICommand } from "../../../types"
+import type BotClient from "../../BotClient"
 
 export default (client: BotClient): ICommand => {
 	return {

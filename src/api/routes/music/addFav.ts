@@ -1,10 +1,10 @@
 import express = require("express")
 const router = express.Router()
 import { Playlist, Video, default as YouTube } from "youtube-sr"
-import BotClient from "../../../botClient/BotClient"
-import { IFavorite } from "../../../types"
 import { Logger } from "../../../logger/Logger"
 import getSongNameFromSpotify from "../../../functions/getInfoFromSpotify"
+import type BotClient from "../../../botClient/BotClient"
+import type { IFavorite } from "../../../types/music"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {

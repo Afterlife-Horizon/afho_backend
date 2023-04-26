@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js"
 import getLevelFromXp from "../../../functions/getLevelFromXp"
-import BotClient from "../../BotClient"
+import type BotClient from "../../../botClient/BotClient"
 import { Logger } from "../../../logger/Logger"
 require("dotenv").config()
 

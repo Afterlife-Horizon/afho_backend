@@ -1,14 +1,10 @@
 import { getVoiceConnection } from "@discordjs/voice"
 import { GuildMember, TextChannel } from "discord.js"
-import BotClient from "../../../botClient/BotClient"
-import { IFunctionResponse } from "../../../types"
 import { Logger } from "../../../logger/Logger"
+import type { IFunctionResponse } from "../../../types"
+import type BotClient from "../../../botClient/BotClient"
 
-interface IArgs {
-	member: GuildMember
-}
-
-export default async function clearQueue(client: BotClient, args: IArgs): Promise<IFunctionResponse> {
+export default async function clearQueue(client: BotClient, args: { member: GuildMember }): Promise<IFunctionResponse> {
 	try {
 		const member = args.member
 		const guild = await client.guilds.fetch(member.guild.id)

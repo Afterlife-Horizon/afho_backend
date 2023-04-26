@@ -1,8 +1,8 @@
 import { SlashCommandBuilder, EmbedBuilder, GuildMember, Colors } from "discord.js"
-import { ICommand } from "../../../types"
-import BotClient from "../../BotClient"
 import bresil from "../../../functions/commandUtils/bresil/bresil"
 import { Logger } from "../../../logger/Logger"
+import type { ICommand } from "../../../types"
+import type BotClient from "../../../botClient/BotClient"
 require("dotenv").config()
 
 export default (client: BotClient): ICommand => {

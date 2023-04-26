@@ -1,8 +1,8 @@
 import express = require("express")
-import BotClient from "../../../botClient/BotClient"
-import { IFavorite } from "../../../types"
-import { Logger } from "../../../logger/Logger"
 const router = express.Router()
+import { Logger } from "../../../logger/Logger"
+import type BotClient from "../../../botClient/BotClient"
+import type { IFavorite } from "../../../types/music"
 
 export default function delFav(client: BotClient) {
 	return router.delete("/", async (req, res) => {

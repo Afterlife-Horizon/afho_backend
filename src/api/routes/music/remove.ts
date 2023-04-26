@@ -1,7 +1,7 @@
 import express = require("express")
 const router = express.Router()
 import { getVoiceConnection } from "@discordjs/voice"
-import BotClient from "../../../botClient/BotClient"
+import type BotClient from "../../../botClient/BotClient"
 import { TextChannel } from "discord.js"
 import { Logger } from "../../../logger/Logger"
 
