@@ -399,7 +399,7 @@ export default class BotClient extends Client {
 
 			return resource
 		} catch (e) {
-			if (e instanceof Error) Logger.error(e.message)
+			Logger.error(JSON.stringify(e))
 			return null
 		}
 	}
@@ -636,7 +636,7 @@ export default class BotClient extends Client {
 					}
 				}
 			} catch (e) {
-				if (e instanceof Error) Logger.error(e.message)
+				Logger.error(JSON.stringify(e))
 			}
 		}
 	}

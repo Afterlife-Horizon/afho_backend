@@ -76,7 +76,7 @@ export default function (client: BotClient) {
 			res.status(200).send("OK")
 			return textChannel.send(`⏭️ **Successfully skipped ${arg} Track(s)**`).catch((err: any) => Logger.error(err.message))
 		} catch (err) {
-			if (err instanceof Error) Logger.error(err.message)
+			Logger.error(JSON.stringify(err))
 			return res.status(500).json({ error: err })
 		}
 	})

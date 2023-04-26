@@ -63,7 +63,7 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 			moveCount
 		}
 	} catch (err) {
-		if (err instanceof Error) Logger.error(err.message)
+		Logger.error(JSON.stringify(err))
 		return { status: 500, error: err }
 	}
 }

@@ -1,5 +1,6 @@
 import express = require("express")
 import BotClient from "../../../botClient/BotClient"
+import { Logger } from "../../../logger/Logger"
 const router = express.Router()
 
 export default function (client: BotClient) {
@@ -15,7 +16,7 @@ export default function (client: BotClient) {
 
 			res.json({ data: connectedMembers })
 		} catch (err) {
-			console.error(err)
+			Logger.error(JSON.stringify(err))
 			res.status(500).json({ error: "Internal error" })
 		}
 	})

@@ -101,7 +101,7 @@ export default function (client: BotClient) {
 				)
 			}
 		} catch (err) {
-			if (err instanceof Error) Logger.error(err.message)
+			Logger.error(JSON.stringify(err))
 			res.status(500).send({ error: "Something went wrong!" })
 		}
 	})

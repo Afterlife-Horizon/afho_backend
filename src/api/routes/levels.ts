@@ -1,6 +1,7 @@
 import express = require("express")
 import getLevelFromXp from "../../functions/getLevelFromXp"
 import BotClient from "../../botClient/BotClient"
+import { Logger } from "../../logger/Logger"
 
 function compareData(count1, count2) {
 	if (count1.xp > count2.xp) return -1
@@ -33,7 +34,7 @@ export default function levels(client: BotClient) {
 
 			res.json(sendData.sort(compareData))
 		} catch (err) {
-			console.error(err)
+			Logger.error(JSON.stringify(err))
 			res.status(500).json({ error: "Internal error" })
 		}
 	})

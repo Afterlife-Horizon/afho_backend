@@ -65,7 +65,7 @@ export default function (client: BotClient) {
 			res.status(200).send("OK")
 			return channel.send(`⏭️ **Successfully removed track number ${arg}**`).catch(err => Logger.error(err.message))
 		} catch (err) {
-			if (err instanceof Error) Logger.error(err.message)
+			Logger.error(JSON.stringify(err))
 			return res.status(500).json({ error: err })
 		}
 	})

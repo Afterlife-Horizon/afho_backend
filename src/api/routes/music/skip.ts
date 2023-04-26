@@ -22,7 +22,7 @@ export default function (client: BotClient) {
 			if (response.error) return res.status(response.status).json({ error: response.error })
 			return res.status(response.status).json({ message: response.message ? response.message : "👍" })
 		} catch (err) {
-			if (err instanceof Error) Logger.error(err.message)
+			Logger.error(JSON.stringify(err))
 			return res.status(500).json({ error: err })
 		}
 	})

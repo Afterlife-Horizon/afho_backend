@@ -42,7 +42,7 @@ export default function delFav(client: BotClient) {
 
 			res.status(200).json({ data: client.favs.get(userId) })
 		} catch (err) {
-			if (err instanceof Error) Logger.error(err.message)
+			Logger.error(JSON.stringify(err))
 			res.status(500).json({ error: err })
 		}
 	})

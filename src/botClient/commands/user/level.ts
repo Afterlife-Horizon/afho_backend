@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js"
 import getLevelFromXp from "../../../functions/getLevelFromXp"
 import BotClient from "../../BotClient"
+import { Logger } from "../../../logger/Logger"
 require("dotenv").config()
 
 export default (client: BotClient) => {
@@ -28,7 +29,7 @@ export default (client: BotClient) => {
 					.setTimestamp()
 				await interaction.reply({ embeds: [embed] })
 			} catch (err) {
-				console.error(err)
+				Logger.error(JSON.stringify(err))
 				await interaction.reply({ content: `❌ An error occured!` })
 			}
 		}

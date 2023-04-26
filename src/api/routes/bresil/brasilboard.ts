@@ -1,6 +1,7 @@
 import express = require("express")
 import BotClient from "../../../botClient/BotClient"
 import { PrismaClient } from "@prisma/client"
+import { Logger } from "../../../logger/Logger"
 const router = express.Router()
 
 function compareData(count1, count2) {
@@ -34,7 +35,7 @@ export default function (client: BotClient) {
 
 			res.json(sendData.sort(compareData))
 		} catch (err) {
-			console.error(err)
+			Logger.error(JSON.stringify(err))
 			res.status(500).json({ error: "Internal error" })
 		}
 	})

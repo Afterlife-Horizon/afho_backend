@@ -33,7 +33,7 @@ export default function (client: BotClient) {
 
 			res.status(200).json({ favorites })
 		} catch (err) {
-			if (err instanceof Error) Logger.error(err.message)
+			Logger.error(JSON.stringify(err))
 			res.status(500).send("Internal Server Error")
 		}
 	})

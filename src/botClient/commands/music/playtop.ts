@@ -27,7 +27,8 @@ export default (client: BotClient): ICommand => {
 				return interaction.reply(`👎 **Nothing playing right now**`).catch(err => Logger.error(err.message))
 			}
 			const track = interaction.options.get("song")?.value as string
-			if (!track) return interaction.reply(`👎 Please add the wished Music via: \`/playtop <Name/Link>\``).catch(err => Logger.error(err.message))
+			if (!track)
+				return interaction.reply(`👎 Please add the wished Music via: \`/playtop <Name/Link>\``).catch(err => Logger.error(err.message))
 
 			const youtubRegex = /^(https?:\/\/)?(www\.)?(m\.|music\.)?(youtube\.com|youtu\.?be)\/.+$/gi
 			const playlistRegex = /^.*(list=)([^#\&\?]*).*/gi
@@ -85,7 +86,7 @@ export default (client: BotClient): ICommand => {
 						.catch(err => Logger.error(err.message))
 				}
 			} catch (err: any) {
-				console.error(err)
+				Logger.error(JSON.stringify(err))
 				return interaction
 					.reply(`❌ Could not play the Song because: \`\`\`${err.message || err}`.substring(0, 1950) + `\`\`\``)
 					.catch(err => Logger.error(err.message))

@@ -2,6 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder, GuildMember, Colors } from "discord.
 import { ICommand } from "../../../types"
 import BotClient from "../../BotClient"
 import bresil from "../../../functions/commandUtils/bresil/bresil"
+import { Logger } from "../../../logger/Logger"
 require("dotenv").config()
 
 export default (client: BotClient): ICommand => {
@@ -33,7 +34,7 @@ export default (client: BotClient): ICommand => {
 					]
 				})
 			} catch (err) {
-				console.error(err)
+				Logger.error(JSON.stringify(err))
 				await interaction.reply({ content: `❌ An error occured!` })
 			}
 		}

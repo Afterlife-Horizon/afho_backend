@@ -65,7 +65,7 @@ export default (client: BotClient): ICommand => {
 					.reply({ content: `⏪ **Rewinded for \`${arg}s\` to \`${client.formatDuration(newPos)}\`**!` })
 					.catch(err => Logger.error(err.message))
 			} catch (e: any) {
-				console.error(e)
+				Logger.error(JSON.stringify(e))
 				interaction
 					.reply({ content: `❌ Could not join your VC because: \`\`\`${e.message || e}`.substring(0, 1950) + `\`\`\`` })
 					.catch(err => Logger.error(err.message))

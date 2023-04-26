@@ -19,7 +19,8 @@ export default (client: BotClient): ICommand => {
 					return interaction.reply({ content: "👎 **Please join a Voice-Channel first!**" }).catch(err => Logger.error(err.message))
 
 				const oldConnection = getVoiceConnection(guild.id)
-				if (!oldConnection) return interaction.reply({ content: "👎 **I'm not connected somewhere!**" }).catch(err => Logger.error(err.message))
+				if (!oldConnection)
+					return interaction.reply({ content: "👎 **I'm not connected somewhere!**" }).catch(err => Logger.error(err.message))
 				if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId)
 					return interaction.reply({ content: "👎 **We are not in the same Voice-Channel**!" }).catch(err => Logger.error(err.message))
 
@@ -55,7 +56,7 @@ export default (client: BotClient): ICommand => {
 
 				interaction.reply({ content: `⏩ **Seeked to \`${client.formatDuration(newPos)}\`**!` }).catch(err => Logger.error(err.message))
 			} catch (e: any) {
-				console.error(e)
+				Logger.error(JSON.stringify(e))
 				interaction
 					.reply({ content: `❌ Could not join your VC because: \`\`\`${e.interaction || e}`.substring(0, 1950) + `\`\`\`` })
 					.catch(err => Logger.error(err.message))

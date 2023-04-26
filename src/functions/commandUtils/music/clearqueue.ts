@@ -31,7 +31,7 @@ export default async function clearQueue(client: BotClient, args: IArgs): Promis
 
 		return { status: 200, message: `👍 **Successfully cleared the Queue**` }
 	} catch (err) {
-		if (err instanceof Error) Logger.error(err.message)
+		Logger.error(JSON.stringify(err))
 		return { status: 500, error: `👎 **Something went wrong**` }
 	}
 }

@@ -51,7 +51,7 @@ export default function (client: BotClient) {
 
 			return res.status(response.status).json({ filters: client.queues.get(guild.id)?.effects })
 		} catch (err) {
-			if (err instanceof Error) Logger.error(err.message)
+			Logger.error(JSON.stringify(err))
 			return res.status(500).json({ error: err })
 		}
 	})

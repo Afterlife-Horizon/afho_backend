@@ -33,7 +33,7 @@ export default function (client: BotClient) {
 			if (response.status === 200) return res.status(200).json({ message: response.message })
 			res.status(response.status).json({ error: response.error })
 		} catch (err) {
-			if (err instanceof Error) Logger.error(err.message)
+			Logger.error(JSON.stringify(err))
 			return res.status(500).json({ error: err })
 		}
 	})

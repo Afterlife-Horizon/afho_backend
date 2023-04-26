@@ -25,7 +25,7 @@ export default (client: BotClient): ICommand => {
 				client.currentChannel = voiceChannel
 				await interaction.reply({ content: `joined voice channel!` })
 			} catch (err) {
-				if (err instanceof Error) Logger.error(err.message)
+				Logger.error(JSON.stringify(err))
 				interaction.reply({ content: `Could not join voice channel` })
 			}
 		}
