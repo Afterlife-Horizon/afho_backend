@@ -39,7 +39,6 @@ export default function (client: BotClient) {
 			Logger.log(`User ${oldState.member?.user.username} was deafened in ${oldState.guild.name}`)
 			return "server deafen"
 		}
-
 		if (oldState.serverDeaf && !newState.serverDeaf) {
 			Logger.log(`User ${oldState.member?.user.username} was undeafened in ${oldState.guild.name}`)
 			return "server undeafen"
@@ -50,7 +49,6 @@ export default function (client: BotClient) {
 			Logger.log(`User ${oldState.member?.user.username} was deafened in ${oldState.guild.name}`)
 			return "self deafen"
 		}
-
 		if (oldState.selfDeaf && !newState.selfDeaf) {
 			Logger.log(`User ${oldState.member?.user.username} was undeafened in ${oldState.guild.name}`)
 			return "self undeafen"
@@ -92,7 +90,6 @@ export default function (client: BotClient) {
 			if (!newState.guild.id) return Logger.log("No guild id found")
 			if (!newState.channelId) return Logger.log("No channel id found")
 			if (newState.member.id == client.user?.id) return
-			Logger.log(`User ${newState.member.user.username} joined ${newState.channel?.name} in ${newState.guild.name}`)
 
 			client.times.set(newState.member.id, new Date())
 		}
