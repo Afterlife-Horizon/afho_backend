@@ -8,24 +8,15 @@ export default function (client: BotClient) {
 		if (newState.id == client.user?.id) return
 
 		switch (getStateAction(oldState, newState)) {
-			case "join":
+			case "join" || "server undeafen" || "self undeafen" || "server unmute" || "self unmute":
 				handleUpdateTimer(true, oldState, newState)
 				break
-			case "leave":
+			case "leave" || "server deafen" || "self deafen" || "server mute" || "self mute":
 				handleUpdateTimer(false, oldState, newState)
 				handleChannelLeave(oldState, newState)
 				break
-			case "server undeafen":
-				handleUpdateTimer(true, oldState, newState)
-				break
-			case "self undeafen":
-				handleUpdateTimer(true, oldState, newState)
-				break
-			case "server unmute":
-				handleUpdateTimer(true, oldState, newState)
-				break
-			case "self unmute":
-				handleUpdateTimer(true, oldState, newState)
+			case "server deafen":
+				handleUpdateTimer(false, oldState, newState)
 				break
 			case "move":
 				await handleChannelMove(newState)
@@ -43,9 +34,21 @@ export default function (client: BotClient) {
 			return "join"
 		}
 
+		// --------- Server deafen / undeafened ---------
+		if (!oldState.serverDeaf && newState.serverDeaf) {
+			Logger.log(`User ${oldState.member?.user.username} was deafened in ${oldState.guild.name}`)
+			return "server deafen"
+		}
+
 		if (oldState.serverDeaf && !newState.serverDeaf) {
 			Logger.log(`User ${oldState.member?.user.username} was undeafened in ${oldState.guild.name}`)
 			return "server undeafen"
+		}
+
+		// --------- Self deafen / undeafened ---------
+		if (!oldState.selfDeaf && newState.selfDeaf) {
+			Logger.log(`User ${oldState.member?.user.username} was deafened in ${oldState.guild.name}`)
+			return "self deafen"
 		}
 
 		if (oldState.selfDeaf && !newState.selfDeaf) {
@@ -53,11 +56,21 @@ export default function (client: BotClient) {
 			return "self undeafen"
 		}
 
+		// --------- Server Mute / Unmute ---------
+		if (!oldState.serverMute && newState.serverMute) {
+			Logger.log(`User ${oldState.member?.user.username} was muted in ${oldState.guild.name}`)
+			return "server mute"
+		}
 		if (oldState.serverMute && !newState.serverMute) {
 			Logger.log(`User ${oldState.member?.user.username} was unmuted in ${oldState.guild.name}`)
 			return "server unmute"
 		}
 
+		// --------- Self Mute / Unmute ---------
+		if (!oldState.selfMute && newState.selfMute) {
+			Logger.log(`User ${oldState.member?.user.username} was muted in ${oldState.guild.name}`)
+			return "self mute"
+		}
 		if (oldState.selfMute && !newState.selfMute) {
 			Logger.log(`User ${oldState.member?.user.username} was unmuted in ${oldState.guild.name}`)
 			return "self unmute"
