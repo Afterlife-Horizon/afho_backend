@@ -3,7 +3,7 @@ import { GuildMember } from "discord.js"
 import { Logger } from "../../../logger/Logger"
 import type { IFunctionResponse } from "../../../types"
 import type BotClient from "../../../botClient/BotClient"
-import { isTextChannel } from "functions/discordUtils"
+import { isTextChannel } from "../../../functions/discordUtils"
 
 export default async function clearQueue(client: BotClient, args: { member: GuildMember }): Promise<IFunctionResponse> {
 	try {

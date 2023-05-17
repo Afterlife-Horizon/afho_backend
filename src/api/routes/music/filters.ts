@@ -1,6 +1,5 @@
 import express = require("express")
 const router = express.Router()
-import { GuildMember } from "discord.js"
 import changeFilters from "../../../functions/commandUtils/music/filters"
 import { Logger } from "../../../logger/Logger"
 import type BotClient from "../../../botClient/BotClient"

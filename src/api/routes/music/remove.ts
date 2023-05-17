@@ -2,9 +2,8 @@ import express = require("express")
 const router = express.Router()
 import { getVoiceConnection } from "@discordjs/voice"
 import type BotClient from "../../../botClient/BotClient"
-import { TextChannel } from "discord.js"
 import { Logger } from "../../../logger/Logger"
-import { isTextChannel } from "functions/discordUtils"
+import { isTextChannel } from "../../../functions/discordUtils"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {

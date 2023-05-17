@@ -5,7 +5,7 @@ import { ChannelType, DMChannel, TextChannel, VoiceChannel } from "discord.js"
 import { Logger } from "../../../logger/Logger"
 import type BotClient from "../../../botClient/BotClient"
 import type { IESong } from "../../../types/music"
-import { isTextChannel } from "functions/discordUtils"
+import { isTextChannel } from "../../../functions/discordUtils"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {

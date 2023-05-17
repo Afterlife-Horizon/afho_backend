@@ -41,7 +41,7 @@ import { reactionRoles } from "../constante"
 
 import type { ICommand, IEnv, IClientConfig, Xp, Time } from "../types"
 import type { IQueue, IESong, IFavorite } from "../types/music"
-import getLevelFromXp from "functions/getLevelFromXp"
+import getLevelFromXp from "../functions/getLevelFromXp"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
