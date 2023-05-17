@@ -16,7 +16,7 @@ export default function (client: BotClient) {
 			const user = await client.supabaseClient.auth.getUser(access_token)
 			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-			const response = await play(client, user.data.user?.user_metadata.full_name, req.body.songs)
+			const response = await play(client, user.data.user?.user_metadata.provider_id, req.body.songs)
 
 			if (response.status === 200) return res.status(200).json({ message: response.message })
 			return res.status(406).json({ error: response.error })
