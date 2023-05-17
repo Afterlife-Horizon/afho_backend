@@ -14,10 +14,10 @@ export default function delFav(client: BotClient) {
 			const user = await client.supabaseClient.auth.getUser(access_token)
 			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-			const guild = await client.guilds.fetch(client.config.serverID)
+			const guild = client.guilds.cache.get(client.config.serverID)
 			if (!guild) return res.status(406).send({ error: "Server not found!" })
 
-			const member = await guild.members.fetch(user.data?.user?.user_metadata.provider_id)
+			const member = guild.members.cache.get(user.data?.user?.user_metadata.provider_id)
 			if (!member) return res.status(406).send({ error: "Member not found!" })
 
 			const userId = user.data?.user?.user_metadata.provider_id
@@ -26,7 +26,7 @@ export default function delFav(client: BotClient) {
 			if (!userId) return res.status(400).json({ error: "No userId" })
 			if (!id) return res.status(400).json({ error: "No song id given" })
 
-			await client.prisma.bot_favorites.delete({
+			client.prisma.bot_favorites.delete({
 				where: {
 					id_user_id: {
 						id,

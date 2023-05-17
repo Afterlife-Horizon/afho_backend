@@ -14,16 +14,14 @@ export default function (client: BotClient) {
 			const user = await client.supabaseClient.auth.getUser(access_token)
 			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-			const guild = await client.guilds.fetch(client.config.serverID)
+			const guild = client.guilds.cache.get(client.config.serverID)
 			if (!guild) return res.status(406).send({ error: "Server not found!" })
 
-			const admins = (await guild.roles.fetch(client.config.adminRoleID))?.members
-
+			const admins = guild.roles.cache.get(client.config.adminRoleID)?.members
 			if (!admins) return res.status(406).send("Admins not found!")
-
 			if (!admins.has(user.data?.user?.user_metadata.provider_id)) return res.status(406).send("You are not an admin!")
 
-			const member = await guild.members.fetch(user.data?.user?.user_metadata.provider_id)
+			const member = guild.members.cache.get(user.data?.user?.user_metadata.provider_id)
 			if (!member) return res.status(406).send({ error: "Member not found!" })
 
 			const response = await clearQueue(client, { member })

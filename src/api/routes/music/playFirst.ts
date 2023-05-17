@@ -1,45 +1,48 @@
 import express = require("express")
 const router = express.Router()
 import { Playlist, Video, default as YouTube } from "youtube-sr"
-import { TextChannel, VoiceChannel } from "discord.js"
+import { ChannelType, DMChannel, TextChannel, VoiceChannel } from "discord.js"
 import { Logger } from "../../../logger/Logger"
 import type BotClient from "../../../botClient/BotClient"
 import type { IESong } from "../../../types/music"
+import { isTextChannel } from "functions/discordUtils"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 
 		const access_token = req.body.access_token
-
 		if (!access_token) return res.status(406).send({ error: "No Access Token!" })
 
 		const user = await client.supabaseClient.auth.getUser(access_token)
-
 		if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
 		try {
-			const guild = await client.guilds.fetch(client.config.serverID)
+			const guild = client.guilds.cache.get(client.config.serverID)
 			if (!guild) return res.status(406).send({ error: "Guild not found!" })
 			const connectedMembers = guild.members.cache.filter(member => member.voice.channel)
 			const requester = connectedMembers.find(member => member.user.username === user.data.user?.user_metadata.full_name)
 
 			if (!requester) return res.status(406).send({ error: "You are not connected to a voice channel!" })
 
-			const voiceChannel = (await guild.channels.fetch()).find(
+			const voiceChannel = guild.channels.cache.find(
 				c => c && c.type === 2 && c.members.filter(m => m.user.username === user.data.user?.user_metadata.full_name).size > 0
 			)
 			if (client.currentChannel?.id !== voiceChannel?.id) return res.status(406).send({ error: "Not the same channel!" })
-
 			if (!client.currentChannel) return res.status(406).send({ error: "not connected!" })
-			const currentChannel = (await client.channels.fetch(client.currentChannel.id)) as VoiceChannel | TextChannel
 
-			const channel = (await client.channels.fetch(client.config.baseChannelID)) as VoiceChannel | TextChannel
+			const currentChannel = client.channels.cache.get(client.currentChannel.id)
+			if (!currentChannel) return res.status(406).send({ error: "Channel not found!" })
+			if (currentChannel.type !== ChannelType.GuildVoice) return res.status(406).send({ error: "Incorrect channel!" })
+
+			const channel = client.channels.cache.get(client.config.baseChannelID)
+			if (!channel) return res.status(406).send({ error: "Base channel not found!" })
+			if (!isTextChannel(channel)) return res.status(406).send({ error: "Base channel is not a text channel!" })
+
 			const queue = client.queues.get(currentChannel.guild.id)
-
 			if (!queue) return res.status(406).send({ error: "No queue found!" })
-			const track = req.body.songs
 
+			const track = req.body.songs
 			const youtubRegex = /^(https?:\/\/)?(www\.)?(m\.|music\.)?(youtube\.com|youtu\.?be)\/.+$/gi
 			const playlistRegex = /^.*(list=)([^#\&\?]*).*/gi
 			const songRegex = /^.*(watch\?v=)([^#\&\?]*).*/gi
@@ -51,7 +54,7 @@ export default function (client: BotClient) {
 			const isSong = songRegex.exec(track)
 			const isList = playlistRegex.exec(track)
 
-			await channel.send(`🔍 *Searching **${track}** ...*`)
+			channel.send(`🔍 *Searching **${track}** ...*`)
 			if (isYT && isSong && !isList) {
 				song = await YouTube.getVideo(track)
 			} else if (isYT && !isSong && isList) {
@@ -59,9 +62,8 @@ export default function (client: BotClient) {
 			} else if (isYT && isSong && isList) {
 				song = await YouTube.getVideo(`https://www.youtube.com/watch?v=${isSong[2]}`)
 				playlist = await YouTube.getPlaylist(`https://www.youtube.com/playlist?list=${isList[2]}`).then(p => p.fetch())
-			} else {
-				song = await YouTube.searchOne(track)
-			}
+			} else song = await YouTube.searchOne(track)
+
 			if (!song && !playlist) {
 				res.status(406).send({ error: "Failed looking up for ${track}!" })
 				return channel.send(`❌ **Failed looking up for ${track}!**`)
@@ -89,7 +91,7 @@ export default function (client: BotClient) {
 					...playlistSongs,
 					...queue.tracks.slice(1)
 				]
-				await channel.send(
+				channel.send(
 					`👍 **Queued at \`1st\`: __${video.title}__** - \`${video.durationFormatted}\`\n> **Added \`${
 						playlist.videos.length - 1
 					} Songs\` from the Playlist:**\n> __**${playlist.title}**__`

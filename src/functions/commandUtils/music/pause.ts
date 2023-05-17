@@ -2,8 +2,8 @@ import type BotClient from "../../../botClient/BotClient"
 import type { IFunctionResponse } from "../../../types"
 import { getVoiceConnection, VoiceConnectionReadyState } from "@discordjs/voice"
 
-export default async function pause(client: BotClient, user: string): Promise<IFunctionResponse> {
-	const guild = await client.guilds.fetch(client.config.serverID)
+export default function pause(client: BotClient, user: string): IFunctionResponse {
+	const guild = client.guilds.cache.get(client.config.serverID)
 	const connectedMembers = guild?.members.cache.filter(member => member.voice.channel)
 	const member = connectedMembers?.find(member => member.user.username === user)
 

@@ -39,8 +39,9 @@ import { PrismaClient } from "@prisma/client"
 import { Logger } from "../logger/Logger"
 import { reactionRoles } from "../constante"
 
-import type { ICommand, IEnv, IClientConfig } from "../types"
+import type { ICommand, IEnv, IClientConfig, Xp, Time } from "../types"
 import type { IQueue, IESong, IFavorite } from "../types/music"
+import getLevelFromXp from "functions/getLevelFromXp"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
@@ -55,6 +56,8 @@ export default class BotClient extends Client {
 	public stream?: FFmpeg.FfmpegCommand
 	public supabaseClient: SupabaseClient<any, "public", any>
 	public times: Map<string, Date>
+	public timeValues: Map<string, Time>
+	public xps: Map<string, Xp>
 
 	constructor(options: ClientOptions, environment: IEnv) {
 		super(options)
@@ -84,6 +87,8 @@ export default class BotClient extends Client {
 		this.queues = new Collection()
 		this.favs = new Collection()
 		this.connectedMembers = new Collection()
+		this.xps = new Collection()
+		this.timeValues = new Collection()
 		this.getFavs()
 
 		this.initCommands()
@@ -91,7 +96,7 @@ export default class BotClient extends Client {
 		this.getSpotifyToken()
 		this.currentChannel = null
 		this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
-		this.times = new Map<string, Date>()
+		this.times = new Map()
 	}
 
 	async stop() {
@@ -187,6 +192,35 @@ export default class BotClient extends Client {
 		guild.channels.fetch()
 		guild.roles.fetch()
 		guild.emojis.fetch()
+
+		const xpRows = await this.prisma.bot_levels.findMany()
+		const xps = xpRows
+			.map(row => {
+				const level = getLevelFromXp(row.xp)
+				const member = guild.members.cache.find(mem => mem.user.id === row.id)
+				if (!member) return null
+				return {
+					user: member,
+					xp: row.xp,
+					lvl: level
+				}
+			})
+			.filter(xp => xp !== null) as Xp[]
+		this.xps = new Collection(xps.map(xp => [xp.user.id, xp]))
+
+		const timeRows = await this.prisma.bot_time.findMany()
+
+		const times = timeRows
+			.map(row => {
+				const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
+				if (!member) return null
+				return {
+					user: member,
+					time_spent: row.time_spent
+				}
+			})
+			.filter(time => time !== null) as Time[]
+		this.timeValues = new Collection(times.map(time => [time.user.id, time]))
 	}
 
 	private async getFavs() {

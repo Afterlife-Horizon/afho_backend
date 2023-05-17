@@ -15,20 +15,13 @@ export default function (client: BotClient) {
 			const user = await client.supabaseClient.auth.getUser(access_token)
 			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-			const guild = await client.guilds.fetch(client.config.serverID)
+			const guild = client.guilds.cache.get(client.config.serverID)
 			if (!guild) return res.status(406).send({ error: "Server not found!" })
 
-			const member = await guild.members.fetch(user.data?.user?.user_metadata.provider_id)
+			const member = guild.members.cache.get(user.data?.user?.user_metadata.provider_id)
 			if (!member) return res.status(406).send({ error: "Member not found!" })
 
-			const favorites = await client.prisma.bot_favorites.findMany({
-				where: {
-					user_id: user.data?.user?.user_metadata.provider_id
-				},
-				orderBy: {
-					date_added: "desc"
-				}
-			})
+			const favorites = client.favs.get(member.id) || []
 
 			res.status(200).json({ favorites })
 		} catch (err) {
