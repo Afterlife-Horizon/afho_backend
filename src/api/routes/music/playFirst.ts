@@ -26,8 +26,8 @@ export default function (client: BotClient) {
 
 			if (!requester) return res.status(406).send({ error: "You are not connected to a voice channel!" })
 
-			const voiceChannel = guild.channels.cache.find(
-				c => c.type === 2 && c.members.filter(m => m.user.username === user.data.user?.user_metadata.full_name).size > 0
+			const voiceChannel = (await guild.channels.fetch()).find(
+				c => c && c.type === 2 && c.members.filter(m => m.user.username === user.data.user?.user_metadata.full_name).size > 0
 			)
 			if (client.currentChannel?.id !== voiceChannel?.id) return res.status(406).send({ error: "Not the same channel!" })
 

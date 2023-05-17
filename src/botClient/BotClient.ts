@@ -12,7 +12,19 @@ import {
 	joinVoiceChannel
 } from "@discordjs/voice"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
-import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
+import {
+	ActivityType,
+	Client,
+	ClientOptions,
+	Collection,
+	Colors,
+	EmbedBuilder,
+	GuildMember,
+	TextChannel,
+	User,
+	VoiceChannel,
+	VoiceState
+} from "discord.js"
 import fs from "node:fs"
 import path from "node:path"
 import FFmpeg from "fluent-ffmpeg"
@@ -37,6 +49,7 @@ export default class BotClient extends Client {
 	public commands: Map<string, ICommand>
 	public queues: Map<string, IQueue>
 	public favs: Map<string, IFavorite[]>
+	public connectedMembers: Map<string, User>
 	public ready: boolean
 	public passThrought?: PassThrough
 	public stream?: FFmpeg.FfmpegCommand
@@ -70,6 +83,7 @@ export default class BotClient extends Client {
 		this.commands = new Collection()
 		this.queues = new Collection()
 		this.favs = new Collection()
+		this.connectedMembers = new Collection()
 		this.getFavs()
 
 		this.initCommands()
@@ -116,10 +130,13 @@ export default class BotClient extends Client {
 		})
 	}
 
-	async initTimes() {
+	async initVars() {
 		const guild = await this.guilds.fetch(this.config.serverID)
 		const connectedMembers = await guild.members.fetch().then(m => m.filter(m => m.voice.channel).map(m => m.user))
-		connectedMembers.forEach(member => (!member.bot ? this.times.set(member.id, new Date()) : null))
+		connectedMembers.forEach(user => {
+			this.connectedMembers.set(user.id, user)
+			if (!user.bot) this.times.set(user.id, new Date())
+		})
 	}
 
 	async getSpotifyToken() {

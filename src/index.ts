@@ -131,7 +131,7 @@ async function timer() {
 client.once("ready", async () => {
 	client.ready = true
 	reactionCollector(client)
-	await client.initTimes()
+	await client.initVars()
 	Logger.log("Logged in as " + client.user?.tag)
 	await timer()
 })

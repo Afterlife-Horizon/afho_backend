@@ -1,10 +1,11 @@
 import { GuildMember, VoiceChannel } from "discord.js"
 import type BotClient from "../../../botClient/BotClient"
 import { Logger } from "../../../logger/Logger"
+import { isVoiceChannel } from "../../../functions/discordUtils"
 
 export default async function bresil(client: BotClient, mover: GuildMember, moved: GuildMember) {
 	try {
-		const guild = await client.guilds.fetch(client.config.serverID)
+		const guild = client.guilds.cache.get(client.config.serverID)
 		if (!guild) return { status: 406, error: "Guild not found!" }
 
 		const moverVoiceState = mover.voice
@@ -54,7 +55,11 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 		const moveCount = movedUser.bresil_received
 		const moverCount = moverUser.bresil_sent
 
-		const brasilChannel = (await client.channels.fetch(client.config.brasilChannelID)) as VoiceChannel
+		const brasilChannel = client.channels.cache.get(client.config.brasilChannelID)
+		if (!brasilChannel) return { status: 406, error: "Brasil channel not found!" }
+
+		if (!isVoiceChannel(brasilChannel)) return { status: 406, error: "Brasil channel is not a voice channel!" }
+
 		await moved.voice.setChannel(brasilChannel)
 		return {
 			status: 200,

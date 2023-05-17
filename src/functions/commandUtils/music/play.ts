@@ -4,28 +4,25 @@ import YouTube, { Playlist, Video } from "youtube-sr"
 import getSongNameFromSpotify from "../../../functions/getInfoFromSpotify"
 import { Logger } from "../../../logger/Logger"
 import type BotClient from "../../../botClient/BotClient"
-import type { IQueue } from "../../../types/music"
 import type { IFunctionResponse } from "../../../types"
+import { isTextChannel, isVoiceChannel } from "../../../functions/discordUtils"
 
 export default async function play(client: BotClient, user: string, songs: string): Promise<IFunctionResponse> {
 	try {
-		const guild = await client.guilds.fetch(client.config.serverID)
-		await guild?.members.fetch()
-		const connectedMembers = guild?.members.cache.filter(member => member.voice.channel)
-		const requester = connectedMembers?.find(member => member.user.username === user)
+		const guild = client.guilds.cache.get(client.config.serverID)
+		const requester = client.connectedMembers.get(user)
 
 		if (!guild) return { status: 406, error: "Guild not found!" }
 		if (!requester) return { status: 406, error: "You are not connected to a voice channel!" }
 
-		const voiceChannel = guild.channels.cache.find(
-			c => c.type === 2 && c.members.find(m => m.user.username === requester.user.username) !== undefined
-		) as VoiceChannel
-
+		const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.find(m => m.user.username === requester.username) !== undefined)
 		if (!voiceChannel) return { status: 406, error: "You are not connected to a voice channel!" }
+		if (!isVoiceChannel(voiceChannel)) return { status: 406, error: "You are not connected to a voice channel!" }
 		client.currentChannel = voiceChannel
 
-		const channel = (await client.channels.fetch(client.config.baseChannelID)) as TextChannel
+		const channel = client.channels.cache.get(client.config.baseChannelID)
 		if (!channel) return { status: 406, error: "Could not find the base channel!" }
+		if (!isTextChannel(channel)) return { status: 406, error: "Could not find the base channel!" }
 
 		let queue = client.queues.get(client.currentChannel.guildId)
 		const oldConnection = getVoiceConnection(client.currentChannel.guildId)
@@ -42,6 +39,8 @@ export default async function play(client: BotClient, user: string, songs: strin
 		const botsVoiceChanel = guild.channels.cache.find(
 			c => c.type === 2 && c.members.find((m: GuildMember) => m.user.username === client.user?.username) !== undefined
 		)
+		if (!botsVoiceChanel) return { status: 406, error: "Bot is not connected to a voice channel!" }
+		if (!isVoiceChannel(botsVoiceChanel)) return { status: 406, error: "Bot is not connected to a voice channel!" }
 		if (botsVoiceChanel?.id !== voiceChannel.id && oldConnection) return { status: 406, error: "Not the same channel!" }
 
 		const args = songs.split(" ")
@@ -66,7 +65,7 @@ export default async function play(client: BotClient, user: string, songs: strin
 		const isSpotifySong = spotifySongRegex.exec(track)
 		const isSpotifyPlaylist = spotifyPlaylistRegex.exec(track)
 
-		await channel.send({ content: `Searching ${track} ...` })
+		channel.send({ content: `Searching ${track} ...` })
 		if (!oldConnection && queue) {
 			client.queues.delete(client.currentChannel.guildId)
 			queue = undefined
@@ -110,27 +109,27 @@ export default async function play(client: BotClient, user: string, songs: strin
 
 			if (!queue || queue.tracks.length == 0) {
 				const bitrate = 128
-				const newQueue = client.createQueue(video, requester.user, client.currentChannel.guildId, bitrate)
+				const newQueue = client.createQueue(video, requester, client.currentChannel.guildId, bitrate)
 				client.queues.set(client.currentChannel.guildId, newQueue)
 				await client.playSong(client.currentChannel, video)
 
 				channel.send({ content: `Now playing : ${video.title} - ${video.durationFormatted}!` })
 				return { status: 200, message: "OK" }
 			}
-			queue.tracks.push(client.createSong(video, requester.user))
+			queue.tracks.push(client.createSong(video, requester))
 			channel.send({ content: `Added : ${video.title} - ${video.durationFormatted}!` })
 			return { status: 200, message: "OK" }
 		} else {
 			song = song ? song : playList.videos[0]
 
-			const video = song as Video
+			const video = song
 			const index = playList.videos.findIndex(s => s.id == video.id) || 0
 			playList.videos.splice(0, index + 1)
 
 			if (!queue || queue.tracks.length == 0) {
 				const bitrate = 128
-				const newQueue = client.createQueue(song, requester.user, client.config.baseChannelID, bitrate)
-				playList.videos.forEach(nsong => newQueue.tracks.push(client.createSong(nsong, requester.user)))
+				const newQueue = client.createQueue(song, requester, client.config.baseChannelID, bitrate)
+				playList.videos.forEach(nsong => newQueue.tracks.push(client.createSong(nsong, requester)))
 				client.queues.set(client.currentChannel.guildId, newQueue)
 
 				await client.playSong(client.currentChannel, video)
@@ -139,9 +138,13 @@ export default async function play(client: BotClient, user: string, songs: strin
 				return { status: 200, message: "OK" }
 			}
 
-			queue = client.queues.get(client.currentChannel.guildId) as IQueue
+			if (!client.queues.get(client.currentChannel.guildId))
+				client.queues.set(client.currentChannel.guildId, client.createQueue(song, requester, client.config.baseChannelID, 128))
+			queue = client.queues.get(client.currentChannel.guildId)
 
-			playList.videos.forEach(nsong => queue?.tracks.push(client.createSong(nsong, requester.user)))
+			if (!queue) return { status: 406, error: `Could not play song!` }
+
+			playList.videos.forEach(nsong => queue?.tracks.push(client.createSong(nsong, requester)))
 
 			channel.send(
 				`Queued at \`${client.queuePos(queue.tracks.length - (playList.videos.length - 1))}\`: __${video.title} - \`${
