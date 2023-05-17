@@ -125,6 +125,7 @@ async function timer() {
 		await client.pushTime(id)
 		client.times.set(id, new Date())
 	}
+	client.updateCache()
 	setTimeout(timer, 1000 * 60)
 }
 

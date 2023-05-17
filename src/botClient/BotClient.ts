@@ -137,6 +137,7 @@ export default class BotClient extends Client {
 			this.connectedMembers.set(user.id, user)
 			if (!user.bot) this.times.set(user.id, new Date())
 		})
+		this.updateCache()
 	}
 
 	async getSpotifyToken() {
@@ -177,6 +178,15 @@ export default class BotClient extends Client {
 		interactionCreate(this)
 		messageCreate(this)
 		voiceStateUpdate(this)
+	}
+
+	async updateCache() {
+		const guild = await this.guilds.fetch(this.config.serverID)
+		if (!guild) return
+		guild.members.fetch()
+		guild.channels.fetch()
+		guild.roles.fetch()
+		guild.emojis.fetch()
 	}
 
 	private async getFavs() {

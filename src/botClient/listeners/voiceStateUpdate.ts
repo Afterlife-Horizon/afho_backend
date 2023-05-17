@@ -7,7 +7,7 @@ export default function (client: BotClient) {
 	return client.on("voiceStateUpdate", async (oldState, newState) => {
 		if (newState.id == client.user?.id) return
 
-		updateCache()
+		client.updateCache()
 
 		switch (getStateAction(oldState, newState)) {
 			case "join":
@@ -176,15 +176,5 @@ export default function (client: BotClient) {
 			if (oldState.channel ? oldState.channel.members.filter(m => !m.user.bot).size >= 1 : true) return
 			if (connection && connection.joinConfig.channelId == oldState.channelId) connection.disconnect()
 		}, 15000)
-	}
-
-	async function updateCache() {
-		// Update cache
-		const guild = await client.guilds.fetch(client.config.serverID)
-		if (!guild) return
-		guild.members.fetch()
-		guild.channels.fetch()
-		guild.roles.fetch()
-		guild.emojis.fetch()
 	}
 }
