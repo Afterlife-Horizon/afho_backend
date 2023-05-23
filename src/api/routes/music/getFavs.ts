@@ -2,12 +2,6 @@ import express = require("express")
 import { Logger } from "../../../logger/Logger"
 const router = express.Router()
 import type BotClient from "../../../botClient/BotClient"
-import type { IFavorite } from "../../../types/music"
-import { bot_favorites } from "@prisma/client"
-
-function sortByDate(a: bot_favorites, b: bot_favorites) {
-	return b.date_added.getTime() - a.date_added.getTime()
-}
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
@@ -27,7 +21,7 @@ export default function (client: BotClient) {
 			const member = guild.members.cache.get(user.data?.user?.user_metadata.provider_id)
 			if (!member) return res.status(406).send({ error: "Member not found!" })
 
-			const favorites = (client.favs.get(member.id) || []).sort(sortByDate)
+			const favorites = client.favs.get(member.id) || []
 
 			res.status(200).json({ favorites })
 		} catch (err) {
