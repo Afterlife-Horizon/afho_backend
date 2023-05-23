@@ -3,7 +3,7 @@ const router = express.Router()
 import { Logger } from "../../../logger/Logger"
 import type BotClient from "../../../botClient/BotClient"
 
-export default async function delFav(client: BotClient) {
+export default function delFav(client: BotClient) {
 	return router.delete("/", async (req, res) => {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		try {
