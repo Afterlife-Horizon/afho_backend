@@ -11,17 +11,14 @@ export default function (client: BotClient) {
 			if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 
 			const access_token = req.body.access_token
-
 			if (!access_token) return res.status(406).send({ error: "No Access Token!" })
 
 			const user = await client.supabaseClient.auth.getUser(access_token)
-
 			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-			const guild = await client.guilds.fetch(client.config.serverID)
+			const guild = client.guilds.cache.get(client.config.serverID)
 			if (!guild) return res.status(406).send({ error: "Guild not found!" })
-			await guild.members.fetch()
-			await guild.channels.fetch()
+
 			const connectedMembers = guild.members.cache.filter((member: { voice: { channel: any } }) => member.voice.channel)
 			const requester = connectedMembers.filter(member => member.user.username === user.data.user?.user_metadata.full_name)
 			const voiceChannel = guild.channels.cache.find(

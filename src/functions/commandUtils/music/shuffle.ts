@@ -2,7 +2,7 @@ import { getVoiceConnection } from "@discordjs/voice"
 import type BotClient from "../../../botClient/BotClient"
 
 export default async function shuffle(client: BotClient, user: string) {
-	const guild = await client.guilds.fetch(client.config.serverID)
+	const guild = client.guilds.cache.get(client.config.serverID)
 	const member = guild?.members.cache.find(m => m.user.username === user)
 	if (!guild || !member) return { status: 500, error: "👎 **Something went wrong**" }
 
@@ -10,7 +10,7 @@ export default async function shuffle(client: BotClient, user: string) {
 
 	const oldConnection = getVoiceConnection(guild.id)
 	if (!oldConnection) return { status: 406, error: "👎 **I'm not connected somewhere!**" }
-	if (oldConnection && oldConnection.joinConfig.channelId != member.voice.channelId)
+	if (oldConnection && oldConnection.joinConfig.channelId !== member.voice.channelId)
 		return { status: 406, error: "👎 **We are not in the same Voice-Channel**!" }
 
 	const queue = client.queues.get(guild.id)
@@ -24,7 +24,7 @@ export default async function shuffle(client: BotClient, user: string) {
 	return { status: 200, message: "🔀 **Successfully shuffled the Queue!**" }
 }
 
-function shuffleArray(a) {
+function shuffleArray(a: any[]) {
 	let cI = a.length,
 		rI
 	while (cI != 0) {

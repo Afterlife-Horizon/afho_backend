@@ -1,6 +1,5 @@
 import express = require("express")
 const router = express.Router()
-import { GuildMember } from "discord.js"
 import changeFilters from "../../../functions/commandUtils/music/filters"
 import { Logger } from "../../../logger/Logger"
 import type BotClient from "../../../botClient/BotClient"
@@ -12,28 +11,23 @@ export default function (client: BotClient) {
 			if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 
 			const access_token = req.body.access_token
-
 			if (!access_token) return res.status(406).send({ error: "No Access Token!" })
 
 			const user = await client.supabaseClient.auth.getUser(access_token)
-
 			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-			const guild = await client.guilds.fetch(client.config.serverID)
+			const guild = client.guilds.cache.get(client.config.serverID)
 			if (!guild) return res.status(406).send("Server not found!")
 
-			const admins = (await guild.roles.fetch(client.config.adminRoleID))?.members
-
+			const admins = guild.roles.cache.get(client.config.adminRoleID)?.members
 			if (!admins) return res.status(406).send("Admins not found!")
-
 			if (!admins.has(user.data?.user?.user_metadata.provider_id)) return res.status(406).send("You are not an admin!")
 
 			const connectedMembers = guild.members.cache.filter(member => member.voice.channel)
-			const requester = connectedMembers.find(member => member.user.username === user.data.user?.user_metadata.full_name) as GuildMember
+			const requester = connectedMembers.find(member => member.user.username === user.data.user?.user_metadata.full_name)
 			if (!requester) return res.status(406).send("User not found!")
 
 			const filters = req.body.filters as IFilters
-
 			if (!filters) return res.status(400).json({ error: "Missing filter" })
 
 			const queue = client.queues.get(guild.id)

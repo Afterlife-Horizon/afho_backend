@@ -56,6 +56,13 @@ export interface Level {
 	lvl: number
 }
 
+export type Xp = {
+	user: GuildMember
+	xp: number
+	lvl: number
+}
+export type Time = { user: GuildMember; time_spent: number }
+
 export interface APILevel extends Level {
 	username: string
 }
@@ -64,4 +71,9 @@ export interface IFunctionResponse {
 	message?: string
 	error?: string
 	status: number
+}
+
+export type Fav = {
+	user: GuildMember
+	fav: favorite
 }

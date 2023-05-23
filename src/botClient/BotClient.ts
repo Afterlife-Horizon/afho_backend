@@ -13,22 +13,23 @@ import {
 } from "@discordjs/voice"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
 import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
+import FFmpeg from "fluent-ffmpeg"
 import fs from "node:fs"
 import path from "node:path"
-import FFmpeg from "fluent-ffmpeg"
 
+import { PrismaClient, bot_favorites } from "@prisma/client"
+import { PassThrough } from "node:stream"
+import { Video } from "youtube-sr"
+import ytdl, { downloadOptions } from "ytdl-core"
+import { reactionRoles } from "../constante"
+import { Logger } from "../logger/Logger"
 import interactionCreate from "./listeners/interactionCreate"
 import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
-import { Video } from "youtube-sr"
-import ytdl, { downloadOptions } from "ytdl-core"
-import { PassThrough } from "node:stream"
-import { PrismaClient } from "@prisma/client"
-import { Logger } from "../logger/Logger"
-import { reactionRoles } from "../constante"
 
-import type { ICommand, IEnv, IClientConfig } from "../types"
-import type { IQueue, IESong, IFavorite } from "../types/music"
+import getLevelFromXp from "../functions/getLevelFromXp"
+import type { Fav, IClientConfig, ICommand, IEnv, Time, Xp } from "../types"
+import type { IESong, IQueue } from "../types/music"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
@@ -36,12 +37,15 @@ export default class BotClient extends Client {
 	public config: IClientConfig
 	public commands: Map<string, ICommand>
 	public queues: Map<string, IQueue>
-	public favs: Map<string, IFavorite[]>
+	public favs: Map<string, bot_favorites[]>
+	public connectedMembers: Map<string, User>
 	public ready: boolean
 	public passThrought?: PassThrough
 	public stream?: FFmpeg.FfmpegCommand
 	public supabaseClient: SupabaseClient<any, "public", any>
 	public times: Map<string, Date>
+	public timeValues: Map<string, Time>
+	public xps: Map<string, Xp>
 
 	constructor(options: ClientOptions, environment: IEnv) {
 		super(options)
@@ -70,6 +74,9 @@ export default class BotClient extends Client {
 		this.commands = new Collection()
 		this.queues = new Collection()
 		this.favs = new Collection()
+		this.connectedMembers = new Collection()
+		this.xps = new Collection()
+		this.timeValues = new Collection()
 		this.getFavs()
 
 		this.initCommands()
@@ -77,7 +84,7 @@ export default class BotClient extends Client {
 		this.getSpotifyToken()
 		this.currentChannel = null
 		this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
-		this.times = new Map<string, Date>()
+		this.times = new Map()
 	}
 
 	async stop() {
@@ -116,10 +123,14 @@ export default class BotClient extends Client {
 		})
 	}
 
-	async initTimes() {
+	async initVars() {
 		const guild = await this.guilds.fetch(this.config.serverID)
 		const connectedMembers = await guild.members.fetch().then(m => m.filter(m => m.voice.channel).map(m => m.user))
-		connectedMembers.forEach(member => (!member.bot ? this.times.set(member.id, new Date()) : null))
+		connectedMembers.forEach(user => {
+			this.connectedMembers.set(user.id, user)
+			if (!user.bot) this.times.set(user.id, new Date())
+		})
+		this.updateCache()
 	}
 
 	async getSpotifyToken() {
@@ -160,6 +171,57 @@ export default class BotClient extends Client {
 		interactionCreate(this)
 		messageCreate(this)
 		voiceStateUpdate(this)
+	}
+
+	async updateCache() {
+		const guild = await this.guilds.fetch(this.config.serverID)
+		if (!guild) return
+		guild.members.fetch()
+		guild.channels.fetch()
+		guild.roles.fetch()
+		guild.emojis.fetch()
+
+		const xpRows = await this.prisma.bot_levels.findMany()
+		const xps = xpRows
+			.map(row => {
+				const level = getLevelFromXp(row.xp)
+				const member = guild.members.cache.find(mem => mem.user.id === row.id)
+				if (!member) return null
+				return {
+					user: member,
+					xp: row.xp,
+					lvl: level
+				}
+			})
+			.filter(xp => xp !== null) as Xp[]
+		this.xps = new Collection(xps.map(xp => [xp.user.id, xp]))
+
+		const timeRows = await this.prisma.bot_time.findMany()
+
+		const times = timeRows
+			.map(row => {
+				const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
+				if (!member) return null
+				return {
+					user: member,
+					time_spent: row.time_spent
+				}
+			})
+			.filter(time => time !== null) as Time[]
+		this.timeValues = new Collection(times.map(time => [time.user.id, time]))
+
+		const favRows = await this.prisma.bot_favorites.findMany()
+		const favs = favRows
+			.map(row => {
+				const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
+				if (!member) return null
+				return {
+					user: member,
+					fav: row
+				}
+			})
+			.filter(fav => fav !== null) as Fav[]
+		this.favs = new Collection(favs.map(fav => [fav.user.id, fav.fav]))
 	}
 
 	private async getFavs() {

@@ -5,23 +5,22 @@ import { Logger } from "../../../logger/Logger"
 import getSongNameFromSpotify from "../../../functions/getInfoFromSpotify"
 import type BotClient from "../../../botClient/BotClient"
 import type { IFavorite } from "../../../types/music"
+import { bot_favorites } from "@prisma/client"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		try {
-			if (!client.ready) return res.status(406).send({ error: "Loading!" })
-
 			const access_token = req.body.access_token
 			if (!access_token) return res.status(406).send({ error: "No Access Token!" })
 
 			const user = await client.supabaseClient.auth.getUser(access_token)
 			if (!user || user.error) return res.status(406).send({ error: "Invalid Access Token!" })
 
-			const guild = await client.guilds.fetch(client.config.serverID)
+			const guild = client.guilds.cache.get(client.config.serverID)
 			if (!guild) return res.status(406).send({ error: "Server not found!" })
 
-			const member = await guild.members.fetch(user.data?.user?.user_metadata.provider_id)
+			const member = guild.members.cache.get(user.data?.user?.user_metadata.provider_id)
 			if (!member) return res.status(406).send({ error: "Member not found!" })
 
 			const url = req.body.url
@@ -78,22 +77,14 @@ export default function (client: BotClient) {
 				}
 			})
 
-			const data = {
-				id: newFav.id,
-				name: newFav.name,
-				url: newFav.url,
-				thumbnail: newFav.thumbnail,
-				type: newFav.type as "video" | "playlist"
-			}
-
-			const favs: IFavorite[] = client.favs.get(req.body.userId) || []
-			favs.push(data)
+			const favs = client.favs.get(req.body.userId) || []
+			favs.push(newFav)
 			client.favs.set(req.body.userId, favs)
 
-			res.status(200).json({ data })
+			res.status(200).json({ data: newFav })
 		} catch (err: any) {
-			Logger.error(JSON.stringify(err))
 			if (err.code === "P2002") return res.status(400).json({ error: "Already in favorites" })
+			Logger.error(JSON.stringify(err))
 			res.status(500).json({ error: err })
 		}
 	})

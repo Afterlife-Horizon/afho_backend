@@ -125,13 +125,14 @@ async function timer() {
 		await client.pushTime(id)
 		client.times.set(id, new Date())
 	}
+	client.updateCache()
 	setTimeout(timer, 1000 * 60)
 }
 
 client.once("ready", async () => {
 	client.ready = true
 	reactionCollector(client)
-	await client.initTimes()
+	await client.initVars()
 	Logger.log("Logged in as " + client.user?.tag)
 	await timer()
 })

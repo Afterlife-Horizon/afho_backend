@@ -3,7 +3,7 @@ import type BotClient from "../../../botClient/BotClient"
 import type { IFunctionResponse } from "../../../types"
 
 export default async function musicStop(client: BotClient, user: string): Promise<IFunctionResponse> {
-	const guild = await client.guilds.fetch(client.config.serverID)
+	const guild = client.guilds.cache.get(client.config.serverID)
 	const connectedMembers = guild?.members.cache.filter(member => member.voice.channel)
 	const member = connectedMembers?.find(member => member.user.username === user)
 
