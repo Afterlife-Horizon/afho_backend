@@ -72,3 +72,8 @@ export interface IFunctionResponse {
 	error?: string
 	status: number
 }
+
+export type Fav = {
+	user: GuildMember
+	fav: favorite
+}

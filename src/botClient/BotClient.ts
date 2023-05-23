@@ -35,11 +35,11 @@ import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
 import { PassThrough } from "node:stream"
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient, bot_favorites } from "@prisma/client"
 import { Logger } from "../logger/Logger"
 import { reactionRoles } from "../constante"
 
-import type { ICommand, IEnv, IClientConfig, Xp, Time } from "../types"
+import type { ICommand, IEnv, IClientConfig, Xp, Time, Fav } from "../types"
 import type { IQueue, IESong, IFavorite } from "../types/music"
 import getLevelFromXp from "../functions/getLevelFromXp"
 
@@ -221,6 +221,19 @@ export default class BotClient extends Client {
 			})
 			.filter(time => time !== null) as Time[]
 		this.timeValues = new Collection(times.map(time => [time.user.id, time]))
+
+		const favRows = await this.prisma.bot_favorites.findMany()
+		const favs = favRows
+			.map(row => {
+				const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
+				if (!member) return null
+				return {
+					user: member,
+					fav: row
+				}
+			})
+			.filter(fav => fav !== null) as Fav[]
+		this.favs = new Collection(favs.map(fav => [fav.user.id, fav.fav]))
 	}
 
 	private async getFavs() {

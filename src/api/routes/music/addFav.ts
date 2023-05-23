@@ -90,8 +90,8 @@ export default function (client: BotClient) {
 
 			res.status(200).json({ data })
 		} catch (err: any) {
-			Logger.error(JSON.stringify(err))
 			if (err.code === "P2002") return res.status(400).json({ error: "Already in favorites" })
+			Logger.error(JSON.stringify(err))
 			res.status(500).json({ error: err })
 		}
 	})
