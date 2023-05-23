@@ -221,8 +221,8 @@ export default class BotClient extends Client {
 				}
 			})
 			.filter(fav => fav !== null) as Fav[]
-		console.log(favs)
 		this.favs = new Collection(favs.map(fav => [fav.user.id, fav.fav]))
+		console.log(this.favs)
 	}
 
 	private async getFavs() {
