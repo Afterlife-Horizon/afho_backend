@@ -221,7 +221,13 @@ export default class BotClient extends Client {
 				}
 			})
 			.filter(fav => fav !== null) as Fav[]
-		this.favs = new Collection(favs.map(fav => [fav.user.id, fav.fav]))
+		this.favs = new Collection()
+		favs.forEach(fav => {
+			const currentFav = this.favs.get(fav.user.id) || []
+			currentFav.push({ ...fav.fav, type: fav.fav.type as "video" | "playlist" })
+			this.favs.set(fav.user.id, currentFav)
+		})
+
 		console.log(this.favs)
 	}
 
