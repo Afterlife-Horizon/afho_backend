@@ -23,6 +23,8 @@ export default function delFav(client: BotClient) {
 			const userId = user.data?.user?.user_metadata.provider_id
 			const id = req.body.id
 
+			console.log(userId, id)
+
 			if (!userId) return res.status(400).json({ error: "No userId" })
 			if (!id) return res.status(400).json({ error: "No song id given" })
 
