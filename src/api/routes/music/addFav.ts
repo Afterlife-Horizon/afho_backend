@@ -4,8 +4,6 @@ import { Playlist, Video, default as YouTube } from "youtube-sr"
 import { Logger } from "../../../logger/Logger"
 import getSongNameFromSpotify from "../../../functions/getInfoFromSpotify"
 import type BotClient from "../../../botClient/BotClient"
-import type { IFavorite } from "../../../types/music"
-import { bot_favorites } from "@prisma/client"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
@@ -77,9 +75,9 @@ export default function (client: BotClient) {
 				}
 			})
 
-			const favs = client.favs.get(req.body.userId) || []
+			const favs = client.favs.get(userId) || []
 			favs.push(newFav)
-			client.favs.set(req.body.userId, favs)
+			client.favs.set(userId, favs)
 
 			res.status(200).json({ data: newFav })
 		} catch (err: any) {

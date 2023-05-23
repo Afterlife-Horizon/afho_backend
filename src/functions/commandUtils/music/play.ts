@@ -36,11 +36,7 @@ export default async function play(client: BotClient, user: string, songs: strin
 			}
 		}
 
-		const botsVoiceChanel = guild.channels.cache.find(
-			c => c.type === 2 && c.members.find((m: GuildMember) => m.user.username === client.user?.username) !== undefined
-		)
-		if (!botsVoiceChanel) return { status: 406, error: "Bot is not connected to a voice channel!" }
-		if (!isVoiceChannel(botsVoiceChanel)) return { status: 406, error: "Bot is not connected to a voice channel!" }
+		const botsVoiceChanel = client.currentChannel
 		if (botsVoiceChanel?.id !== voiceChannel.id && oldConnection) return { status: 406, error: "Not the same channel!" }
 
 		const args = songs.split(" ")

@@ -309,8 +309,6 @@ export default class BotClient extends Client {
 
 			const newConnection = joinVoiceChannel(options)
 
-			this.delay(250)
-
 			newConnection.on(VoiceConnectionStatus.Disconnected, async () => {
 				try {
 					await Promise.race([
