@@ -23,6 +23,8 @@ export default function (client: BotClient) {
 
 			const favorites = client.favs.get(member.id) || []
 
+			console.log(favorites)
+
 			res.status(200).json({ favorites })
 		} catch (err) {
 			Logger.error(JSON.stringify(err))
