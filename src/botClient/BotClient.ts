@@ -227,8 +227,6 @@ export default class BotClient extends Client {
 			currentFav.push({ ...fav.fav, type: fav.fav.type as "video" | "playlist" })
 			this.favs.set(fav.user.id, currentFav)
 		})
-
-		console.log(this.favs)
 	}
 
 	private async getFavs() {
