@@ -36,7 +36,7 @@ export default function delFav(client: BotClient) {
 			})
 
 			const prevFavs = client.favs.get(userId) || []
-			const newFavs = prevFavs.filter((fav: IFavorite) => fav.id !== id)
+			const newFavs = prevFavs.filter(fav => fav.id !== id)
 
 			client.favs.set(userId, newFavs)
 

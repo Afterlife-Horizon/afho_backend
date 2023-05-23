@@ -12,36 +12,24 @@ import {
 	joinVoiceChannel
 } from "@discordjs/voice"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
-import {
-	ActivityType,
-	Client,
-	ClientOptions,
-	Collection,
-	Colors,
-	EmbedBuilder,
-	GuildMember,
-	TextChannel,
-	User,
-	VoiceChannel,
-	VoiceState
-} from "discord.js"
+import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
+import FFmpeg from "fluent-ffmpeg"
 import fs from "node:fs"
 import path from "node:path"
-import FFmpeg from "fluent-ffmpeg"
 
+import { PrismaClient, bot_favorites } from "@prisma/client"
+import { PassThrough } from "node:stream"
+import { Video } from "youtube-sr"
+import ytdl, { downloadOptions } from "ytdl-core"
+import { reactionRoles } from "../constante"
+import { Logger } from "../logger/Logger"
 import interactionCreate from "./listeners/interactionCreate"
 import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
-import { Video } from "youtube-sr"
-import ytdl, { downloadOptions } from "ytdl-core"
-import { PassThrough } from "node:stream"
-import { PrismaClient, bot_favorites } from "@prisma/client"
-import { Logger } from "../logger/Logger"
-import { reactionRoles } from "../constante"
 
-import type { ICommand, IEnv, IClientConfig, Xp, Time, Fav } from "../types"
-import type { IQueue, IESong, IFavorite } from "../types/music"
 import getLevelFromXp from "../functions/getLevelFromXp"
+import type { Fav, IClientConfig, ICommand, IEnv, Time, Xp } from "../types"
+import type { IESong, IQueue } from "../types/music"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
@@ -49,7 +37,7 @@ export default class BotClient extends Client {
 	public config: IClientConfig
 	public commands: Map<string, ICommand>
 	public queues: Map<string, IQueue>
-	public favs: Map<string, IFavorite[]>
+	public favs: Map<string, bot_favorites[]>
 	public connectedMembers: Map<string, User>
 	public ready: boolean
 	public passThrought?: PassThrough
