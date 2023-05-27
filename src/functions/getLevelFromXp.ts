@@ -5,5 +5,5 @@
  */
 export default function getLevelFromXp(xp: number) {
 	const exp = 2
-	return Math.floor(Math.pow(xp / exp, 1 / exp))
+	return Math.floor(Math.pow(xp / exp, 1 / exp)) + 1
 }
