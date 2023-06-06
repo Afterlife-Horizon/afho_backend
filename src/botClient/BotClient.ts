@@ -128,7 +128,7 @@ export default class BotClient extends Client {
 			if (!isTextChannel(textChannel)) return Logger.error("The ff14 news channel is not a text channel")
 
 			const paser = new Parser()
-			const feed = await paser.parseURL("https://na.finalfantasyxiv.com/lodestone/news/news.xml")
+			const feed = await paser.parseURL("https://fr.finalfantasyxiv.com/lodestone/news/news.xml")
 
 			const lastNews = feed.items[0]
 			const title = lastNews.title
