@@ -130,8 +130,6 @@ export default class BotClient extends Client {
 			const paser = new Parser()
 			const feed = await paser.parseURL("https://na.finalfantasyxiv.com/lodestone/news/news.xml")
 
-			console.log(feed)
-
 			const lastNews = feed.items[0]
 			const title = lastNews.title
 			const link = lastNews.link
