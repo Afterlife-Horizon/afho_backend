@@ -16,8 +16,8 @@ let maxLength = 2000
 
 export default async function handleGPTChat(client: BotClient, message: Message) {
 	let conversationLog: ChatCompletionRequestMessage[] = []
-	if (!client.config.gptChatChannel || !client.config.openAIKey) return
-	if (message.channel.id !== client.config.gptChatChannel) return
+	if (!client.config.gptChatChannelID || !client.config.openAIKey) return
+	if (message.channel.id !== client.config.gptChatChannelID) return
 	if (message.type === MessageType.Reply) return
 
 	Logger.log(`GPT-3 Chat: ${message.author.username} (${message.author.id}) asked: ${message.content}`)

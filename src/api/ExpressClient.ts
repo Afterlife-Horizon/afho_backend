@@ -3,7 +3,7 @@ import { Express } from "express"
 import type BotClient from "../botClient/BotClient"
 
 // ------------ api routes ------------
-import levels from "./routes/levels.js"
+import levels from "./routes/levels"
 
 // ------------ bresil ------------
 import brasilBoard from "./routes/bresil/brasilboard"

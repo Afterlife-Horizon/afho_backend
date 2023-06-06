@@ -12,10 +12,23 @@ import {
 	joinVoiceChannel
 } from "@discordjs/voice"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
-import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
+import {
+	ActivityType,
+	Client,
+	ClientOptions,
+	Collection,
+	Colors,
+	EmbedBuilder,
+	TextChannel,
+	User,
+	VoiceChannel,
+	VoiceState,
+	parseResponse
+} from "discord.js"
 import FFmpeg from "fluent-ffmpeg"
 import fs from "node:fs"
 import path from "node:path"
+import Parser from "rss-parser"
 
 import { PrismaClient, bot_favorites } from "@prisma/client"
 import { PassThrough } from "node:stream"
@@ -30,6 +43,7 @@ import voiceStateUpdate from "./listeners/voiceStateUpdate"
 import getLevelFromXp from "../functions/getLevelFromXp"
 import type { Fav, IClientConfig, ICommand, IEnv, Time, Xp } from "../types"
 import type { IESong, IQueue } from "../types/music"
+import { isTextChannel } from "../functions/discordUtils"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
@@ -50,23 +64,7 @@ export default class BotClient extends Client {
 	constructor(options: ClientOptions, environment: IEnv) {
 		super(options)
 		this.ready = false
-		this.config = {
-			token: environment.token,
-			clientID: environment.clientID,
-			baseChannelID: environment.baseChannelID,
-			brasilChannelID: environment.brasilChannelID,
-			serverID: environment.serverID,
-			adminRoleID: environment.adminRoleID,
-			supabaseURL: environment.supabaseURL,
-			supabaseKey: environment.supabaseKey,
-			openAIKey: environment.openAIKey,
-			youtubeCookie: environment.youtubeCookie,
-			gptChatChannel: environment.gptChatChannel,
-			reactionRoleChannel: environment.reactionRoleChannel,
-			websiteURL: environment.websiteURL,
-			spotifyClientID: environment.spotifyClientID,
-			spotifyClientSecret: environment.spotifyClientSecret
-		}
+		this.config = environment
 
 		if (environment.reactionRoleChannel) this.config.reactionRoles = reactionRoles
 
@@ -121,6 +119,55 @@ export default class BotClient extends Client {
 				time_spent: timeSpentSeconds
 			}
 		})
+	}
+
+	async updateGameFeeds() {
+		if (this.config.ff14NewsChannelID) {
+			const textChannel = await this.channels.fetch(this.config.ff14NewsChannelID)
+			if (!textChannel) return Logger.error("The ff14 news channel is not found")
+			if (!isTextChannel(textChannel)) return Logger.error("The ff14 news channel is not a text channel")
+
+			const paser = new Parser()
+			const feed = await paser.parseURL("https://lodestonenews.com/feed/fr.xml")
+
+			const lastNews = feed.items[0]
+			const title = lastNews.title
+			const link = lastNews.link
+			const description = lastNews.content
+			const dataString = lastNews.isoDate
+			if (!dataString) return
+			const date = new Date(dataString)
+			const image = lastNews.enclosure?.url || "https://lodestonenews.com/images/logo.png"
+
+			if (!title || !link) return
+
+			const message = new EmbedBuilder()
+				.setTitle(title)
+				.setImage(image)
+				.setDescription(description || null)
+				.setColor(Colors.Blue)
+				.setTimestamp(date)
+				.setURL(link)
+
+			const lastMessage = (await textChannel.messages.fetch()).filter(m => m.author.id === this.user?.id).first()
+			if (!lastMessage) {
+				await textChannel
+					.send({
+						embeds: [message]
+					})
+					.catch(Logger.error)
+			} else {
+				const messageTimeStamp = lastMessage.createdAt.getTime()
+				const dateTimeStamp = date.getTime()
+
+				if (dateTimeStamp > messageTimeStamp)
+					await textChannel
+						.send({
+							embeds: [message]
+						})
+						.catch(Logger.error)
+			}
+		}
 	}
 
 	async initVars() {

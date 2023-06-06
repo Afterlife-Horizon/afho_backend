@@ -64,8 +64,9 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 	if (!process.env.CERT || !process.env.CERT_KEY) Logger.warn("No HTTPS certificate found, using HTTP instead...")
 	if (!process.env.OPENAI_KEY || !process.env.CHAT_GPT_CHANNEL_ID) Logger.warn("No OpenAI key found, not using OpenAI API")
 	if (!process.env.REACTION_ROLE_CHANNEL_ID) Logger.warn("No roles channel ID found, not using reaction roles")
-	if (!process.env.YOUTUBE_LOGIN_COOKIE) Logger.warn("No YouTube cookie found, not using YouTube API")
+	if (!process.env.YOUTUBE_LOGIN_COOKIE) Logger.warn("No YouTube cookie found, not using cookie for YouTube API")
 	if (process.env.NODE_ENV === "development") Logger.warn("Running in development mode, no webserver will be started")
+	if (!process.env.FF14_NEWS_CHANNEL_ID) Logger.warn("No FF14 news channel ID found, not using FF14 news feed")
 }
 
 const environement = {
@@ -82,7 +83,8 @@ const environement = {
 	certKey: process.env.CERT_KEY,
 	openAIKey: process.env.OPENAI_KEY,
 	youtubeCookie: process.env.YOUTUBE_LOGIN_COOKIE,
-	gptChatChannel: process.env.CHAT_GPT_CHANNEL_ID,
+	gptChatChannelID: process.env.CHAT_GPT_CHANNEL_ID,
+	ff14NewsChannelID: process.env.FF14_NEWS_CHANNEL_ID,
 	reactionRoleChannel: process.env.REACTION_ROLE_CHANNEL_ID,
 	spotifyClientID: process.env.SPOTIFY_CLIENT_ID,
 	spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET
@@ -126,6 +128,9 @@ async function timer() {
 		client.times.set(id, new Date())
 	}
 	client.updateCache()
+
+	client.updateGameFeeds()
+
 	setTimeout(timer, 1000 * 60)
 }
 

@@ -19,7 +19,8 @@ export interface IEnv {
 	certKey?: string
 	openAIKey?: string
 	youtubeCookie?: string
-	gptChatChannel?: string
+	gptChatChannelID?: string
+	ff14NewsChannelID?: string
 	reactionRoleChannel?: string
 }
 
