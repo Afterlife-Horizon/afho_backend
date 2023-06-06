@@ -144,6 +144,7 @@ export default class BotClient extends Client {
 			const message = new EmbedBuilder()
 				.setTitle(title)
 				.setThumbnail(image)
+				.setDescription(lastNews.contentSnippet?.replace("<br>\n", "\n").slice(0, 2000) || null)
 				.setAuthor({ name: author || null })
 				.setColor(Colors.Blue)
 				.setTimestamp(date)
