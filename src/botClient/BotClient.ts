@@ -128,23 +128,25 @@ export default class BotClient extends Client {
 			if (!isTextChannel(textChannel)) return Logger.error("The ff14 news channel is not a text channel")
 
 			const paser = new Parser()
-			const feed = await paser.parseURL("https://lodestonenews.com/feed/fr.xml")
+			const feed = await paser.parseURL("https://na.finalfantasyxiv.com/lodestone/news/news.xml")
+
+			console.log(feed)
 
 			const lastNews = feed.items[0]
 			const title = lastNews.title
 			const link = lastNews.link
-			const description = lastNews.content
+			const author = lastNews.author
 			const dataString = lastNews.isoDate
 			if (!dataString) return
 			const date = new Date(dataString)
-			const image = lastNews.enclosure?.url || "https://lodestonenews.com/images/logo.png"
+			const image = "https://lodestonenews.com/images/logo.png"
 
 			if (!title || !link) return
 
 			const message = new EmbedBuilder()
 				.setTitle(title)
-				.setImage(image)
-				.setDescription(description || null)
+				.setThumbnail(image)
+				.setAuthor({ name: author || null })
 				.setColor(Colors.Blue)
 				.setTimestamp(date)
 				.setURL(link)
