@@ -7,33 +7,72 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model bot_bresil {
-  id              String @id @db.VarChar(255)
-  username        String @db.VarChar(255)
+model Users {
+  id            String      @id @db.VarChar(255)
+  username      String      @db.VarChar(255)
+  nickname      String?      @db.VarChar(255)
+  avatar        String?      @db.VarChar(255)
+  roles         String      @db.VarChar(255)
+
+  Favorites     Favorites[]
+  Levels        Levels[]
+  Time_connected Time_connected[]
+  Bresil_count  Bresil_count[]
+  Achievements  Achievement_get[]
+}
+
+model Levels {
+  user   Users  @relation(fields: [user_id], references: [id])
+  user_id String @id @db.VarChar(255)
+  xp      Int
+}
+
+model Time_connected {
+  user   Users  @relation(fields: [user_id], references: [id])
+  user_id    String @id @db.VarChar(255)
+  time_spent Int    @db.Int @default(0)
+}
+
+model Bresil_count {
+  user   Users  @relation(fields: [user_id], references: [id])
+  user_id         String @id @db.VarChar(255)
   bresil_received Int    @default(0)
   bresil_sent     Int    @default(0)
 }
 
-model bot_favorites {
-  id        String @db.VarChar(255)
-  user_id   String @db.VarChar(255)
-  name      String @db.VarChar(255)
-  url       String @db.VarChar(255)
-  thumbnail String @db.VarChar(255)
-  type      String @db.VarChar(255)
+model Favorites {
+  user     Users  @relation(fields: [user_id], references: [id])
+  user_id  String @db.VarChar(255)
+  video    Videos @relation(fields: [video_id], references: [id])
+  video_id String @db.VarChar(255)
+
+  @@unique([user_id, video_id], map: "user_id_video_id")
+}
+
+model Videos {
+  id         String   @id @db.VarChar(255)
+  url        String   @db.VarChar(255)
+  name       String   @db.VarChar(255)
+  thumbnail  String   @db.VarChar(255)
+  type       String   @db.VarChar(255)
   date_added DateTime @default(now())
 
-  @@unique([id, user_id], map: "id_user_id")
+  Favorites Favorites[]
 }
 
-model bot_levels {
-  id       String @id @db.VarChar(255)
-  username String @db.VarChar(255)
-  xp       Int
+model Achievement_get {
+  user   Users  @relation(fields: [user_id], references: [id])
+  user_id String @db.VarChar(255)
+
+  achievement   Achievements  @relation(fields: [achievement_name], references: [name])
+  achievement_name String @db.VarChar(255)
+
+  @@unique([user_id, achievement_name], map: "user_id_achievement_name")
 }
 
-model bot_time {
-  user_id String @id @db.VarChar(255)
-  username String @db.VarChar(255)
-  time_spent    Int @default(0)
+model Achievements {
+  name        String   @id @db.VarChar(255)
+  requirements String   @db.VarChar(255)
+  type        String   @db.VarChar(255)
+  get         Achievement_get[]
 }

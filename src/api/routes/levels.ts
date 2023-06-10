@@ -18,7 +18,7 @@ export default function levels(client: BotClient) {
 			const sendData = Array.from(client.xps.values()).sort(compareData)
 			res.json(sendData)
 		} catch (err) {
-			Logger.error(JSON.stringify(err))
+			Logger.error(err)
 			res.status(500).json({ error: "Internal error" })
 		}
 	})

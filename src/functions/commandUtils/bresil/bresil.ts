@@ -18,9 +18,9 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 			return { status: 406, error: "You cannot bresil someone already in bresil!" }
 		if (moved.user.id === client.user?.id) return { status: 406, error: "😨You cannot bresil the bot!" }
 
-		const movedUser = await client.prisma.bot_bresil.upsert({
+		const movedUser = await client.prisma.bresil_count.upsert({
 			where: {
-				id: moved.user.id
+				user_id: moved.user.id
 			},
 			update: {
 				bresil_received: {
@@ -28,16 +28,15 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 				}
 			},
 			create: {
-				id: moved.user.id,
-				username: moved.user.username,
+				user_id: moved.user.id,
 				bresil_received: 1,
 				bresil_sent: 0
 			}
 		})
 
-		const moverUser = await client.prisma.bot_bresil.upsert({
+		const moverUser = await client.prisma.bresil_count.upsert({
 			where: {
-				id: mover.user.id
+				user_id: mover.user.id
 			},
 			update: {
 				bresil_sent: {
@@ -45,8 +44,7 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 				}
 			},
 			create: {
-				id: mover.user.id,
-				username: mover.user.username,
+				user_id: mover.user.id,
 				bresil_received: 0,
 				bresil_sent: 1
 			}
@@ -68,7 +66,7 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 			moveCount
 		}
 	} catch (err) {
-		Logger.error(JSON.stringify(err))
+		Logger.error(err)
 		return { status: 500, error: err }
 	}
 }

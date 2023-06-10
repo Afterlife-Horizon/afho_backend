@@ -84,7 +84,7 @@ export default async function handleGPTChat(client: BotClient, message: Message)
 			}
 		}
 	} catch (err) {
-		Logger.error(JSON.stringify(err))
+		Logger.error(err)
 		message.reply({ content: "Something went wrong!" })
 	}
 }

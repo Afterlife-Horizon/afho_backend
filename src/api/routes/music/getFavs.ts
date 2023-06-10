@@ -22,10 +22,11 @@ export default function (client: BotClient) {
 			if (!member) return res.status(406).send({ error: "Member not found!" })
 
 			const favorites = client.favs.get(member.id) || []
+			const sorted = favorites.sort((a, b) => b.date_added.getTime() - a.date_added.getTime())
 
-			res.status(200).json({ favorites })
+			res.status(200).json({ favorites: sorted })
 		} catch (err) {
-			Logger.error(JSON.stringify(err))
+			Logger.error(err)
 			res.status(500).send("Internal Server Error")
 		}
 	})

@@ -1,7 +1,8 @@
 import { Client, CommandInteraction, SlashCommandBuilder, User } from "discord.js"
-import { Thumbnail, Video } from "youtube-sr"
+import { Thumbnail } from "youtube-sr"
 import type BotClient from "@/botClient/BotClient"
 import { AudioResource } from "@discordjs/voice"
+import { Videos } from "prisma/prisma-client"
 
 export interface IEnv {
 	token: string
@@ -76,5 +77,9 @@ export interface IFunctionResponse {
 
 export type Fav = {
 	user: GuildMember
-	fav: favorite
+	fav: Videos
 }
+
+export type Favorite = {
+	userId: string
+} & Videos

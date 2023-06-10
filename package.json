@@ -16,7 +16,7 @@
 	"dependencies": {
 		"@discordjs/opus": "^0.9.0",
 		"@discordjs/voice": "^0.11.0",
-		"@prisma/client": "^4.13.0",
+		"@prisma/client": "^4.14.0",
 		"@supabase/supabase-js": "^2.13.1",
 		"bcrypt": "^5.1.0",
 		"colors": "^1.4.0",
@@ -55,7 +55,7 @@
 		"@typescript-eslint/parser": "^5.56.0",
 		"eslint": "^8.36.0",
 		"prettier": "2.8.7",
-		"prisma": "^4.14.0",
+		"prisma": "^4.15.0",
 		"spotify-types": "^1.0.7",
 		"stylelint-config-prettier": "^9.0.5",
 		"ts-node": "^10.9.1",

@@ -39,7 +39,7 @@ export default function (client: BotClient) {
 
 			res.send(data)
 		} catch (err) {
-			Logger.error(JSON.stringify(err))
+			Logger.error(err)
 			res.status(500).json({ error: err })
 		}
 	})

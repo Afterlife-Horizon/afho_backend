@@ -12,25 +12,13 @@ import {
 	joinVoiceChannel
 } from "@discordjs/voice"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
-import {
-	ActivityType,
-	Client,
-	ClientOptions,
-	Collection,
-	Colors,
-	EmbedBuilder,
-	TextChannel,
-	User,
-	VoiceChannel,
-	VoiceState,
-	parseResponse
-} from "discord.js"
+import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
 import FFmpeg from "fluent-ffmpeg"
 import fs from "node:fs"
 import path from "node:path"
 import Parser from "rss-parser"
 
-import { PrismaClient, bot_favorites } from "@prisma/client"
+import { PrismaClient, Videos } from "@prisma/client"
 import { PassThrough } from "node:stream"
 import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
@@ -41,7 +29,7 @@ import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
 
 import getLevelFromXp from "../functions/getLevelFromXp"
-import type { Fav, IClientConfig, ICommand, IEnv, Time, Xp } from "../types"
+import type { Fav, Favorite, IClientConfig, ICommand, IEnv, Time, Xp } from "../types"
 import type { IESong, IQueue } from "../types/music"
 import { isTextChannel } from "../functions/discordUtils"
 
@@ -51,7 +39,7 @@ export default class BotClient extends Client {
 	public config: IClientConfig
 	public commands: Map<string, ICommand>
 	public queues: Map<string, IQueue>
-	public favs: Map<string, bot_favorites[]>
+	public favs: Map<string, Videos[]>
 	public connectedMembers: Map<string, User>
 	public ready: boolean
 	public passThrought?: PassThrough
@@ -75,7 +63,6 @@ export default class BotClient extends Client {
 		this.connectedMembers = new Collection()
 		this.xps = new Collection()
 		this.timeValues = new Collection()
-		this.getFavs()
 
 		this.initCommands()
 		this.initListeners()
@@ -104,7 +91,7 @@ export default class BotClient extends Client {
 		const member = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch(id))
 		if (!member) return
 
-		await this.prisma.bot_time.upsert({
+		await this.prisma.time_connected.upsert({
 			where: {
 				user_id: id
 			},
@@ -115,7 +102,6 @@ export default class BotClient extends Client {
 			},
 			create: {
 				user_id: id,
-				username: member.user.username,
 				time_spent: timeSpentSeconds
 			}
 		})
@@ -229,11 +215,11 @@ export default class BotClient extends Client {
 		guild.roles.fetch()
 		guild.emojis.fetch()
 
-		const xpRows = await this.prisma.bot_levels.findMany()
+		const xpRows = await this.prisma.levels.findMany()
 		const xps = xpRows
 			.map(row => {
 				const level = getLevelFromXp(row.xp)
-				const member = guild.members.cache.find(mem => mem.user.id === row.id)
+				const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
 				if (!member) return null
 				return {
 					user: member,
@@ -244,7 +230,7 @@ export default class BotClient extends Client {
 			.filter(xp => xp !== null) as Xp[]
 		this.xps = new Collection(xps.map(xp => [xp.user.id, xp]))
 
-		const timeRows = await this.prisma.bot_time.findMany()
+		const timeRows = await this.prisma.time_connected.findMany()
 
 		const times = timeRows
 			.map(row => {
@@ -258,31 +244,30 @@ export default class BotClient extends Client {
 			.filter(time => time !== null) as Time[]
 		this.timeValues = new Collection(times.map(time => [time.user.id, time]))
 
-		const favRows = await this.prisma.bot_favorites.findMany()
+		this.updateFavs()
+	}
+
+	private async updateFavs() {
+		const guild = await this.guilds.fetch(this.config.serverID)
+		if (!guild) return
+		const favRows = await this.prisma.favorites.findMany()
+		const videos = await this.prisma.videos.findMany()
 		const favs = favRows
 			.map(row => {
 				const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
 				if (!member) return null
 				return {
 					user: member,
-					fav: row
+					fav: videos.find(video => video.id === row.video_id)
 				}
 			})
 			.filter(fav => fav !== null) as Fav[]
 		this.favs = new Collection()
 		favs.forEach(fav => {
 			const currentFav = this.favs.get(fav.user.id) || []
-			currentFav.push({ ...fav.fav, type: fav.fav.type as "video" | "playlist" })
+			fav.fav.type = fav.fav.type === "video" ? "video" : "playlist"
+			currentFav.push({ ...fav.fav, type: fav.fav.type })
 			this.favs.set(fav.user.id, currentFav)
-		})
-	}
-
-	private async getFavs() {
-		const data = await this.prisma.bot_favorites.findMany()
-		data.forEach(fav => {
-			const currentFav = this.favs.get(fav.user_id) || []
-			currentFav.push({ ...fav, type: fav.type as "video" | "playlist" })
-			this.favs.set(fav.user_id, currentFav)
 		})
 	}
 

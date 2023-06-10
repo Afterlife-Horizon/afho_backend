@@ -25,23 +25,22 @@ export default function delFav(client: BotClient) {
 			if (!userId) return res.status(400).json({ error: "No userId" })
 			if (!id) return res.status(400).json({ error: "No song id given" })
 
-			await client.prisma.bot_favorites.delete({
+			await client.prisma.favorites.delete({
 				where: {
-					id_user_id: {
-						id,
-						user_id: userId
+					user_id_video_id: {
+						user_id: userId,
+						video_id: id
 					}
 				}
 			})
 
 			const prevFavs = client.favs.get(userId) || []
 			const newFavs = prevFavs.filter(fav => fav.id !== id)
-
 			client.favs.set(userId, newFavs)
 
 			res.status(200).json({ data: client.favs.get(userId) })
 		} catch (err) {
-			Logger.error(JSON.stringify(err))
+			Logger.error(err)
 			res.status(500).json({ error: err })
 		}
 	})

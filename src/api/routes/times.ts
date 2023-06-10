@@ -15,7 +15,7 @@ export default function (client: BotClient) {
 			})
 			res.status(200).json(sendData)
 		} catch (err) {
-			Logger.error(JSON.stringify(err))
+			Logger.error(err)
 			res.status(500).json({ error: "Internal error" })
 		}
 	})

@@ -20,7 +20,7 @@ export default function (client: BotClient) {
 			const guild = client.guilds.cache.get(client.config.serverID)
 			if (!guild) return res.status(406).send("Server not found!")
 
-			const admins =  guild.roles.cache.get(client.config.adminRoleID)?.members
+			const admins = guild.roles.cache.get(client.config.adminRoleID)?.members
 			if (!admins) return res.status(406).send("Admins not found!")
 			if (!admins.has(user.data?.user?.user_metadata.provider_id)) return res.status(406).send("You are not an admin!")
 
@@ -29,7 +29,7 @@ export default function (client: BotClient) {
 			if (response.status === 200) return res.status(200).json({ message: response.message })
 			res.status(response.status).json({ error: response.error })
 		} catch (err) {
-			Logger.error(JSON.stringify(err))
+			Logger.error(err)
 			return res.status(500).json({ error: err })
 		}
 	})

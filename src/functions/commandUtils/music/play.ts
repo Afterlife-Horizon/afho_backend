@@ -31,7 +31,7 @@ export default async function play(client: BotClient, user: string, songs: strin
 			try {
 				await client.joinVoiceChannel(client.currentChannel)
 			} catch (err) {
-				Logger.error(JSON.stringify(err))
+				Logger.error(err)
 				return { status: 406, error: `Could not join Voice Channel!` }
 			}
 		}
@@ -150,7 +150,7 @@ export default async function play(client: BotClient, user: string, songs: strin
 			return { status: 200, message: "OK" }
 		}
 	} catch (err) {
-		Logger.error(JSON.stringify(err))
+		Logger.error(err)
 		return { status: 406, error: `Could not play song!` }
 	}
 }

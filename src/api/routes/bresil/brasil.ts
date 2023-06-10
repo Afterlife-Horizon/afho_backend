@@ -37,7 +37,7 @@ export default function (client: BotClient) {
 			})
 			res.status(200).send({ message: result.message ? result.message : "Bresil moved!" })
 		} catch (err) {
-			Logger.error(JSON.stringify(err))
+			Logger.error(err)
 			res.status(500).json({ error: "Internal error!" })
 		}
 	})

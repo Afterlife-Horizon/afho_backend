@@ -62,27 +62,27 @@ export class Logger {
 		this.gptLogger.info(message)
 	}
 
-	public static log(message: string) {
+	public static log(message: any) {
 		this.logger.info(message)
 	}
 
-	public static error(message: string) {
-		this.logger.error(message)
+	public static error(error: any) {
+		this.logger.error(error)
 	}
 
-	public static debug(message: string) {
+	public static debug(message: any) {
 		this.logger.debug(message)
 	}
 
-	public static warn(message: string) {
+	public static warn(message: any) {
 		this.logger.warn(message)
 	}
 
-	public static fatal(message: string) {
-		this.logger.fatal(message)
+	public static fatal(error: any) {
+		this.logger.fatal(error)
 	}
 
-	public static trace(message: string) {
-		this.logger.trace(message)
+	public static trace(trace: any) {
+		this.logger.trace(trace)
 	}
 }

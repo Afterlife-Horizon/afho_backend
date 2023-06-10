@@ -34,7 +34,7 @@ export default (client: BotClient): ICommand => {
 					]
 				})
 			} catch (err) {
-				Logger.error(JSON.stringify(err))
+				Logger.error(err)
 				await interaction.reply({ content: `❌ An error occured!` })
 			}
 		}

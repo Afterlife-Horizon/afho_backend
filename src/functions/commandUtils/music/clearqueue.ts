@@ -27,7 +27,7 @@ export default async function clearQueue(client: BotClient, args: { member: Guil
 
 		return { status: 200, message: `👍 **Successfully cleared the Queue**` }
 	} catch (err) {
-		Logger.error(JSON.stringify(err))
+		Logger.error(err)
 		return { status: 500, error: `👎 **Something went wrong**` }
 	}
 }

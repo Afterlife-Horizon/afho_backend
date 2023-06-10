@@ -4,6 +4,7 @@ import { Playlist, Video, default as YouTube } from "youtube-sr"
 import { Logger } from "../../../logger/Logger"
 import getSongNameFromSpotify from "../../../functions/getInfoFromSpotify"
 import type BotClient from "../../../botClient/BotClient"
+import { Favorite } from "types"
 
 export default function (client: BotClient) {
 	return router.post("/", async (req, res) => {
@@ -64,14 +65,37 @@ export default function (client: BotClient) {
 
 			if (!vid) return res.status(400).json({ error: "No video found" })
 
-			const newFav = await client.prisma.bot_favorites.create({
+			let newFav: Favorite | undefined = undefined
+			try {
+				const res = await client.prisma.videos.create({
+					data: {
+						id: vid.id ? vid.id : "",
+						name: vid.title ? vid.title : "",
+						url: vid.url ? vid.url : "",
+						thumbnail: vid.thumbnail?.url ? vid.thumbnail?.url : "",
+						type: vid.type === "playlist" ? "playlist" : "video"
+					}
+				})
+				newFav = { userId, ...res }
+			} catch (err: any) {
+				if (err.code === "P2002") {
+					const row = await client.prisma.videos.findUnique({
+						where: {
+							id: vid.id ? vid.id : ""
+						}
+					})
+					if (!row) return res.status(500).json({ error: "Internal Error!" })
+					newFav = { userId, ...row }
+				} else {
+					Logger.error(err)
+					return res.status(500).json("Internal Error!")
+				}
+			}
+
+			await client.prisma.favorites.create({
 				data: {
-					id: vid.id ? vid.id : "",
 					user_id: userId,
-					name: vid.title ? vid.title : "",
-					url: vid.url ? vid.url : "",
-					thumbnail: vid.thumbnail?.url ? vid.thumbnail?.url : "",
-					type: vid.type === "playlist" ? "playlist" : "video"
+					video_id: vid.id ? vid.id : ""
 				}
 			})
 
@@ -82,7 +106,7 @@ export default function (client: BotClient) {
 			res.status(200).json({ data: newFav })
 		} catch (err: any) {
 			if (err.code === "P2002") return res.status(400).json({ error: "Already in favorites" })
-			Logger.error(JSON.stringify(err))
+			Logger.error(err)
 			res.status(500).json({ error: err })
 		}
 	})

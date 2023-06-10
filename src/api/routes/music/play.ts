@@ -21,7 +21,7 @@ export default function (client: BotClient) {
 			if (response.status === 200) return res.status(200).json({ message: response.message })
 			return res.status(406).json({ error: response.error })
 		} catch (err) {
-			Logger.error(JSON.stringify(err))
+			Logger.error(err)
 			return res.status(500).json({ error: err })
 		}
 	})

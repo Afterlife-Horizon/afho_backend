@@ -55,6 +55,6 @@ function arrayMove(array, from, to) {
 		}
 		return array
 	} catch (err) {
-		Logger.error(JSON.stringify(err))
+		Logger.error(err)
 	}
 }

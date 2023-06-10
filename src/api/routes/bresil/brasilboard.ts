@@ -16,7 +16,7 @@ export default function (client: BotClient) {
 	return router.get("/", async (_, res) => {
 		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 		try {
-			const bresils = await prisma.bot_bresil.findMany()
+			const bresils = await prisma.bresil_count.findMany()
 
 			const guild = await client.guilds.fetch(client.config.serverID)
 
@@ -25,7 +25,7 @@ export default function (client: BotClient) {
 			await guild.members.fetch()
 
 			const sendData = bresils.map(bresil => {
-				const member = guild.members.cache.find(mem => mem.user.id === bresil.id)
+				const member = guild.members.cache.find(mem => mem.user.id === bresil.user_id)
 				return {
 					user: member,
 					bresil_received: bresil.bresil_received,
@@ -35,7 +35,7 @@ export default function (client: BotClient) {
 
 			res.json(sendData.sort(compareData))
 		} catch (err) {
-			Logger.error(JSON.stringify(err))
+			Logger.error(err)
 			res.status(500).json({ error: "Internal error" })
 		}
 	})

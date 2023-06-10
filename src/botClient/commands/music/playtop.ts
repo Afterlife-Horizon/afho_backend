@@ -87,7 +87,7 @@ export default (client: BotClient): ICommand => {
 						.catch(err => Logger.error(err.message))
 				}
 			} catch (err: any) {
-				Logger.error(JSON.stringify(err))
+				Logger.error(err)
 				return interaction
 					.reply(`❌ Could not play the Song because: \`\`\`${err.message || err}`.substring(0, 1950) + `\`\`\``)
 					.catch(err => Logger.error(err.message))
