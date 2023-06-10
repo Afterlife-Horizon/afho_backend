@@ -15,9 +15,9 @@ export default (client: BotClient) => {
 				const messageMember = interaction.options.getString("member")
 				const memberid = messageMember.replace(/\D/g, "")
 
-				const row = await client.prisma.bot_levels.findUnique({
+				const row = await client.prisma.levels.findUnique({
 					where: {
-						id: memberid
+						user_id: memberid
 					}
 				})
 
