@@ -2,6 +2,8 @@ import { getVoiceConnection } from "@discordjs/voice"
 import BotClient from "../BotClient"
 import { AuditLogEvent, VoiceState } from "discord.js"
 import { Logger } from "../../logger/Logger"
+import { handleAchievements } from "../../functions/handleAchievements"
+import { AchievementType } from "../../types/achievements"
 
 export default function (client: BotClient) {
 	return client.on("voiceStateUpdate", async (oldState, newState) => {
@@ -134,7 +136,7 @@ export default function (client: BotClient) {
 
 			if (!mover || !moved) return
 
-			await client.prisma.bresil_count.upsert({
+			const moved_count = await client.prisma.bresil_count.upsert({
 				where: {
 					user_id: moved.user.id
 				},
@@ -150,7 +152,7 @@ export default function (client: BotClient) {
 				}
 			})
 
-			await client.prisma.bresil_count.upsert({
+			const mover_count = await client.prisma.bresil_count.upsert({
 				where: {
 					user_id: mover.id
 				},
@@ -165,6 +167,9 @@ export default function (client: BotClient) {
 					bresil_sent: 1
 				}
 			})
+
+			await handleAchievements(client, AchievementType.BrasilRecieved, moved.user.id, moved_count.bresil_received)
+			await handleAchievements(client, AchievementType.BrasilSent, mover.id, mover_count.bresil_sent)
 		}
 	}
 

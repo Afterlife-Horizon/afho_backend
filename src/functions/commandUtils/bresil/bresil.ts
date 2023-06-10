@@ -2,6 +2,8 @@ import { GuildMember, VoiceChannel } from "discord.js"
 import type BotClient from "../../../botClient/BotClient"
 import { Logger } from "../../../logger/Logger"
 import { isVoiceChannel } from "../../../functions/discordUtils"
+import { handleAchievements } from "../../../functions/handleAchievements"
+import { AchievementType } from "../../../types/achievements"
 
 export default async function bresil(client: BotClient, mover: GuildMember, moved: GuildMember) {
 	try {
@@ -52,6 +54,9 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 
 		const moveCount = movedUser.bresil_received
 		const moverCount = moverUser.bresil_sent
+
+		await handleAchievements(client, AchievementType.BrasilRecieved, moved.id, moveCount)
+		await handleAchievements(client, AchievementType.BrasilSent, mover.id, moverCount)
 
 		const brasilChannel = client.channels.cache.get(client.config.brasilChannelID)
 		if (!brasilChannel) return { status: 406, error: "Brasil channel not found!" }

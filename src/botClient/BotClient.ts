@@ -32,22 +32,25 @@ import getLevelFromXp from "../functions/getLevelFromXp"
 import type { Fav, Favorite, IClientConfig, ICommand, IEnv, Time, Xp } from "../types"
 import type { IESong, IQueue } from "../types/music"
 import { isTextChannel } from "../functions/discordUtils"
+import { Achievement, AchievementType } from "../types/achievements"
+import { handleAchievements } from "../functions/handleAchievements"
 
 export default class BotClient extends Client {
 	public currentChannel: VoiceChannel | null
 	public prisma: PrismaClient
 	public config: IClientConfig
-	public commands: Map<string, ICommand>
-	public queues: Map<string, IQueue>
-	public favs: Map<string, Videos[]>
-	public connectedMembers: Map<string, User>
+	public commands: Collection<string, ICommand>
+	public queues: Collection<string, IQueue>
+	public favs: Collection<string, Videos[]>
+	public achievements: Collection<string, Achievement[]>
+	public connectedMembers: Collection<string, User>
 	public ready: boolean
 	public passThrought?: PassThrough
 	public stream?: FFmpeg.FfmpegCommand
 	public supabaseClient: SupabaseClient<any, "public", any>
-	public times: Map<string, Date>
-	public timeValues: Map<string, Time>
-	public xps: Map<string, Xp>
+	public times: Collection<string, Date>
+	public timeValues: Collection<string, Time>
+	public xps: Collection<string, Xp>
 
 	constructor(options: ClientOptions, environment: IEnv) {
 		super(options)
@@ -60,6 +63,7 @@ export default class BotClient extends Client {
 		this.commands = new Collection()
 		this.queues = new Collection()
 		this.favs = new Collection()
+		this.achievements = new Collection()
 		this.connectedMembers = new Collection()
 		this.xps = new Collection()
 		this.timeValues = new Collection()
@@ -69,7 +73,7 @@ export default class BotClient extends Client {
 		this.getSpotifyToken()
 		this.currentChannel = null
 		this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
-		this.times = new Map()
+		this.times = new Collection()
 	}
 
 	async stop() {
@@ -91,20 +95,27 @@ export default class BotClient extends Client {
 		const member = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch(id))
 		if (!member) return
 
-		await this.prisma.time_connected.upsert({
-			where: {
-				user_id: id
-			},
-			update: {
-				time_spent: {
-					increment: timeSpentSeconds
+		const res = await this.prisma.time_connected
+			.upsert({
+				where: {
+					user_id: id
+				},
+				update: {
+					time_spent: {
+						increment: timeSpentSeconds
+					}
+				},
+				create: {
+					user_id: id,
+					time_spent: timeSpentSeconds
+				},
+				select: {
+					time_spent: true
 				}
-			},
-			create: {
-				user_id: id,
-				time_spent: timeSpentSeconds
-			}
-		})
+			})
+			.then(res => res.time_spent)
+
+		handleAchievements(this, AchievementType.TIME, id, res)
 	}
 
 	async updateGameFeeds() {
@@ -245,6 +256,7 @@ export default class BotClient extends Client {
 		this.timeValues = new Collection(times.map(time => [time.user.id, time]))
 
 		this.updateFavs()
+		this.updateAcheivements()
 	}
 
 	private async updateFavs() {
@@ -268,6 +280,52 @@ export default class BotClient extends Client {
 			fav.fav.type = fav.fav.type === "video" ? "video" : "playlist"
 			currentFav.push({ ...fav.fav, type: fav.fav.type })
 			this.favs.set(fav.user.id, currentFav)
+		})
+	}
+
+	private async updateAcheivements() {
+		const guild = await this.guilds.fetch(this.config.serverID)
+		if (!guild) return
+		const achievementRows = await this.prisma.achievement_get.findMany()
+		const achievements = await this.prisma.achievements.findMany()
+		const newAchievements: Achievement[] = achievementRows
+			.map(row => {
+				const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
+				if (!member) return null
+				const achievement = achievements.find(ach => ach.name === row.achievement_name)
+				if (!achievement) return null
+
+				let achievementType: AchievementType | undefined
+				switch (achievement.type) {
+					case AchievementType.MESSAGE:
+						achievementType = AchievementType.MESSAGE
+						break
+					case AchievementType.TIME:
+						achievementType = AchievementType.TIME
+						break
+					case AchievementType.BrasilRecieved:
+						achievementType = AchievementType.BrasilRecieved
+						break
+					case AchievementType.BrasilSent:
+						achievementType = AchievementType.BrasilSent
+						break
+					default:
+						achievementType = undefined
+				}
+				if (!achievementType) return null
+
+				return {
+					user: member,
+					currentTitle: achievement.name,
+					type: achievementType
+				}
+			})
+			.filter(achievement => achievement !== null) as Achievement[]
+		this.achievements = new Collection()
+		newAchievements.forEach(achievement => {
+			const currentAchievement = this.achievements.get(achievement.user.id) || []
+			currentAchievement.push(achievement)
+			this.achievements.set(achievement.user.id, currentAchievement)
 		})
 	}
 

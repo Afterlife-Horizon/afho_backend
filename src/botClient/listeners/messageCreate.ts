@@ -2,7 +2,7 @@ import { Logger } from "../../logger/Logger"
 import handleGPTChat from "../../functions/handleGPTChat"
 import BotClient from "../BotClient"
 import { handleAchievements } from "../../functions/handleAchievements"
-import { AchievementType } from "../../types/achievementsEnums"
+import { AchievementType } from "../../types/achievements"
 
 require("dotenv").config()
 

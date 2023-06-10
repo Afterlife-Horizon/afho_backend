@@ -128,7 +128,6 @@ async function timer() {
 		client.times.set(id, new Date())
 	}
 	client.updateCache()
-
 	client.updateGameFeeds()
 
 	setTimeout(timer, 1000 * 60)

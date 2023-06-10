@@ -67,7 +67,9 @@ model Achievement_get {
   achievement   Achievements  @relation(fields: [achievement_name], references: [name])
   achievement_name String @db.VarChar(255)
 
-  @@unique([user_id, achievement_name], map: "user_id_achievement_name")
+  type String @db.VarChar(255)
+
+  @@unique([user_id, type], map: "user_id_type")
 }
 
 model Achievements {

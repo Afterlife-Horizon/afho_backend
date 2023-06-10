@@ -1,3 +1,5 @@
+import { GuildMember } from "discord.js"
+
 export enum AchievementType {
 	MESSAGE = "MESSAGE",
 	TIME = "TIME",
@@ -6,8 +8,8 @@ export enum AchievementType {
 }
 
 export enum MessageAchievementTitle {
-	FIRST = "1000 Messages",
-	SECOND = "2000 Messages",
+	FIRST = "Il est bavard celui-là",
+	SECOND = "Pilier de Bar",
 	THIRD = "Auteur",
 	FOURTH = "Killian"
 }
@@ -35,4 +37,12 @@ export enum BrasilSentAchievementTitle {
 	THIRD = "Cartel des Favelas",
 	FOURTH = "Bolsonaro",
 	FIFTH = "Truck-kun"
+}
+
+export type AchievementTitle = MessageAchievementTitle | TimeAchievementTitle | BrasilSentAchievementTitle | BrasilRecievedAchievementTitle
+
+export type Achievement = {
+	user: GuildMember
+	currentTitle: AchievementTitle
+	type: AchievementType
 }
