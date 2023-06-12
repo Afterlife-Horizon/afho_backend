@@ -65,6 +65,8 @@ export default function (client: BotClient) {
 
 			if (!vid) return res.status(400).json({ error: "No video found" })
 
+			await client.updateDBUser(member)
+
 			let newFav: Favorite | undefined = undefined
 			try {
 				const res = await client.prisma.videos.create({

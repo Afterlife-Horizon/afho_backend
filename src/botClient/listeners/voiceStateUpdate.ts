@@ -131,10 +131,13 @@ export default function (client: BotClient) {
 			if (firstEntry?.executor?.id == client.user?.id) return
 			if (!(newState.channel?.id == client.config.brasilChannelID)) return
 
-			const mover = firstEntry.executor
+			const mover = client.guilds.cache.get(client.config.serverID)?.members.cache.get(firstEntry.executor?.id || "")
 			const moved = newState.member
 
 			if (!mover || !moved) return
+
+			await client.updateDBUser(mover)
+			await client.updateDBUser(moved)
 
 			const moved_count = await client.prisma.bresil_count.upsert({
 				where: {

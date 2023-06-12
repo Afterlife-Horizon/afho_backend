@@ -15,6 +15,8 @@ export default (client: BotClient) => {
 				const messageMember = interaction.options.getString("member")
 				const memberid = messageMember.replace(/\D/g, "")
 
+				const member = interaction.author.member
+				await client.updateDBUser(member)
 				const row = await client.prisma.levels.findUnique({
 					where: {
 						user_id: memberid

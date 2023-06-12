@@ -12,7 +12,7 @@ import {
 	joinVoiceChannel
 } from "@discordjs/voice"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
-import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
+import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, GuildMember, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
 import FFmpeg from "fluent-ffmpeg"
 import fs from "node:fs"
 import path from "node:path"
@@ -94,6 +94,8 @@ export default class BotClient extends Client {
 
 		const member = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch(id))
 		if (!member) return
+
+		await this.updateDBUser(member)
 
 		const res = await this.prisma.time_connected
 			.upsert({
@@ -358,6 +360,38 @@ export default class BotClient extends Client {
 		const fullBars = Math.round(size * (percent / 100))
 		const emptyBars = size - fullBars
 		return `**${full.repeat(fullBars)}${empty.repeat(emptyBars)}**`
+	}
+
+	public async checkIfUserExists(id: string) {
+		const user = this.prisma.users.findUnique({ where: { id } })
+		if (!user) return false
+		return true
+	}
+
+	public async updateDBUser(member: GuildMember) {
+		const userExists = await this.checkIfUserExists(member.user.id)
+		if (userExists) {
+			await this.prisma.users.update({
+				where: { id: member.user.id },
+				data: {
+					id: member.user.id,
+					username: member.user.username,
+					nickname: member.nickname || null,
+					avatar: member.user.avatarURL() || null,
+					roles: member.roles.cache.map(role => role.id).join(","),
+				}
+			})
+			return
+		}
+		await this.prisma.users.create({
+			data: {
+				id: member.user.id,
+				username: member.user.username,
+				nickname: member.nickname || null,
+				avatar: member.user.avatarURL() || null,
+				roles: member.roles.cache.map(role => role.id).join(","),
+			}
+		})
 	}
 
 	/**

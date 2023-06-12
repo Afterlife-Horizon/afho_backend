@@ -20,6 +20,9 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 			return { status: 406, error: "You cannot bresil someone already in bresil!" }
 		if (moved.user.id === client.user?.id) return { status: 406, error: "😨You cannot bresil the bot!" }
 
+		await client.updateDBUser(mover)
+		await client.updateDBUser(moved)
+
 		const movedUser = await client.prisma.bresil_count.upsert({
 			where: {
 				user_id: moved.user.id

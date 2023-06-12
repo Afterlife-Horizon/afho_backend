@@ -10,6 +10,10 @@ export default function (client: BotClient) {
 	return client.on("messageCreate", async message => {
 		if (message.author.bot) return
 
+		const member = message.member
+		if (!member) return
+		await client.updateDBUser(member)
+
 		client.prisma.levels
 			.upsert({
 				where: {
