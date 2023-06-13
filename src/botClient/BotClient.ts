@@ -29,32 +29,94 @@ import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
 
 import getLevelFromXp from "../functions/getLevelFromXp"
-import type { Fav, Favorite, IClientConfig, ICommand, IEnv, Time, Xp } from "../types"
+import type { Fav, IClientConfig, ICommand, IEnv, Time, Xp } from "../types"
 import type { IESong, IQueue } from "../types/music"
 import { isTextChannel } from "../functions/discordUtils"
 import { Achievement, AchievementType } from "../types/achievements"
 import { handleAchievements } from "../functions/handleAchievements"
 
 export default class BotClient extends Client {
+	/**
+	 * The current channel where the bot is connected
+	 */
 	public currentChannel: VoiceChannel | null
+
+	/**
+	 * prisma client
+	 */
 	public prisma: PrismaClient
+
+	/**
+	 * The config passed to the constructor
+	 */
 	public config: IClientConfig
+
+	/**
+	 * The discord commands
+	 */
 	public commands: Collection<string, ICommand>
+
+	/**
+	 * The music queues
+	 */
 	public queues: Collection<string, IQueue>
+
+	/**
+	 * User favorites cache
+	 */
 	public favs: Collection<string, Videos[]>
+
+	/**
+	 * User achievements cache
+	 */
 	public achievements: Collection<string, Achievement[]>
+
+	/**
+	 * User connected members cache
+	 */
 	public connectedMembers: Collection<string, User>
+
+	/**
+	 * Whether the bot is ready or not
+	 */
 	public ready: boolean
+
+	/**
+	 * output stream for ffmpeg
+	 */
 	public passThrought?: PassThrough
+
+	/**
+	 * FFmpeg command to stream audio with filters
+	 */
 	public stream?: FFmpeg.FfmpegCommand
+
+	/**
+	 * Supabase client
+	 */
 	public supabaseClient: SupabaseClient<any, "public", any>
+
+	/**
+	 * Time buffer for connected users
+	 * Equivalent to the time spent in the voice channel after the last push to database
+	 * Used to increment the time passed in the voice channel
+	 */
 	public times: Collection<string, Date>
+
+	/**
+	 * User Time cache
+	 */
 	public timeValues: Collection<string, Time>
+
+	/**
+	 * User xp cache
+	 */
 	public xps: Collection<string, Xp>
 
-	constructor(options: ClientOptions, environment: IEnv) {
+	public constructor(options: ClientOptions, environment: IEnv) {
 		super(options)
 		this.ready = false
+		this.currentChannel = null
 		this.config = environment
 
 		if (environment.reactionRoleChannel) this.config.reactionRoles = reactionRoles
@@ -67,16 +129,18 @@ export default class BotClient extends Client {
 		this.connectedMembers = new Collection()
 		this.xps = new Collection()
 		this.timeValues = new Collection()
+		this.times = new Collection()
+		this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
 
 		this.initCommands()
 		this.initListeners()
 		this.getSpotifyToken()
-		this.currentChannel = null
-		this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
-		this.times = new Collection()
 	}
 
-	async stop() {
+	/**
+	 * Stops the bot gracefully
+	 */
+	public async stop() {
 		const connection = getVoiceConnection(this.config.serverID)
 		if (connection) connection.disconnect()
 
@@ -85,7 +149,10 @@ export default class BotClient extends Client {
 		this.destroy()
 	}
 
-	async pushTime(id: string) {
+	/**
+	 * Pushes the time spent in the voice channel to the database and resets the time buffer
+	 */
+	public async pushTime(id: string) {
 		const time = this.times.get(id)
 		if (!time) return
 
@@ -116,11 +183,15 @@ export default class BotClient extends Client {
 				}
 			})
 			.then(res => res.time_spent)
+			.catch(Logger.error)
 
 		handleAchievements(this, AchievementType.TIME, id, res)
 	}
 
-	async updateGameFeeds() {
+	/**
+	 * check for new game feeds and send them to their channels
+	 */
+	public async updateGameFeeds() {
 		if (this.config.ff14NewsChannelID) {
 			const textChannel = await this.channels.fetch(this.config.ff14NewsChannelID)
 			if (!textChannel) return Logger.error("The ff14 news channel is not found")
@@ -170,17 +241,23 @@ export default class BotClient extends Client {
 		}
 	}
 
-	async initVars() {
+	/**
+	 * Initialize Variables
+	 */
+	public async initVars() {
 		const guild = await this.guilds.fetch(this.config.serverID)
-		const connectedMembers = await guild.members.fetch().then(m => m.filter(m => m.voice.channel).map(m => m.user))
+		const connectedMembers = await guild.members.fetch().then(m => m.filter(m => m.voice.channel && !m.user.bot).map(m => m.user))
 		connectedMembers.forEach(user => {
 			this.connectedMembers.set(user.id, user)
 			if (!user.bot) this.times.set(user.id, new Date())
 		})
-		this.updateCache()
 	}
 
-	async getSpotifyToken() {
+	/**
+	 * fetch the access token for spotify
+	 * @returns The spotify token
+	 */
+	public async getSpotifyToken() {
 		const res = await fetch("https://accounts.spotify.com/api/token", {
 			method: "POST",
 			headers: {
@@ -199,6 +276,9 @@ export default class BotClient extends Client {
 		return data.access_token
 	}
 
+	/**
+	 * Init the commands of the bot
+	 */
 	private initCommands() {
 		const commandsPath = path.join(__dirname, "commands")
 		fs.readdirSync(commandsPath).forEach(dir => {
@@ -214,13 +294,19 @@ export default class BotClient extends Client {
 		})
 	}
 
+	/**
+	 * Init the listeners of the bot
+	 */
 	private initListeners() {
 		interactionCreate(this)
 		messageCreate(this)
 		voiceStateUpdate(this)
 	}
 
-	async updateCache() {
+	/**
+	 * Update the cache of the bot
+	 */
+	public async updateCache() {
 		const guild = await this.guilds.fetch(this.config.serverID)
 		if (!guild) return
 		guild.members.fetch()
@@ -261,6 +347,9 @@ export default class BotClient extends Client {
 		this.updateAcheivements()
 	}
 
+	/**
+	 * Update the achievements cache
+	 */
 	private async updateFavs() {
 		const guild = await this.guilds.fetch(this.config.serverID)
 		if (!guild) return
@@ -285,6 +374,9 @@ export default class BotClient extends Client {
 		})
 	}
 
+	/**
+	 * Updates the achievements cache
+	 */
 	private async updateAcheivements() {
 		const guild = await this.guilds.fetch(this.config.serverID)
 		if (!guild) return
@@ -362,36 +454,37 @@ export default class BotClient extends Client {
 		return `**${full.repeat(fullBars)}${empty.repeat(emptyBars)}**`
 	}
 
-	public async checkIfUserExists(id: string) {
-		const user = this.prisma.users.findUnique({ where: { id } })
-		if (!user) return false
-		return true
+	/**
+	 * Update all users in the database
+	 */
+	public async updateDBUsers() {
+		const users = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch())
+		users.forEach(async member => {
+			await this.updateDBUser(member)
+		})
 	}
 
+	/**
+	 * Update a user in the database
+	 * @param member GuildMember to update in the database
+	 */
 	public async updateDBUser(member: GuildMember) {
-		const userExists = await this.checkIfUserExists(member.user.id)
-		if (userExists) {
-			await this.prisma.users.update({
-				where: { id: member.user.id },
-				data: {
-					id: member.user.id,
-					username: member.user.username,
-					nickname: member.nickname || null,
-					avatar: member.user.avatarURL() || null,
-					roles: member.roles.cache.map(role => role.id).join(","),
-				}
-			})
-			return
-		}
-		await this.prisma.users.create({
-			data: {
+		await this.prisma.users.upsert({
+			where: { id: member.user.id },
+			update: {
+				username: member.user.username,
+				nickname: member.nickname || null,
+				avatar: member.user.avatarURL() || null,
+				roles: member.roles.cache.map(role => role.id).join(","),
+			},
+			create: {
 				id: member.user.id,
 				username: member.user.username,
 				nickname: member.nickname || null,
 				avatar: member.user.avatarURL() || null,
 				roles: member.roles.cache.map(role => role.id).join(","),
 			}
-		})
+		}).catch(Logger.error)
 	}
 
 	/**

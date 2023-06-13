@@ -69,7 +69,7 @@ export default async function bresil(client: BotClient, mover: GuildMember, move
 		await moved.voice.setChannel(brasilChannel)
 		return {
 			status: 200,
-			message: `You have moved ${moved.user.username} to the brasil channel! You have moved ${moveCount} people and have been moved ${moverCount} times!`,
+			message: `You have moved ${moved.user.username} to the brasil channel!\n You have moved ${moverCount} ${moverCount > 1 ? "people" : "person"}!\n ${mover.user.username} has been moved ${moveCount > 1 ? `${moveCount} times` : "once"}!`,
 			moverCount,
 			moveCount
 		}

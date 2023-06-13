@@ -32,9 +32,9 @@ export default function (client: BotClient) {
 					xp: true
 				}
 			})
-			.then(res => {
+			.then(async res => {
 				const messageCount = res.xp
-				handleAchievements(client, AchievementType.MESSAGE, message.author.id, messageCount)
+				await handleAchievements(client, AchievementType.MESSAGE, message.author.id, messageCount)
 			})
 			.catch(Logger.error)
 

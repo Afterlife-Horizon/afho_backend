@@ -29,6 +29,7 @@ import musicAddFav from "./routes/music/addFav"
 import musicRemoveFav from "./routes/music/delFav"
 import times from "./routes/times"
 import test from "./routes/test"
+import achievements from "./routes/achievements"
 import { Logger } from "../logger/Logger"
 
 export default class ExpressClient {
@@ -61,6 +62,7 @@ export default class ExpressClient {
 			.use("/addFav", musicAddFav(this.client))
 			.use("/delFav", musicRemoveFav(this.client))
 			.use("/times", times(this.client))
+			.use("/achievements", achievements(this.client))
 			.use("/test", test(this.client))
 			.listen(PORT, () => {
 				Logger.log("API is now listening on port 4000")

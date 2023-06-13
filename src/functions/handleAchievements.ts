@@ -32,6 +32,7 @@ async function handleMessageAchievements(client: BotClient, id: string, messageC
 
 	if (!enumValue || enumValue === previousAchievement?.currentTitle) return
 
+
 	const achievement: Achievement = {
 		user,
 		currentTitle: enumValue,

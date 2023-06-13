@@ -127,6 +127,7 @@ async function timer() {
 		await client.pushTime(id)
 		client.times.set(id, new Date())
 	}
+	client.updateDBUsers()
 	client.updateCache()
 	client.updateGameFeeds()
 
@@ -136,8 +137,10 @@ async function timer() {
 client.once("ready", async () => {
 	client.ready = true
 	reactionCollector(client)
-	await client.initVars()
 	Logger.log("Logged in as " + client.user?.tag)
+	Logger.log("Waiting for vars to be initialized...")
+	await client.initVars()
+	Logger.log("Vars initialized!")
 	await timer()
 })
 
