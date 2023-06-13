@@ -25,5 +25,10 @@ export const reactionRoles: IReactionRole[] = [
 		description: "Azure Lane",
 		emojiName: "pepesimp",
 		roleID: "1100729180712337468"
+	},
+	{
+		description: "Assetto Corsa",
+		emojiName: "soyjakpoint",
+		roleID: "1118233609573249096"
 	}
 ]
