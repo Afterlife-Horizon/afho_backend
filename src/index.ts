@@ -67,6 +67,7 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 	if (!process.env.YOUTUBE_LOGIN_COOKIE) Logger.warn("No YouTube cookie found, not using cookie for YouTube API")
 	if (process.env.NODE_ENV === "development") Logger.warn("Running in development mode, no webserver will be started")
 	if (!process.env.FF14_NEWS_CHANNEL_ID) Logger.warn("No FF14 news channel ID found, not using FF14 news feed")
+	if (!process.env.VOICEFUNNY) Logger.warn("No voice funny found, not using voice funny")
 }
 
 const environement = {
@@ -87,7 +88,8 @@ const environement = {
 	ff14NewsChannelID: process.env.FF14_NEWS_CHANNEL_ID,
 	reactionRoleChannel: process.env.REACTION_ROLE_CHANNEL_ID,
 	spotifyClientID: process.env.SPOTIFY_CLIENT_ID,
-	spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET
+	spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+	funnySound: process.env.VOICEFUNNY === "0" ? false : true,
 } as IEnv
 
 const options = {

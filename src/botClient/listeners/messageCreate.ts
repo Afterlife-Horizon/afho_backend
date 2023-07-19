@@ -3,6 +3,7 @@ import handleGPTChat from "../../functions/handleGPTChat"
 import BotClient from "../BotClient"
 import { handleAchievements } from "../../functions/handleAchievements"
 import { AchievementType } from "../../types/achievements"
+import { playSound } from "../../functions/playSound"
 
 require("dotenv").config()
 
@@ -37,6 +38,11 @@ export default function (client: BotClient) {
 				await handleAchievements(client, AchievementType.MESSAGE, message.author.id, messageCount)
 			})
 			.catch(Logger.error)
+
+		if (client.config.funnySound) {
+			if (message.content.toLowerCase().includes("quoi")) playSound(client, message, "quoicoube")
+			if (message.content.toLowerCase().includes("yo")) playSound(client, message, "yoooooo")
+		}
 
 		handleGPTChat(client, message)
 	})

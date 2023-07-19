@@ -23,6 +23,7 @@ export interface IEnv {
 	gptChatChannelID?: string
 	ff14NewsChannelID?: string
 	reactionRoleChannel?: string
+	funnySound?: boolean
 }
 
 export interface IClientConfig extends IEnv {
