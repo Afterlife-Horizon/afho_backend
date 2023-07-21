@@ -42,6 +42,15 @@ export default function (client: BotClient) {
 		if (client.config.funnySound) {
 			if (message.content.toLowerCase().includes("quoi")) playSound(client, message, "quoicoube")
 			if (message.content.toLowerCase().includes("yo")) playSound(client, message, "yoooooo")
+			if (message.content.toLowerCase().includes("juif")) playSound(client, message, "raciste")
+			if (message.content.toLowerCase().includes("noir")) playSound(client, message, "raciste")
+			if (message.content.toLowerCase().includes("asia")) playSound(client, message, "raciste")
+			if (message.content.toLowerCase().includes("racisme")) playSound(client, message, "raciste")
+			if (message.content.toLowerCase().includes("raciste")) playSound(client, message, "raciste")
+			if (message.content.toLowerCase().includes("based")) playSound(client, message, "based_bocchi")
+			if (message.content.toLowerCase().includes("omg")) playSound(client, message, "hello")
+			if (message.content.toLowerCase().includes("hello")) playSound(client, message, "hello")
+			if (message.content.toLowerCase().includes("hallo")) playSound(client, message, "hello")
 		}
 
 		handleGPTChat(client, message)
