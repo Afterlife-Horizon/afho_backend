@@ -51,6 +51,12 @@ export default function (client: BotClient) {
 			if (message.content.toLowerCase().includes("omg")) playSound(client, message, "hello")
 			if (message.content.toLowerCase().includes("hello")) playSound(client, message, "hello")
 			if (message.content.toLowerCase().includes("hallo")) playSound(client, message, "hello")
+			if (message.content.toLowerCase().includes("gay")) playSound(client, message, "bander")
+			if (message.content.toLowerCase().includes("baise")) playSound(client, message, "bander")
+			if (message.content.toLowerCase().includes("nik")) playSound(client, message, "bander")
+			if (message.content.toLowerCase().includes("nique")) playSound(client, message, "bander")
+			if (message.content.toLowerCase().includes("pute")) playSound(client, message, "bander")
+			if (message.content.toLowerCase().includes("prime")) playSound(client, message, "optimum_prime")
 		}
 
 		handleGPTChat(client, message)
