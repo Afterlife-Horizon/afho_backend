@@ -12,7 +12,7 @@ model Users {
   username      String      @db.VarChar(255)
   nickname      String?      @db.VarChar(255)
   avatar        String?      @db.VarChar(255)
-  roles         String      @db.VarChar(255)
+  roles         String      @db.LongText
 
   Favorites     Favorites[]
   Levels        Levels[]
