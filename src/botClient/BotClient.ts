@@ -484,7 +484,9 @@ export default class BotClient extends Client {
 				avatar: member.user.avatarURL() || null,
 				roles: member.roles.cache.map(role => role.id).join(","),
 			}
-		}).catch(Logger.error)
+		}).catch(err => {
+			Logger.error(err)
+		})
 	}
 
 	/**
