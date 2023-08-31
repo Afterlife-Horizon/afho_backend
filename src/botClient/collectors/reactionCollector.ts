@@ -94,6 +94,7 @@ async function attachCollector(message: Message, reactionRoles: IReactionRole[])
 }
 
 function addReactions(client: BotClient, message: Message, reactionRoles: IReactionRole[]) {
+	message.reactions.removeAll()
 	for (const { emojiName } of reactionRoles) {
 		const emoji = client.emojis.cache.find(emoji => emoji.name === emojiName)
 		if (!emoji) return Logger.error("Emoji not found")

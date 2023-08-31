@@ -22,14 +22,13 @@ import { PrismaClient, Videos } from "@prisma/client"
 import { PassThrough } from "node:stream"
 import { Video } from "youtube-sr"
 import ytdl, { downloadOptions } from "ytdl-core"
-import { reactionRoles } from "../constante"
 import { Logger } from "../logger/Logger"
 import interactionCreate from "./listeners/interactionCreate"
 import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
 
 import getLevelFromXp from "../functions/getLevelFromXp"
-import type { Fav, IClientConfig, ICommand, IEnv, Time, Xp } from "../types"
+import type { Fav, IClientConfig, ICommand, IEnv, IReactionRole, Time, Xp } from "../types"
 import type { IESong, IQueue } from "../types/music"
 import { isTextChannel } from "../functions/discordUtils"
 import { Achievement, AchievementType } from "../types/achievements"
@@ -119,8 +118,6 @@ export default class BotClient extends Client {
 		this.currentChannel = null
 		this.config = environment
 
-		if (environment.reactionRoleChannel) this.config.reactionRoles = reactionRoles
-
 		this.prisma = new PrismaClient()
 		this.commands = new Collection()
 		this.queues = new Collection()
@@ -132,9 +129,27 @@ export default class BotClient extends Client {
 		this.times = new Collection()
 		this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
 
+		this.initReactionRoles(environment)
 		this.initCommands()
 		this.initListeners()
 		this.getSpotifyToken()
+	}
+
+	/**
+	 * Initializes the role reaction
+	 * @param environment The environment variables
+	**/
+	private async initReactionRoles(environment) {
+		if (environment.reactionRoleChannel) {
+			const res = await this.prisma.role_assignment.findMany({
+				select: {
+					description: true,
+					emojiName: true,
+					roleID: true
+				}
+			})
+			if (environment.reactionRoleChannel) this.config.reactionRoles = res
+		}
 	}
 
 	/**

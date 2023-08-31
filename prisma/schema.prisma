@@ -78,3 +78,10 @@ model Achievements {
   type        String   @db.VarChar(255)
   get         Achievement_get[]
 }
+
+model Role_assignment {
+  id        String    @id @default(uuid())
+  description String @db.VarChar(255)
+  emojiName  String @db.VarChar(255)
+  roleID    String @db.VarChar(255)
+}

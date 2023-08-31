@@ -39,7 +39,7 @@ export default function (client: BotClient) {
 			})
 			.catch(Logger.error)
 
-		if (client.config.funnySound) {
+		if (client.config.funnySound && !message.content.includes("http")) {
 			if (message.content.toLowerCase().includes("quoi")) playSound(client, message, "quoicoube")
 			if (message.content.toLowerCase().includes("yo")) playSound(client, message, "yoooooo")
 			if (message.content.toLowerCase().includes("juif")) playSound(client, message, "raciste")
