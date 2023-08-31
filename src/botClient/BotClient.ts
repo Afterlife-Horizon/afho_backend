@@ -363,7 +363,7 @@ export default class BotClient extends Client {
 	}
 
 	/**
-	 * Update the achievements cache
+	 * Update the Favorites cache
 	 */
 	private async updateFavs() {
 		const guild = await this.guilds.fetch(this.config.serverID)
