@@ -8,33 +8,35 @@ datasource db {
 }
 
 model Users {
-  id            String      @id @db.VarChar(255)
-  username      String      @db.VarChar(255)
-  nickname      String?      @db.VarChar(255)
-  avatar        String?      @db.VarChar(255)
-  roles         String      @db.LongText
+  id           String  @id @db.VarChar(255)
+  username     String  @db.VarChar(255)
+  nickname     String? @db.VarChar(255)
+  avatar       String? @db.VarChar(255)
+  roles        String  @db.LongText
+  lodestone_id String? @db.VarChar(255)
 
-  Favorites     Favorites[]
-  Levels        Levels[]
+  Favorites      Favorites[]
+  Levels         Levels[]
   Time_connected Time_connected[]
-  Bresil_count  Bresil_count[]
-  Achievements  Achievement_get[]
+  Bresil_count   Bresil_count[]
+  Achievements   Achievement_get[]
+  Glamours       Glamours[]
 }
 
 model Levels {
-  user   Users  @relation(fields: [user_id], references: [id])
+  user    Users  @relation(fields: [user_id], references: [id])
   user_id String @id @db.VarChar(255)
   xp      Int
 }
 
 model Time_connected {
-  user   Users  @relation(fields: [user_id], references: [id])
+  user       Users  @relation(fields: [user_id], references: [id])
   user_id    String @id @db.VarChar(255)
-  time_spent Int    @db.Int @default(0)
+  time_spent Int    @default(0) @db.Int
 }
 
 model Bresil_count {
-  user   Users  @relation(fields: [user_id], references: [id])
+  user            Users  @relation(fields: [user_id], references: [id])
   user_id         String @id @db.VarChar(255)
   bresil_received Int    @default(0)
   bresil_sent     Int    @default(0)
@@ -61,11 +63,11 @@ model Videos {
 }
 
 model Achievement_get {
-  user   Users  @relation(fields: [user_id], references: [id])
+  user    Users  @relation(fields: [user_id], references: [id])
   user_id String @db.VarChar(255)
 
-  achievement   Achievements  @relation(fields: [achievement_name], references: [name])
-  achievement_name String @db.VarChar(255)
+  achievement      Achievements @relation(fields: [achievement_name], references: [name])
+  achievement_name String       @db.VarChar(255)
 
   type String @db.VarChar(255)
 
@@ -73,15 +75,25 @@ model Achievement_get {
 }
 
 model Achievements {
-  name        String   @id @db.VarChar(255)
-  requirements String   @db.VarChar(255)
-  type        String   @db.VarChar(255)
-  get         Achievement_get[]
+  name         String            @id @db.VarChar(255)
+  requirements String            @db.VarChar(255)
+  type         String            @db.VarChar(255)
+  get          Achievement_get[]
 }
 
 model Role_assignment {
-  id        String    @id @default(uuid())
+  id          String @id @default(uuid())
   description String @db.VarChar(255)
-  emojiName  String @db.VarChar(255)
-  roleID    String @db.VarChar(255)
+  emojiName   String @db.VarChar(255)
+  roleID      String @db.VarChar(255)
+}
+
+model Glamours {
+  id         String   @id @default(uuid())
+  userId    String  @db.VarChar(255)
+  name       String   @db.VarChar(255)
+  url        String   @db.VarChar(255)
+  date_added DateTime @default(now())
+
+  Users      Users   @relation(fields: [userId], references: [id])
 }
