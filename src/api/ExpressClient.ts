@@ -31,6 +31,8 @@ import times from "./routes/times"
 import test from "./routes/test"
 import addGlamour from "./routes/ff14/addGlamour"
 import achievements from "./routes/achievements"
+import getUser from "./routes/getUser"
+import verifiedUser from "./routes/ff14/verifiedUser"
 import { Logger } from "../logger/Logger"
 
 export default class ExpressClient {
@@ -65,6 +67,8 @@ export default class ExpressClient {
 			.use("/times", times(this.client))
 			.use("/achievements", achievements(this.client))
 			.use("/addGlamour", addGlamour(this.client))
+			.use("/getUser", getUser(this.client))
+			.use("/verifiedUser", verifiedUser(this.client))
 			.use("/test", test(this.client))
 			.listen(PORT, () => {
 				Logger.log("API is now listening on port 4000")
