@@ -50,11 +50,11 @@ async function handleTimeAchievements(client: BotClient, id: string, time: unkno
 
 	let enumValue: AchievementTitle | null = null
 	if (time > 3600000) enumValue = TimeAchievementTitle.SIXTH
-	else if (time > 1800000) enumValue = TimeAchievementTitle.FIFTH
-	else if (time > 720000) enumValue = TimeAchievementTitle.FOURTH
-	else if (time > 360000) enumValue = TimeAchievementTitle.THIRD
-	else if (time > 126000) enumValue = TimeAchievementTitle.SECOND
-	else if (time > 86400) enumValue = TimeAchievementTitle.FIRST
+	else if (time >= 1800000) enumValue = TimeAchievementTitle.FIFTH
+	else if (time >= 720000) enumValue = TimeAchievementTitle.FOURTH
+	else if (time >= 360000) enumValue = TimeAchievementTitle.THIRD
+	else if (time >= 126000) enumValue = TimeAchievementTitle.SECOND
+	else if (time >= 86400) enumValue = TimeAchievementTitle.FIRST
 
 	if (!enumValue || enumValue === previousAchievement?.currentTitle) return
 
@@ -74,11 +74,11 @@ async function handleBrasilRecievedAchievements(client: BotClient, id: string, b
 	if (!user) return Logger.error("handleMessageAchievements: user not found")
 
 	let enumValue: AchievementTitle | null = null
-	if (brasilRecieved > 200) enumValue = BrasilRecievedAchievementTitle.FIFTH
-	else if (brasilRecieved > 100) enumValue = BrasilRecievedAchievementTitle.FOURTH
-	else if (brasilRecieved > 50) enumValue = BrasilRecievedAchievementTitle.THIRD
-	else if (brasilRecieved > 25) enumValue = BrasilRecievedAchievementTitle.SECOND
-	else if (brasilRecieved > 1) enumValue = BrasilRecievedAchievementTitle.FIRST
+	if (brasilRecieved >= 200) enumValue = BrasilRecievedAchievementTitle.FIFTH
+	else if (brasilRecieved >= 100) enumValue = BrasilRecievedAchievementTitle.FOURTH
+	else if (brasilRecieved >= 50) enumValue = BrasilRecievedAchievementTitle.THIRD
+	else if (brasilRecieved >= 25) enumValue = BrasilRecievedAchievementTitle.SECOND
+	else if (brasilRecieved >= 1) enumValue = BrasilRecievedAchievementTitle.FIRST
 
 	if (!enumValue || enumValue === previousAchievement?.currentTitle) return
 
@@ -98,11 +98,11 @@ async function handleBrasilSentAchievements(client: BotClient, id: string, brasi
 	if (!user) return Logger.error("handleMessageAchievements: user not found")
 
 	let enumValue: AchievementTitle | null = null
-	if (brasilSent > 200) enumValue = BrasilSentAchievementTitle.FIFTH
-	else if (brasilSent > 100) enumValue = BrasilSentAchievementTitle.FOURTH
-	else if (brasilSent > 50) enumValue = BrasilSentAchievementTitle.THIRD
-	else if (brasilSent > 25) enumValue = BrasilSentAchievementTitle.SECOND
-	else if (brasilSent > 1) enumValue = BrasilSentAchievementTitle.FIRST
+	if (brasilSent >= 200) enumValue = BrasilSentAchievementTitle.FIFTH
+	else if (brasilSent >= 100) enumValue = BrasilSentAchievementTitle.FOURTH
+	else if (brasilSent >= 50) enumValue = BrasilSentAchievementTitle.THIRD
+	else if (brasilSent >= 25) enumValue = BrasilSentAchievementTitle.SECOND
+	else if (brasilSent >= 1) enumValue = BrasilSentAchievementTitle.FIRST
 
 	if (!enumValue || enumValue === previousAchievement?.currentTitle) return
 
