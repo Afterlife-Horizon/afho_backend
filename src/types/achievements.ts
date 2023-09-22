@@ -20,7 +20,7 @@ export enum TimeAchievementTitle {
 	THIRD = "Mi-Temps",
 	FOURTH = "Intermittent du spectacle",
 	FIFTH = "Allocataire du RSA",
-	SIXTH = "Chômeur"
+	SIXTH = "Nico"
 }
 
 export enum BrasilRecievedAchievementTitle {
