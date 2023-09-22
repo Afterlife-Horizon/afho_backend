@@ -1,12 +1,12 @@
 import { getVoiceConnection } from "@discordjs/voice"
 import BotClient from "../BotClient"
-import { AuditLogEvent, VoiceState } from "discord.js"
+import { AuditLogEvent, Events, VoiceState } from "discord.js"
 import { Logger } from "../../logger/Logger"
 import { handleAchievements } from "../../functions/handleAchievements"
 import { AchievementType } from "../../types/achievements"
 
 export default function (client: BotClient) {
-	return client.on("voiceStateUpdate", async (oldState, newState) => {
+	return client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 		if (newState.id == client.user?.id) return
 
 		client.updateCache()
@@ -47,6 +47,8 @@ export default function (client: BotClient) {
 			Logger.log(`User ${newState.member?.user.username} joined ${newState.channel?.name} in ${newState.guild.name}`)
 			return "join"
 		}
+
+		
 
 		// --------- Server deafen / undeafened ---------
 		if (!oldState.serverDeaf && newState.serverDeaf) {

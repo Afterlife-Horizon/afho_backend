@@ -4,11 +4,12 @@ import BotClient from "../BotClient"
 import { handleAchievements } from "../../functions/handleAchievements"
 import { AchievementType } from "../../types/achievements"
 import { playSound } from "../../functions/playSound"
+import { Events } from "discord.js"
 
 require("dotenv").config()
 
 export default function (client: BotClient) {
-	return client.on("messageCreate", async message => {
+	return client.on(Events.MessageCreate, async message => {
 		if (message.author.bot) return
 
 		const member = message.member

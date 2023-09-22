@@ -1,9 +1,10 @@
+import { Events } from "discord.js"
 import { Logger } from "../../logger/Logger"
 import BotClient from "../BotClient"
 
 export default function (client: BotClient) {
 	return (
-		client.on("interactionCreate", async interaction => {
+		client.on(Events.InteractionCreate, async interaction => {
 			if (!interaction.isChatInputCommand()) return
 
 			const command = client.commands.get(interaction.commandName)
