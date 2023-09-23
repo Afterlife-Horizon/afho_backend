@@ -97,3 +97,9 @@ model Glamours {
 
   Users      Users   @relation(fields: [userId], references: [id])
 }
+
+model Sounds {
+  id         String   @id @default(uuid())
+  word       String   @db.VarChar(255)
+  path        String   @db.VarChar(255)
+}

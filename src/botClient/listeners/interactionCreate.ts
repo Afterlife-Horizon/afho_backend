@@ -8,8 +8,10 @@ export default function (client: BotClient) {
 			if (!interaction.isChatInputCommand()) return
 
 			const command = client.commands.get(interaction.commandName)
-
-			if (!command) return
+			if (!command) {
+				await interaction.reply({ content: "There was an error while executing this command!", ephemeral: true })
+				return 
+			}
 
 			try {
 				Logger.log(`Command ${interaction.commandName} was executed by ${interaction.user.tag} (${interaction.user.id})`)

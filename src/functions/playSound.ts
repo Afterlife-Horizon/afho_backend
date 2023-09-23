@@ -34,7 +34,6 @@ export async function playSound(client: BotClient, message: Message, sound: stri
     connection.subscribe(player)
 
     connection.on(VoiceConnectionStatus.Ready, () => {
-        
         const soundPath = path.join(__dirname, `../assets/sounds/${sound}.mp3`)
         const resource = createAudioResource(soundPath)
         player.play(resource)

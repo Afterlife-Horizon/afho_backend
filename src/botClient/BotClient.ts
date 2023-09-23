@@ -112,6 +112,11 @@ export default class BotClient extends Client {
 	 */
 	public xps: Collection<string, Xp>
 
+	/**
+	 * sound path cache
+	 */
+	public sounds: Collection<string, string>
+
 	public constructor(options: ClientOptions, environment: IEnv) {
 		super(options)
 		this.ready = false
@@ -127,11 +132,12 @@ export default class BotClient extends Client {
 		this.xps = new Collection()
 		this.timeValues = new Collection()
 		this.times = new Collection()
+		this.sounds = new Collection()
 		this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
 
-		this.initReactionRoles(environment)
 		this.initCommands()
 		this.initListeners()
+		this.initReactionRoles(environment)
 		this.getSpotifyToken()
 	}
 
@@ -141,14 +147,18 @@ export default class BotClient extends Client {
 	**/
 	private async initReactionRoles(environment) {
 		if (environment.reactionRoleChannel) {
-			const res = await this.prisma.role_assignment.findMany({
-				select: {
-					description: true,
-					emojiName: true,
-					roleID: true
-				}
-			})
-			if (environment.reactionRoleChannel) this.config.reactionRoles = res
+			try {
+				const res = await this.prisma.role_assignment.findMany({
+					select: {
+						description: true,
+						emojiName: true,
+						roleID: true
+					}
+				})
+				this.config.reactionRoles = res
+			} catch (error) {
+				Logger.error(error)
+			}
 		}
 	}
 
@@ -265,6 +275,11 @@ export default class BotClient extends Client {
 		connectedMembers.forEach(user => {
 			this.connectedMembers.set(user.id, user)
 			if (!user.bot) this.times.set(user.id, new Date())
+		})
+
+		const sounds = await this.prisma.sounds.findMany()
+		sounds.forEach(sound => {
+			this.sounds.set(sound.word, sound.path)
 		})
 	}
 
