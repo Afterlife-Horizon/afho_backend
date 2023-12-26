@@ -76,13 +76,19 @@ This bot is created and designed by myself.
         DATABASE_URL="mysql://user:password@127.0.0.1:3306/myDb" # Database url, encode user, password and myDb with Percent-encoding and replace them in the string
 
         # Discord related variables
-        SERVER_NAME=""                  # name of your server
+        SERVER_ID=""                  # name of your server
         CLIENT_ID=""                    # discord client id
         TOKEN=""                        # discord bot token
+
+        ## channels
         BASE_CHANNEL_ID=""              # id of bot message channel
-        ADMIN_ROLE_ID=""                # id of admin role
-        REACTION_ROLE_CHANNEL_ID=""     # id of reaction role channel / optional
         BRASIL_CHANNEL_ID=""            # id of bresil channel
+        REACTION_ROLE_CHANNEL_ID=""     # id of reaction role channel / optional
+        CHAT_GPT_CHANNEL_ID=""			# id of the chat gpt channel / optional
+        FF14_NEWS_CHANNEL_ID=""         # id for ff14 news / optional
+
+        ## roles
+        ADMIN_ROLE_ID=""                # id of admin role
 
         # website related variables
         WEBSITE_URL="127.0.0.1:8080"    # url of your website: ex: https://google.com
@@ -90,13 +96,19 @@ This bot is created and designed by myself.
         SUPABASE_KEY=""                 # public key from supabase
 
         # optionnal variables
-        # OPENAI_KEY=""                   # openAi key
-        # CHAT_GPT_CHANNEL_ID=""          # id of chat gpt channel
-        # YOUTUBE_LOGIN_COOKIE=""         # youtube cookie
+        OPENAI_KEY=""                   # openAi key
+        CHAT_GPT_CHANNEL_ID=""          # id of chat gpt channel
+        YOUTUBE_LOGIN_COOKIE=""         # youtube cookie
+        SPOTIFY_CLIENT_ID=""			# login id for spotify
+        SPOTIFY_CLIENT_SECRET=""		# spotify secret
+
 
         # add these certificate files if you want to use https
-        # CERT="/home/<USER>/.ssh/<YOUR_CERT_NAME>.crt"             # certificate file
-        # CERT_KEY="/home/<USER>/.ssh/<YOUR_CERT_KEY_NAME>.key"     # private key
+        CERT=""             # certificate file
+        CERT_KEY=""     # private key
+
+        LOG_LEVEL=info                  # debug/info/warn/error
+        VOICEFUNNY=1                    # 1 to turn on
         ```
 
     2. frontend .env
