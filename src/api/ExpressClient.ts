@@ -44,6 +44,9 @@ export default class ExpressClient {
 		const PORT = process.env.PORT || 4000
 		this.app
 			.use(express.json())
+			.get("/", (_, res) => {
+				res.send("Server running correctly")
+			})
 			.use("/levels", levels(this.client))
 			.use("/brasilBoard", brasilBoard(this.client))
 			.use("/connectedMembers", connectedMembers(this.client))
@@ -71,7 +74,7 @@ export default class ExpressClient {
 			.use("/verifiedUser", verifiedUser(this.client))
 			.use("/test", test(this.client))
 			.listen(PORT, () => {
-				Logger.log("API is now listening on port 4000")
+				Logger.log(`API is now listening on port ${PORT}`)
 			})
 	}
 }
