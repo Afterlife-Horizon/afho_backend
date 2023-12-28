@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { ClientOptions, GatewayIntentBits, Partials, REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from "discord.js"
 import BotClient from "./botClient/BotClient"
 import ExpressClient from "./api/ExpressClient"
