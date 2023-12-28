@@ -56,7 +56,7 @@ if (!process.env.WEBSITE_URL) {
 	throw new Error("No website URL found")
 }
 
-if (!process.env.CERT || !process.env.CERT_KEY) Logger.warn("No HTTPS certificate found, using HTTP instead...")
+if (!process.env.CERT || !process.env.CERT_KEY) Logger.warn("No SSL certificate found, using HTTP instead...")
 if (!process.env.OPENAI_KEY || !process.env.CHAT_GPT_CHANNEL_ID) Logger.warn("No OpenAI key found, not using OpenAI API")
 if (!process.env.REACTION_ROLE_CHANNEL_ID) Logger.warn("No roles channel ID found, not using reaction roles")
 if (!process.env.YOUTUBE_LOGIN_COOKIE) Logger.warn("No YouTube cookie found, not using cookie for YouTube API")

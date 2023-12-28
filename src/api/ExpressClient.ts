@@ -35,6 +35,7 @@ import achievements from "./routes/achievements"
 import getUser from "./routes/getUser"
 import verifiedUser from "./routes/ff14/verifiedUser"
 import { Logger } from "../logger/Logger"
+import fs from "fs"
 
 export default class ExpressClient {
 	private server: https.Server | http.Server
@@ -73,7 +74,11 @@ export default class ExpressClient {
 			.use("/getUser", getUser(this.client))
 			.use("/verifiedUser", verifiedUser(this.client))
 		if (client.config.cert && client.config.certKey) {
-			this.server = https.createServer({ key: client.config.certKey, cert: client.config.cert }, this.app)
+			const sslOptions = {
+				key: fs.readFileSync(client.config.certKey),
+				cert: fs.readFileSync(client.config.cert)
+			}
+			this.server = https.createServer(sslOptions, this.app)
 		} else {
 			this.server = http.createServer(this.app)
 		}
