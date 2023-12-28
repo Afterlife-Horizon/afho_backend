@@ -25,47 +25,45 @@ if (process.env.METHOD && process.env.METHOD !== "add" && process.env.METHOD !==
 		Logger.error("No token found")
 		throw new Error("No token found")
 	}
-} else {
-	if (!process.env.DATABASE_URL) {
-		Logger.error("No database URL found")
-		throw new Error("No database URL found")
-	}
-	if (!process.env.TOKEN || !process.env.CLIENT_ID) {
-		Logger.error("No discord token or clientID found")
-		throw new Error("No discord token or clientID found")
-	}
-	if (!process.env.BRASIL_CHANNEL_ID || !process.env.BASE_CHANNEL_ID) {
-		Logger.error("No channel IDs found")
-		throw new Error("No channel IDs found")
-	}
-	if (!process.env.SERVER_ID) {
-		Logger.error("No server ID found")
-		throw new Error("No server ID found")
-	}
-	if (!process.env.ADMIN_ROLE_ID) {
-		Logger.error("No admin role ID found")
-		throw new Error("No admin role ID found")
-	}
-	if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
-		Logger.error("No Supabase credentials found")
-		throw new Error("No Supabase credentials found")
-	}
-	if (!process.env.WEBSITE_URL) {
-		Logger.error("No website URL found")
-		throw new Error("No website URL found")
-	}
-	if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
-		Logger.error("No Spotify credentials found")
-		throw new Error("No Spotify credentials found")
-	}
-	if (!process.env.CERT || !process.env.CERT_KEY) Logger.warn("No HTTPS certificate found, using HTTP instead...")
-	if (!process.env.OPENAI_KEY || !process.env.CHAT_GPT_CHANNEL_ID) Logger.warn("No OpenAI key found, not using OpenAI API")
-	if (!process.env.REACTION_ROLE_CHANNEL_ID) Logger.warn("No roles channel ID found, not using reaction roles")
-	if (!process.env.YOUTUBE_LOGIN_COOKIE) Logger.warn("No YouTube cookie found, not using cookie for YouTube API")
-	if (process.env.NODE_ENV === "development") Logger.warn("Running in development mode, no webserver will be started")
-	if (!process.env.FF14_NEWS_CHANNEL_ID) Logger.warn("No FF14 news channel ID found, not using FF14 news feed")
-	if (!process.env.VOICEFUNNY) Logger.warn("No voice funny found, not using voice funny")
 }
+
+if (!process.env.DATABASE_URL) {
+	Logger.error("No database URL found")
+	throw new Error("No database URL found")
+}
+if (!process.env.TOKEN || !process.env.CLIENT_ID) {
+	Logger.error("No discord token or clientID found")
+	throw new Error("No discord token or clientID found")
+}
+if (!process.env.BRASIL_CHANNEL_ID || !process.env.BASE_CHANNEL_ID) {
+	Logger.error("No channel IDs found")
+	throw new Error("No channel IDs found")
+}
+if (!process.env.SERVER_ID) {
+	Logger.error("No server ID found")
+	throw new Error("No server ID found")
+}
+if (!process.env.ADMIN_ROLE_ID) {
+	Logger.error("No admin role ID found")
+	throw new Error("No admin role ID found")
+}
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+	Logger.error("No Supabase credentials found")
+	throw new Error("No Supabase credentials found")
+}
+if (!process.env.WEBSITE_URL) {
+	Logger.error("No website URL found")
+	throw new Error("No website URL found")
+}
+
+if (!process.env.CERT || !process.env.CERT_KEY) Logger.warn("No HTTPS certificate found, using HTTP instead...")
+if (!process.env.OPENAI_KEY || !process.env.CHAT_GPT_CHANNEL_ID) Logger.warn("No OpenAI key found, not using OpenAI API")
+if (!process.env.REACTION_ROLE_CHANNEL_ID) Logger.warn("No roles channel ID found, not using reaction roles")
+if (!process.env.YOUTUBE_LOGIN_COOKIE) Logger.warn("No YouTube cookie found, not using cookie for YouTube API")
+if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) Logger.warn("No Spotify credentials found")
+if (process.env.NODE_ENV === "development") Logger.warn("Running in development mode, no webserver will be started")
+if (!process.env.FF14_NEWS_CHANNEL_ID) Logger.warn("No FF14 news channel ID found, not using FF14 news feed")
+if (!process.env.VOICEFUNNY) Logger.warn("No voice funny found, not using voice funny")
 
 const environement = {
 	token: process.env.TOKEN,
@@ -87,7 +85,7 @@ const environement = {
 	spotifyClientID: process.env.SPOTIFY_CLIENT_ID,
 	spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 	funnySound: process.env.VOICEFUNNY === "0" ? false : true
-} as IEnv
+} satisfies IEnv
 
 const options = {
 	presence: {
@@ -117,15 +115,12 @@ const options = {
 		repliedUser: false
 	},
 	shards: "auto"
-} as ClientOptions
+} satisfies ClientOptions
 
 const client = new BotClient(options, environement)
 
 async function timer() {
-	for (const [id] of client.times) {
-		await client.pushTime(id)
-		client.times.set(id, new Date())
-	}
+	client.updateTimes()
 	client.updateDBUsers()
 	client.updateCache()
 	client.updateGameFeeds()
@@ -141,18 +136,6 @@ client.once("ready", async () => {
 	await client.initVars()
 	Logger.log("Vars initialized!")
 	await timer()
-})
-
-process.on("SIGTERM", async () => {
-	Logger.log("Gracefully shutting down!")
-	await client.stop()
-	exit(0)
-})
-
-process.on("SIGINT", async () => {
-	Logger.log("Gracefully shutting down!")
-	await client.stop()
-	exit(0)
 })
 
 if (process.env.METHOD) {
@@ -177,9 +160,7 @@ if (process.env.METHOD) {
 			.then(() => exit(0))
 			.catch(console.error)
 	}
-}
-
-if (!process.env.METHOD) {
+} else {
 	new ExpressClient(client)
 
 	// --------- Loging in bot ---------
@@ -188,3 +169,15 @@ if (!process.env.METHOD) {
 		exit(1)
 	})
 }
+
+process.on("SIGTERM", async () => {
+	Logger.log("Gracefully shutting down!")
+	await client.stop()
+	exit(0)
+})
+
+process.on("SIGINT", async () => {
+	Logger.log("Gracefully shutting down!")
+	await client.stop()
+	exit(0)
+})

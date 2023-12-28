@@ -12,7 +12,19 @@ import {
 	joinVoiceChannel
 } from "@discordjs/voice"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
-import { ActivityType, Client, ClientOptions, Collection, Colors, EmbedBuilder, GuildMember, TextChannel, User, VoiceChannel, VoiceState } from "discord.js"
+import {
+	ActivityType,
+	Client,
+	ClientOptions,
+	Collection,
+	Colors,
+	EmbedBuilder,
+	GuildMember,
+	TextChannel,
+	User,
+	VoiceChannel,
+	VoiceState
+} from "discord.js"
 import FFmpeg from "fluent-ffmpeg"
 import fs from "node:fs"
 import path from "node:path"
@@ -138,13 +150,13 @@ export default class BotClient extends Client {
 		this.initCommands()
 		this.initListeners()
 		this.initReactionRoles(environment)
-		this.getSpotifyToken()
+		// this.getSpotifyToken()
 	}
 
 	/**
 	 * Initializes the role reaction
 	 * @param environment The environment variables
-	**/
+	 **/
 	private async initReactionRoles(environment) {
 		if (environment.reactionRoleChannel) {
 			try {
@@ -213,6 +225,13 @@ export default class BotClient extends Client {
 		handleAchievements(this, AchievementType.TIME, id, res)
 	}
 
+	async updateTimes() {
+		for (const [id] of this.times) {
+			await this.pushTime(id)
+			this.times.set(id, new Date())
+		}
+	}
+
 	/**
 	 * check for new game feeds and send them to their channels
 	 */
@@ -222,44 +241,74 @@ export default class BotClient extends Client {
 			if (!textChannel) return Logger.error("The ff14 news channel is not found")
 			if (!isTextChannel(textChannel)) return Logger.error("The ff14 news channel is not a text channel")
 
-			const paser = new Parser()
-			const feed = await paser.parseURL("https://fr.finalfantasyxiv.com/lodestone/news/news.xml")
+			const parser = new Parser()
+			const [newsFeed, topicsFeed] = await Promise.all([
+				parser.parseURL("https://fr.finalfantasyxiv.com/lodestone/news/news.xml"),
+				parser.parseURL("https://fr.finalfantasyxiv.com/lodestone/news/topics.xml")
+			]).then(value => value)
 
-			const lastNews = feed.items[0]
-			const title = lastNews.title
-			const link = lastNews.link
-			const author = lastNews.author
-			const dataString = lastNews.isoDate
-			if (!dataString) return
-			const date = new Date(dataString)
-			const image = "https://lodestonenews.com/images/logo.png"
+			const newsFeedLastDate = newsFeed.items[0].isoDate
+			const topicsFeedLastDate = topicsFeed.items[0].isoDate
+			if (!topicsFeedLastDate || !newsFeedLastDate) return
 
-			if (!title || !link) return
+			const lastNews = newsFeed.items[0]
+			const lastNewsTitle = lastNews.title
+			const lastNewsLink = lastNews.link
+			const lastNewsAuthor = lastNews.author
+			const lastNewsDataString = lastNews.isoDate
+			if (!lastNewsDataString) return
+			const lastNewsDate = new Date(lastNewsDataString)
+			const lastNewsImage = "https://lodestonenews.com/images/logo.png"
 
-			const message = new EmbedBuilder()
-				.setTitle(title)
-				.setThumbnail(image)
+			if (!lastNewsTitle || !lastNewsLink) return
+
+			const embed1 = new EmbedBuilder()
+				.setTitle(lastNewsTitle)
+				.setThumbnail(lastNewsImage)
 				.setDescription(lastNews.contentSnippet?.replace("<br>\n", "\n").slice(0, 2000) || null)
-				.setAuthor({ name: author || null })
+				.setAuthor({ name: lastNewsAuthor || null })
 				.setColor(Colors.Blue)
-				.setTimestamp(date)
-				.setURL(link)
+				.setTimestamp(lastNewsDate)
+				.setURL(lastNewsLink)
+
+			const lastTopic = topicsFeed.items[0]
+			const lastTopicTitle = lastTopic.title
+			const lastTopicLink = lastTopic.link
+			const lastTopicAuthor = lastTopic.author
+			const lastTopicDataString = lastTopic.isoDate
+			if (!lastTopicDataString) return
+			const lastTopicDate = new Date(lastNewsDataString)
+			const lastTopicImage = "https://lodestonenews.com/images/logo.png"
+
+			if (!lastTopicTitle || !lastTopicLink) return
+
+			const embed2 = new EmbedBuilder()
+				.setTitle(lastTopicTitle)
+				.setThumbnail(lastTopicImage)
+				.setDescription(lastTopic.contentSnippet?.replace("<br>\n", "\n").slice(0, 2000) || null)
+				.setAuthor({ name: lastTopicAuthor || null })
+				.setColor(Colors.Blue)
+				.setTimestamp(lastTopicDate)
+				.setURL(lastTopicLink)
+
+			const isSameTime = lastNewsDate.getTime() === lastTopicDate.getTime()
+			const lastest = lastNewsDate < lastTopicDate ? lastTopic : lastNews
 
 			const lastMessage = (await textChannel.messages.fetch()).filter(m => m.author.id === this.user?.id).first()
 			if (!lastMessage) {
 				await textChannel
 					.send({
-						embeds: [message]
+						embeds: isSameTime ? [embed1, embed2] : [lastest.id === lastNews.id ? embed1 : embed2]
 					})
 					.catch(Logger.error)
 			} else {
 				const messageTimeStamp = lastMessage.createdAt.getTime()
-				const dateTimeStamp = date.getTime()
+				const dateTimeStamp = lastest.id === lastNews.id ? lastNewsDate.getTime() : lastTopicDate.getTime()
 
 				if (dateTimeStamp > messageTimeStamp)
 					await textChannel
 						.send({
-							embeds: [message]
+							embeds: isSameTime ? [embed1, embed2] : [lastest.id === lastNews.id ? embed1 : embed2]
 						})
 						.catch(Logger.error)
 			}
@@ -288,6 +337,7 @@ export default class BotClient extends Client {
 	 * @returns The spotify token
 	 */
 	public async getSpotifyToken() {
+		if (!this.config.spotifyClientID || !this.config.spotifyClientSecret) return
 		const res = await fetch("https://accounts.spotify.com/api/token", {
 			method: "POST",
 			headers: {
@@ -499,24 +549,26 @@ export default class BotClient extends Client {
 	 * @param member GuildMember to update in the database
 	 */
 	public async updateDBUser(member: GuildMember) {
-		await this.prisma.users.upsert({
-			where: { id: member.user.id },
-			update: {
-				username: member.user.username,
-				nickname: member.nickname || null,
-				avatar: member.user.avatarURL() || null,
-				roles: member.roles.cache.map(role => role.id).join(","),
-			},
-			create: {
-				id: member.user.id,
-				username: member.user.username,
-				nickname: member.nickname || null,
-				avatar: member.user.avatarURL() || null,
-				roles: member.roles.cache.map(role => role.id).join(","),
-			}
-		}).catch(err => {
-			Logger.error(err)
-		})
+		await this.prisma.users
+			.upsert({
+				where: { id: member.user.id },
+				update: {
+					username: member.user.username,
+					nickname: member.nickname || null,
+					avatar: member.user.avatarURL() || null,
+					roles: member.roles.cache.map(role => role.id).join(",")
+				},
+				create: {
+					id: member.user.id,
+					username: member.user.username,
+					nickname: member.nickname || null,
+					avatar: member.user.avatarURL() || null,
+					roles: member.roles.cache.map(role => role.id).join(",")
+				}
+			})
+			.catch(err => {
+				Logger.error(err)
+			})
 	}
 
 	/**

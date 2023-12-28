@@ -1,6 +1,8 @@
 import express from "express"
 import { Express } from "express"
 import type BotClient from "../botClient/BotClient"
+import http from "http"
+import https from "https"
 
 // ------------ api routes ------------
 import levels from "./routes/levels"
@@ -28,7 +30,6 @@ import musicGetFavs from "./routes/music/getFavs"
 import musicAddFav from "./routes/music/addFav"
 import musicRemoveFav from "./routes/music/delFav"
 import times from "./routes/times"
-import test from "./routes/test"
 import addGlamour from "./routes/ff14/addGlamour"
 import achievements from "./routes/achievements"
 import getUser from "./routes/getUser"
@@ -36,17 +37,16 @@ import verifiedUser from "./routes/ff14/verifiedUser"
 import { Logger } from "../logger/Logger"
 
 export default class ExpressClient {
-	public app: Express
+	private server: https.Server | http.Server
+	private app: Express
 	private client: BotClient
 	constructor(client: BotClient) {
 		this.client = client
 		this.app = express()
-		const PORT = process.env.PORT || 4000
+		const PORT = Number(process.env.PORT) || 4000
 		this.app
 			.use(express.json())
-			.get("/", (_, res) => {
-				res.send("Server running correctly")
-			})
+			.get("/", (_, res) => res.send("Server running correctly"))
 			.use("/levels", levels(this.client))
 			.use("/brasilBoard", brasilBoard(this.client))
 			.use("/connectedMembers", connectedMembers(this.client))
@@ -72,9 +72,15 @@ export default class ExpressClient {
 			.use("/addGlamour", addGlamour(this.client))
 			.use("/getUser", getUser(this.client))
 			.use("/verifiedUser", verifiedUser(this.client))
-			.use("/test", test(this.client))
-			.listen(PORT, () => {
-				Logger.log(`API is now listening on port ${PORT}`)
-			})
+		if (client.config.cert && client.config.certKey) {
+			this.server = https.createServer({ key: client.config.certKey, cert: client.config.cert }, this.app)
+		} else {
+			this.server = http.createServer(this.app)
+		}
+		this.server.on("listening", () => {
+			Logger.log(`API is now listening on port ${PORT}`)
+		})
+		this.server.on("error", err => Logger.error(err))
+		this.server.listen(PORT)
 	}
 }
