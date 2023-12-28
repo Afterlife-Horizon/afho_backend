@@ -70,7 +70,7 @@ This bot is created and designed by myself.
         nano ./.env
         ```
 
-        #### **`./.env`**
+        **`.env`**
 
         ```bash
         DATABASE_URL="mysql://user:password@127.0.0.1:3306/myDb" # Database url, encode user, password and myDb with Percent-encoding and replace them in the string
