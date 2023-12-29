@@ -79,9 +79,8 @@ export default class ExpressClient {
 				cert: fs.readFileSync(client.config.cert)
 			}
 			this.server = https.createServer(sslOptions, this.app)
-		} else {
-			this.server = http.createServer(this.app)
-		}
+		} else this.server = http.createServer(this.app)
+
 		this.server.on("listening", () => {
 			Logger.log(`API is now listening on port ${PORT}`)
 		})
