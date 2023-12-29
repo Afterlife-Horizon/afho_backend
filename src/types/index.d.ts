@@ -24,6 +24,7 @@ export interface IEnv {
 	ff14NewsChannelID?: string
 	reactionRoleChannel?: string
 	funnySound?: boolean
+	birthdayChannelId: string
 }
 
 export interface IClientConfig extends IEnv {

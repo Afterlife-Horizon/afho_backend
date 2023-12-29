@@ -21,6 +21,16 @@ model Users {
   Bresil_count   Bresil_count[]
   Achievements   Achievement_get[]
   Glamours       Glamours[]
+  BirthDate      BirthDate[]
+}
+
+model BirthDate {
+  user            Users     @relation(fields: [user_id], references: [id])
+  user_id         String    @id @db.VarChar(255)
+  birthdate       DateTime
+  displayAge      Boolean   @default(false)
+  annouceBirthday Boolean   @default(true)
+  lastWished      DateTime?
 }
 
 model Levels {
@@ -90,16 +100,16 @@ model Role_assignment {
 
 model Glamours {
   id         String   @id @default(uuid())
-  userId    String  @db.VarChar(255)
+  userId     String   @db.VarChar(255)
   name       String   @db.VarChar(255)
   url        String   @db.VarChar(255)
   date_added DateTime @default(now())
 
-  Users      Users   @relation(fields: [userId], references: [id])
+  Users Users @relation(fields: [userId], references: [id])
 }
 
 model Sounds {
-  id         String   @id @default(uuid())
-  word       String   @db.VarChar(255)
-  path        String   @db.VarChar(255)
+  id   String @id @default(uuid())
+  word String @db.VarChar(255)
+  path String @db.VarChar(255)
 }

@@ -64,6 +64,7 @@ if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) Logger
 if (process.env.NODE_ENV === "development") Logger.warn("Running in development mode, no webserver will be started")
 if (!process.env.FF14_NEWS_CHANNEL_ID) Logger.warn("No FF14 news channel ID found, not using FF14 news feed")
 if (!process.env.VOICEFUNNY) Logger.warn("No voice funny found, not using voice funny")
+if (!process.env.BIRTHDAY_CHANNEL_ID) Logger.warn("No birthday channel id set, using base bot channel")
 
 const environement = {
 	token: process.env.TOKEN,
@@ -84,7 +85,8 @@ const environement = {
 	reactionRoleChannel: process.env.REACTION_ROLE_CHANNEL_ID,
 	spotifyClientID: process.env.SPOTIFY_CLIENT_ID,
 	spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-	funnySound: process.env.VOICEFUNNY === "0" ? false : true
+	funnySound: process.env.VOICEFUNNY === "0" ? false : true,
+	birthdayChannelId: process.env.BIRTHDAY_CHANNEL_ID ? process.env.BIRTHDAY_CHANNEL_ID : process.env.BASE_CHANNEL_ID
 } satisfies IEnv
 
 const options = {
@@ -124,6 +126,7 @@ async function timer() {
 	client.updateDBUsers()
 	client.updateCache()
 	client.updateGameFeeds()
+	client.checkBirthdays()
 
 	setTimeout(timer, 1000 * 60)
 }
@@ -150,7 +153,7 @@ if (process.env.METHOD) {
 		rest.put(Routes.applicationCommands(client.config.clientID), { body: commands })
 			.then((data: any) => Logger.log(`Successfully registered ${data.length} application commands.`))
 			.then(() => exit(0))
-			.catch(console.error)
+			.catch(Logger.error)
 	}
 
 	if (process.env.METHOD === "delete") {
@@ -158,7 +161,7 @@ if (process.env.METHOD) {
 		rest.put(Routes.applicationCommands(client.config.clientID), { body: [] })
 			.then(() => Logger.log("Successfully deleted all application commands."))
 			.then(() => exit(0))
-			.catch(console.error)
+			.catch(Logger.error)
 	}
 } else {
 	new ExpressClient(client)

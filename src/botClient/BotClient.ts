@@ -232,6 +232,47 @@ export default class BotClient extends Client {
 		}
 	}
 
+	public async checkBirthdays() {
+		const birthdays = await this.prisma.birthDate.findMany()
+		const now = new Date()
+
+		const guild = this.guilds.cache.get(this.config.serverID)
+		if (!guild) return Logger.error("Guild not found!")
+
+		const textChannel = await guild.channels.fetch(this.config.birthdayChannelId)
+		if (!textChannel) return Logger.error("Birthday Channel not found!")
+		if (!isTextChannel(textChannel)) return Logger.error("Birthday Channel is not a text channel!")
+
+		for (const birthday of birthdays) {
+			if (!birthday.annouceBirthday || now.getDate() != birthday.birthdate.getDate() || now.getMonth() != birthday.birthdate.getMonth())
+				continue
+			if (!!birthday.lastWished && birthday.lastWished.getFullYear() === now.getFullYear()) continue
+
+			const user = this.users.cache.get(birthday.user_id)
+			if (!user) continue
+
+			const age = now.getFullYear() - birthday.birthdate.getFullYear()
+
+			const embed = new EmbedBuilder()
+				.setAuthor({ name: "🎂 Birthday Annoucement 🎂" })
+				.setColor(Colors.DarkPurple)
+				.setDescription(`Please wish ${user} a Happy Birthday!${birthday.displayAge ? `\n▶ ${user} is now ${age} years old!` : ``} `)
+				.setTimestamp(now)
+				.setFooter({ text: "🎁Happy Birthday" })
+
+			await textChannel.send({ embeds: [embed] }).catch(Logger.error)
+
+			await this.prisma.birthDate.update({
+				where: {
+					user_id: birthday.user_id
+				},
+				data: {
+					lastWished: now
+				}
+			})
+		}
+	}
+
 	/**
 	 * check for new game feeds and send them to their channels
 	 */
