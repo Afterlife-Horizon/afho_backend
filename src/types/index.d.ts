@@ -18,6 +18,7 @@ export interface IEnv {
 	spotifyClientSecret?: string
 	cert?: string
 	certKey?: string
+	caCert?: string
 	openAIKey?: string
 	youtubeCookie?: string
 	gptChatChannelID?: string

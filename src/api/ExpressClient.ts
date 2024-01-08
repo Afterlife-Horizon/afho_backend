@@ -3,6 +3,7 @@ import { Express } from "express"
 import type BotClient from "../botClient/BotClient"
 import http from "http"
 import https from "https"
+import sslRootCAs from "ssl-root-cas"
 
 // ------------ api routes ------------
 import levels from "./routes/levels"
@@ -36,6 +37,7 @@ import getUser from "./routes/getUser"
 import verifiedUser from "./routes/ff14/verifiedUser"
 import { Logger } from "../logger/Logger"
 import fs from "fs"
+import cors from "cors"
 
 export default class ExpressClient {
 	private server: https.Server | http.Server
@@ -47,6 +49,7 @@ export default class ExpressClient {
 		const PORT = Number(process.env.PORT) || 4000
 		this.app
 			.use(express.json())
+			.use(cors())
 			.get("/", (_, res) => res.send("Server running correctly"))
 			.use("/levels", levels(this.client))
 			.use("/brasilBoard", brasilBoard(this.client))
@@ -74,9 +77,15 @@ export default class ExpressClient {
 			.use("/getUser", getUser(this.client))
 			.use("/verifiedUser", verifiedUser(this.client))
 		if (client.config.cert && client.config.certKey) {
+			let cas = sslRootCAs.create()
+			if (process.env.CA_CERT) cas.addFile(client.config.caCert)
+			const hostname = "api.local.afterlifehorizon.net"
+
 			const sslOptions = {
 				key: fs.readFileSync(client.config.certKey),
-				cert: fs.readFileSync(client.config.cert)
+				cert: fs.readFileSync(client.config.cert),
+				ca: cas,
+				servername: hostname
 			}
 			this.server = https.createServer(sslOptions, this.app)
 		} else this.server = http.createServer(this.app)

@@ -16,10 +16,14 @@ export enum FeedType {
 	TOPIC
 }
 
-const parser = new Parser()
+const parser = new Parser({
+	requestOptions: {
+		rejectUnauthorized: false
+	}
+})
 
 export default async function getFinalFantasyFeed(url: string, type: FeedType, itemIndex: number = 0): Promise<FinalFantasyFeed | Error> {
-	const feed = await parser.parseURL(url).catch(Logger.error)
+	const feed = await parser.parseURL(url).catch(err => Logger.error(err))
 	if (!feed) return new Error("Unable to read RSS feed")
 
 	const item = feed.items[itemIndex]

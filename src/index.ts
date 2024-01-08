@@ -57,6 +57,7 @@ if (!process.env.WEBSITE_URL) {
 }
 
 if (!process.env.CERT || !process.env.CERT_KEY) Logger.warn("No SSL certificate found, using HTTP instead...")
+if (process.env.CERT && process.env.CERT_KEY && !process.env.CA_CERT) Logger.warn("No CA certificate found for certificates")
 if (!process.env.OPENAI_KEY || !process.env.CHAT_GPT_CHANNEL_ID) Logger.warn("No OpenAI key found, not using OpenAI API")
 if (!process.env.REACTION_ROLE_CHANNEL_ID) Logger.warn("No roles channel ID found, not using reaction roles")
 if (!process.env.YOUTUBE_LOGIN_COOKIE) Logger.warn("No YouTube cookie found, not using cookie for YouTube API")
@@ -78,6 +79,7 @@ const environement = {
 	supabaseKey: process.env.SUPABASE_KEY,
 	cert: process.env.CERT,
 	certKey: process.env.CERT_KEY,
+	caCert: process.env.CA_CERT,
 	openAIKey: process.env.OPENAI_KEY,
 	youtubeCookie: process.env.YOUTUBE_LOGIN_COOKIE,
 	gptChatChannelID: process.env.CHAT_GPT_CHANNEL_ID,
