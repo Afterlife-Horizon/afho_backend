@@ -1,35 +1,19 @@
-import { SlashCommandBuilder, PermissionFlagsBits  } from "discord.js"
-import type { ICommand } from "../../../types"
-import type BotClient from "../../BotClient"
-import reactionCollector from "../../collectors/reactionCollector"
-import { PrismaClient } from "@prisma/client"
+import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js"
+import type { ICommand } from "#/types"
+import type BotClient from "#/botClient/BotClient"
+import reactionCollector from "#/botClient/collectors/reactionCollector"
 
 export default (client: BotClient): ICommand => {
-	return {
-		data: new SlashCommandBuilder()
-			.setName("addreactionrole")
-			.setDescription("Add a reaction role to the server")
-			.addStringOption(option =>
-				option
-					.setName("roleid")
-					.setDescription("role ID here")
-					.setRequired(true)
-            )
-            .addStringOption(option =>
-                option
-                    .setName("emoji")
-                    .setDescription("emoji here")
-                    .setRequired(true)
-            )
-            .addStringOption(option =>
-                option
-                    .setName("description")
-                    .setDescription("Role Description here")
-                    .setRequired(true)
-			)
+    return {
+        data: new SlashCommandBuilder()
+            .setName("addreactionrole")
+            .setDescription("Add a reaction role to the server")
+            .addStringOption(option => option.setName("roleid").setDescription("role ID here").setRequired(true))
+            .addStringOption(option => option.setName("emoji").setDescription("emoji here").setRequired(true))
+            .addStringOption(option => option.setName("description").setDescription("Role Description here").setRequired(true))
             .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles),
-		async execute(interaction) {
-			const options = interaction.options
+        async execute(interaction) {
+            const options = interaction.options
             const roleID = options.get("roleid")?.value as string
             const emoji = options.get("emoji")?.value as string
             const description = options.get("description")?.value as string
@@ -55,6 +39,6 @@ export default (client: BotClient): ICommand => {
 
             reactionCollector(client)
             interaction.reply("Reaction role added")
-		}
-	}
+        }
+    }
 }

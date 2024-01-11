@@ -31,6 +31,7 @@ This bot is created and designed by myself using ExpressJS and DiscordJS.
     or where ever you want and change the path in the .env file
 
 3.  Create an application:
+
     1.  https://discord.com/developers/applications
     2.  Create a Bot and copy the token for later
     3.  give the bot the necessary permissions presence intent, server members intent and server messages intent
@@ -38,12 +39,12 @@ This bot is created and designed by myself using ExpressJS and DiscordJS.
     5.  Optionally get your youtube account token for the music bot (paste your cookie)
     6.  Create an application on supabase:
 
-    1.  https://supabase.com/
-    2.  in Authentication tab go to URL Configurator and add the url of your website
-    3.  In providers tab enable disord with the client id and secret of your discord application, copy the url
-    4.  go to https://discord.com/developers/applications and add the url to the redirect uri
+    7.  https://supabase.com/
+    8.  in Authentication tab go to URL Configurator and add the url of your website
+    9.  In providers tab enable disord with the client id and secret of your discord application, copy the url
+    10. go to https://discord.com/developers/applications and add the url to the redirect uri
 
-7.  Add all the variables in .env files:
+4.  Add all the variables in .env files:
 
     ```bash
     nano ./.env
@@ -91,19 +92,19 @@ This bot is created and designed by myself using ExpressJS and DiscordJS.
 
     _You can change the app port by adding `PORT=...` variables in the .env_
 
-8.  Install the dependencies:
+5.  Install the dependencies:
 
     ```bash
     npm install
     ```
 
-9.  Start the bot in `/path/to/project/root/`:
+6.  Start the bot in `/path/to/project/root/`:
 
     ```bash
     npm start
     ```
 
-10. Setup pm2 for prod:
+7.  Setup pm2 for prod:
 
     ```bash
     pm2 start dist/index.js --name backend

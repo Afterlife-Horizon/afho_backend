@@ -1,1035 +1,617 @@
 import {
-	AudioPlayer,
-	AudioPlayerStatus,
-	CreateVoiceConnectionOptions,
-	JoinVoiceChannelOptions,
-	NoSubscriberBehavior,
-	VoiceConnectionStatus,
-	createAudioPlayer,
-	createAudioResource,
-	entersState,
-	getVoiceConnection,
-	joinVoiceChannel
+    CreateVoiceConnectionOptions,
+    JoinVoiceChannelOptions,
+    VoiceConnectionStatus,
+    entersState,
+    getVoiceConnection,
+    joinVoiceChannel
 } from "@discordjs/voice"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
-import {
-	ActivityType,
-	Client,
-	ClientOptions,
-	Collection,
-	Colors,
-	EmbedBuilder,
-	GuildMember,
-	TextChannel,
-	User,
-	VoiceChannel,
-	VoiceState
-} from "discord.js"
-import FFmpeg from "fluent-ffmpeg"
+import { Client, ClientOptions, Collection, Colors, EmbedBuilder, GuildMember, User, VoiceChannel, VoiceState } from "discord.js"
 import fs from "node:fs"
 import path from "node:path"
 
 import { PrismaClient, Videos } from "@prisma/client"
-import { PassThrough } from "node:stream"
-import { Video } from "youtube-sr"
-import ytdl, { downloadOptions } from "ytdl-core"
-import { Logger } from "../logger/Logger"
+import { Logger } from "#/logger/Logger"
 import interactionCreate from "./listeners/interactionCreate"
 import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
 
-import getLevelFromXp from "../functions/getLevelFromXp"
-import type { Fav, IClientConfig, ICommand, IEnv, IReactionRole, Time, Xp } from "../types"
-import type { IESong, IQueue } from "../types/music"
-import { isTextChannel } from "../functions/discordUtils"
-import { Achievement, AchievementType } from "../types/achievements"
-import { handleAchievements } from "../functions/handleAchievements"
-import getFinalFantasyFeed, { FeedType } from "../functions/getFinalFantasyFeed"
+import { isTextChannel } from "#/functions/discordUtils"
+import getFinalFantasyFeed, { FeedType } from "#/functions/getFinalFantasyFeed"
+import getLevelFromXp from "#/functions/getLevelFromXp"
+import { handleAchievements } from "#/functions/handleAchievements"
+import type { Fav, IClientConfig, ICommand, IEnv, Time, Xp } from "#/types"
+import { Achievement, AchievementType } from "#/types/achievements"
+import { MusicHamdler as MusicHandler } from "./MusicHandler"
 
 export default class BotClient extends Client {
-	/**
-	 * The current channel where the bot is connected
-	 */
-	public currentChannel: VoiceChannel | null
-
-	/**
-	 * prisma client
-	 */
-	public prisma: PrismaClient
-
-	/**
-	 * The config passed to the constructor
-	 */
-	public config: IClientConfig
-
-	/**
-	 * The discord commands
-	 */
-	public commands: Collection<string, ICommand>
-
-	/**
-	 * The music queues
-	 */
-	public queues: Collection<string, IQueue>
-
-	/**
-	 * User favorites cache
-	 */
-	public favs: Collection<string, Videos[]>
-
-	/**
-	 * User achievements cache
-	 */
-	public achievements: Collection<string, Achievement[]>
-
-	/**
-	 * User connected members cache
-	 */
-	public connectedMembers: Collection<string, User>
-
-	/**
-	 * Whether the bot is ready or not
-	 */
-	public ready: boolean
-
-	/**
-	 * output stream for ffmpeg
-	 */
-	public passThrought?: PassThrough
-
-	/**
-	 * FFmpeg command to stream audio with filters
-	 */
-	public stream?: FFmpeg.FfmpegCommand
-
-	/**
-	 * Supabase client
-	 */
-	public supabaseClient: SupabaseClient<any, "public", any>
-
-	/**
-	 * Time buffer for connected users
-	 * Equivalent to the time spent in the voice channel after the last push to database
-	 * Used to increment the time passed in the voice channel
-	 */
-	public times: Collection<string, Date>
-
-	/**
-	 * User Time cache
-	 */
-	public timeValues: Collection<string, Time>
-
-	/**
-	 * User xp cache
-	 */
-	public xps: Collection<string, Xp>
-
-	/**
-	 * sound path cache
-	 */
-	public sounds: Collection<string, string>
-
-	public constructor(options: ClientOptions, environment: IEnv) {
-		super(options)
-		this.ready = false
-		this.currentChannel = null
-		this.config = environment
-
-		this.prisma = new PrismaClient()
-		this.commands = new Collection()
-		this.queues = new Collection()
-		this.favs = new Collection()
-		this.achievements = new Collection()
-		this.connectedMembers = new Collection()
-		this.xps = new Collection()
-		this.timeValues = new Collection()
-		this.times = new Collection()
-		this.sounds = new Collection()
-		this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
-
-		this.initCommands()
-		this.initListeners()
-		this.initReactionRoles(environment)
-		// this.getSpotifyToken()
-	}
-
-	/**
-	 * Initializes the role reaction
-	 * @param environment The environment variables
-	 **/
-	private async initReactionRoles(environment) {
-		if (environment.reactionRoleChannel) {
-			try {
-				const res = await this.prisma.role_assignment.findMany({
-					select: {
-						description: true,
-						emojiName: true,
-						roleID: true
-					}
-				})
-				this.config.reactionRoles = res
-			} catch (error) {
-				Logger.error(error)
-			}
-		}
-	}
-
-	/**
-	 * Stops the bot gracefully
-	 */
-	public async stop() {
-		const connection = getVoiceConnection(this.config.serverID)
-		if (connection) connection.disconnect()
-
-		for (const [id] of this.times) await this.pushTime(id)
-
-		this.destroy()
-	}
-
-	/**
-	 * Pushes the time spent in the voice channel to the database and resets the time buffer
-	 */
-	public async pushTime(id: string) {
-		const time = this.times.get(id)
-		if (!time) return
-
-		const timeSpent = new Date().getTime() - time.getTime()
-		const timeSpentSeconds = Math.round(timeSpent / 1000)
-
-		const member = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch(id))
-		if (!member) return
-
-		await this.updateDBUser(member)
-
-		const res = await this.prisma.time_connected
-			.upsert({
-				where: {
-					user_id: id
-				},
-				update: {
-					time_spent: {
-						increment: timeSpentSeconds
-					}
-				},
-				create: {
-					user_id: id,
-					time_spent: timeSpentSeconds
-				},
-				select: {
-					time_spent: true
-				}
-			})
-			.then(res => res.time_spent)
-			.catch(Logger.error)
-
-		handleAchievements(this, AchievementType.TIME, id, res)
-	}
-
-	async updateTimes() {
-		for (const [id] of this.times) {
-			await this.pushTime(id)
-			this.times.set(id, new Date())
-		}
-	}
-
-	public async checkBirthdays() {
-		const birthdays = await this.prisma.birthDate.findMany()
-		const now = new Date()
-
-		const guild = this.guilds.cache.get(this.config.serverID)
-		if (!guild) return Logger.error("Guild not found!")
-
-		const textChannel = await guild.channels.fetch(this.config.birthdayChannelId)
-		if (!textChannel) return Logger.error("Birthday Channel not found!")
-		if (!isTextChannel(textChannel)) return Logger.error("Birthday Channel is not a text channel!")
-
-		for (const birthday of birthdays) {
-			if (!birthday.annouceBirthday || now.getDate() != birthday.birthdate.getDate() || now.getMonth() != birthday.birthdate.getMonth())
-				continue
-			if (!!birthday.lastWished && birthday.lastWished.getFullYear() === now.getFullYear()) continue
-
-			const user = this.users.cache.get(birthday.user_id)
-			if (!user) continue
-
-			const age = now.getFullYear() - birthday.birthdate.getFullYear()
-
-			const embed = new EmbedBuilder()
-				.setAuthor({ name: "🎂 Birthday Annoucement 🎂" })
-				.setColor(Colors.DarkPurple)
-				.setDescription(`Please wish ${user} a Happy Birthday!${birthday.displayAge ? `\n▶ ${user} is now ${age} years old!` : ``} `)
-				.setTimestamp(now)
-				.setFooter({ text: "🎁Happy Birthday" })
-
-			await textChannel.send({ embeds: [embed] }).catch(Logger.error)
-
-			await this.prisma.birthDate.update({
-				where: {
-					user_id: birthday.user_id
-				},
-				data: {
-					lastWished: now
-				}
-			})
-		}
-	}
-
-	/**
-	 * check for new game feeds and send them to their channels
-	 */
-	public async updateGameFeeds() {
-		if (!this.config.ff14NewsChannelID) return
-		const textChannel = await this.channels.fetch(this.config.ff14NewsChannelID)
-		if (!textChannel) return Logger.error("The ff14 news channel is not found")
-		if (!isTextChannel(textChannel)) return Logger.error("The ff14 news channel is not a text channel")
-
-		const [newsFeed, topicsFeed] = await Promise.all([
-			getFinalFantasyFeed("https://fr.finalfantasyxiv.com/lodestone/news/news.xml", FeedType.NEWS),
-			getFinalFantasyFeed("https://fr.finalfantasyxiv.com/lodestone/news/topics.xml", FeedType.TOPIC)
-		]).then(value => value)
-
-		if (newsFeed instanceof Error) return Logger.error(newsFeed)
-		if (topicsFeed instanceof Error) return Logger.error(topicsFeed)
-
-		const embed1 = new EmbedBuilder()
-			.setTitle(newsFeed.title)
-			.setThumbnail(newsFeed.image)
-			.setDescription(newsFeed.message)
-			.setAuthor({ name: newsFeed.author })
-			.setColor(Colors.Blue)
-			.setTimestamp(newsFeed.date)
-			.setURL(newsFeed.link)
-
-		const embed2 = new EmbedBuilder()
-			.setTitle(topicsFeed.title)
-			.setThumbnail(topicsFeed.image)
-			.setDescription(topicsFeed.message)
-			.setAuthor({ name: topicsFeed.author })
-			.setColor(Colors.Gold)
-			.setTimestamp(topicsFeed.date)
-			.setURL(topicsFeed.link)
-
-		const isSameTime = newsFeed.date.getTime() === topicsFeed.date.getTime()
-		const lastest = newsFeed.date < topicsFeed.date ? topicsFeed : newsFeed
-
-		const lastMessage = (await textChannel.messages.fetch()).filter(m => m.author.id === this.user?.id).first()
-		if (!lastMessage) {
-			await textChannel
-				.send({
-					embeds: isSameTime ? [embed1, embed2] : [lastest.id === newsFeed.id ? embed1 : embed2]
-				})
-				.catch(Logger.error)
-			return
-		}
-
-		const messageTimeStamp = lastMessage.createdAt.getTime()
-		const dateTimeStamp = lastest.id === newsFeed.id ? newsFeed.date.getTime() : topicsFeed.date.getTime()
-
-		if (dateTimeStamp > messageTimeStamp)
-			await textChannel
-				.send({
-					embeds: isSameTime ? [embed1, embed2] : [lastest.id === newsFeed.id ? embed1 : embed2]
-				})
-				.catch(Logger.error)
-	}
-
-	/**
-	 * Initialize Variables
-	 */
-	public async initVars() {
-		const guild = await this.guilds.fetch(this.config.serverID)
-		const connectedMembers = await guild.members.fetch().then(m => m.filter(m => m.voice.channel && !m.user.bot).map(m => m.user))
-		connectedMembers.forEach(user => {
-			this.connectedMembers.set(user.id, user)
-			if (!user.bot) this.times.set(user.id, new Date())
-		})
-
-		const sounds = await this.prisma.sounds.findMany()
-		sounds.forEach(sound => {
-			this.sounds.set(sound.word, sound.path)
-		})
-	}
-
-	/**
-	 * fetch the access token for spotify
-	 * @returns The spotify token
-	 */
-	public async getSpotifyToken() {
-		if (!this.config.spotifyClientID || !this.config.spotifyClientSecret) return
-		const res = await fetch("https://accounts.spotify.com/api/token", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/x-www-form-urlencoded"
-			},
-			body: new URLSearchParams({
-				grant_type: "client_credentials",
-				client_id: this.config.spotifyClientID,
-				client_secret: this.config.spotifyClientSecret
-			})
-		})
-
-		if (!res.ok) return Logger.error(`Error while getting the spotify token:\n${JSON.stringify(res)}`)
-
-		const data = await res.json()
-		return data.access_token
-	}
-
-	/**
-	 * Init the commands of the bot
-	 */
-	private initCommands() {
-		const commandsPath = path.join(__dirname, "commands")
-		fs.readdirSync(commandsPath).forEach(dir => {
-			const directorypath = path.join(commandsPath, dir)
-			fs.readdirSync(directorypath)
-				.filter(file => file.endsWith(".js"))
-				.forEach(file => {
-					const filePath = path.join(directorypath, file)
-					const { default: commandFunction } = require(filePath)
-					const command = commandFunction(this)
-					this.commands.set(command.data.name, command)
-				})
-		})
-	}
-
-	/**
-	 * Init the listeners of the bot
-	 */
-	private initListeners() {
-		interactionCreate(this)
-		messageCreate(this)
-		voiceStateUpdate(this)
-	}
-
-	/**
-	 * Update the cache of the bot
-	 */
-	public async updateCache() {
-		const guild = await this.guilds.fetch(this.config.serverID)
-		if (!guild) return
-		guild.members.fetch()
-		guild.channels.fetch()
-		guild.roles.fetch()
-		guild.emojis.fetch()
-
-		const xpRows = await this.prisma.levels.findMany()
-		const xps = xpRows
-			.map(row => {
-				const level = getLevelFromXp(row.xp)
-				const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
-				if (!member) return null
-				return {
-					user: member,
-					xp: row.xp,
-					lvl: level
-				}
-			})
-			.filter(xp => xp !== null) as Xp[]
-		this.xps = new Collection(xps.map(xp => [xp.user.id, xp]))
-
-		const timeRows = await this.prisma.time_connected.findMany()
-
-		const times = timeRows
-			.map(row => {
-				const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
-				if (!member) return null
-				return {
-					user: member,
-					time_spent: row.time_spent
-				}
-			})
-			.filter(time => time !== null) as Time[]
-		this.timeValues = new Collection(times.map(time => [time.user.id, time]))
-
-		this.updateFavs()
-		this.updateAcheivements()
-	}
-
-	/**
-	 * Update the Favorites cache
-	 */
-	private async updateFavs() {
-		const guild = await this.guilds.fetch(this.config.serverID)
-		if (!guild) return
-		const favRows = await this.prisma.favorites.findMany()
-		const videos = await this.prisma.videos.findMany()
-		const favs = favRows
-			.map(row => {
-				const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
-				if (!member) return null
-				return {
-					user: member,
-					fav: videos.find(video => video.id === row.video_id)
-				}
-			})
-			.filter(fav => fav !== null) as Fav[]
-		this.favs = new Collection()
-		favs.forEach(fav => {
-			const currentFav = this.favs.get(fav.user.id) || []
-			fav.fav.type = fav.fav.type === "video" ? "video" : "playlist"
-			currentFav.push({ ...fav.fav, type: fav.fav.type })
-			this.favs.set(fav.user.id, currentFav)
-		})
-	}
-
-	/**
-	 * Updates the achievements cache
-	 */
-	private async updateAcheivements() {
-		const guild = await this.guilds.fetch(this.config.serverID)
-		if (!guild) return
-		const achievementRows = await this.prisma.achievement_get.findMany()
-		const achievements = await this.prisma.achievements.findMany()
-		const newAchievements: Achievement[] = achievementRows
-			.map(row => {
-				const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
-				if (!member) return null
-				const achievement = achievements.find(ach => ach.name === row.achievement_name)
-				if (!achievement) return null
-
-				let achievementType: AchievementType | undefined
-				switch (achievement.type) {
-					case AchievementType.MESSAGE:
-						achievementType = AchievementType.MESSAGE
-						break
-					case AchievementType.TIME:
-						achievementType = AchievementType.TIME
-						break
-					case AchievementType.BrasilRecieved:
-						achievementType = AchievementType.BrasilRecieved
-						break
-					case AchievementType.BrasilSent:
-						achievementType = AchievementType.BrasilSent
-						break
-					default:
-						achievementType = undefined
-				}
-				if (!achievementType) return null
-
-				return {
-					user: member,
-					currentTitle: achievement.name,
-					type: achievementType
-				}
-			})
-			.filter(achievement => achievement !== null) as Achievement[]
-		this.achievements = new Collection()
-		newAchievements.forEach(achievement => {
-			const currentAchievement = this.achievements.get(achievement.user.id) || []
-			currentAchievement.push(achievement)
-			this.achievements.set(achievement.user.id, currentAchievement)
-		})
-	}
-
-	/**
-	 *
-	 * @param ms time in milliseconds
-	 * @returns string of the given time in minutes:seconds format
-	 */
-	public formatDuration(ms: number) {
-		let sec = Math.floor((ms / 1000) % 60)
-		let min = Math.floor((ms / (1000 * 60)) % 60)
-		const hrs = Math.floor((ms / (1000 * 60 * 60)) % 24)
-		if (sec >= 60) sec = 0
-		if (min >= 60) min = 0
-		if (hrs > 1) return `${this.m2(hrs)}:${this.m2(min)}:${this.m2(sec)}`
-		return `${this.m2(min)}:${this.m2(sec)}`
-	}
-
-	/**
-	 *
-	 * @param duration duration of the song
-	 * @param position current position of the song
-	 * @returns a string with the progress bar
-	 */
-	public createBar(duration: number, position: number) {
-		const full = "▰"
-		const empty = "▱"
-		const size = "▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱".length
-		const percent = duration == 0 ? 0 : Math.floor((position / duration) * 100)
-		const fullBars = Math.round(size * (percent / 100))
-		const emptyBars = size - fullBars
-		return `**${full.repeat(fullBars)}${empty.repeat(emptyBars)}**`
-	}
-
-	/**
-	 * Update all users in the database
-	 */
-	public async updateDBUsers() {
-		const users = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch())
-		users.forEach(async member => {
-			await this.updateDBUser(member)
-		})
-	}
-
-	/**
-	 * Update a user in the database
-	 * @param member GuildMember to update in the database
-	 */
-	public async updateDBUser(member: GuildMember) {
-		await this.prisma.users
-			.upsert({
-				where: { id: member.user.id },
-				update: {
-					username: member.user.username,
-					nickname: member.nickname || null,
-					avatar: member.user.avatarURL() || null,
-					roles: member.roles.cache.map(role => role.id).join(",")
-				},
-				create: {
-					id: member.user.id,
-					username: member.user.username,
-					nickname: member.nickname || null,
-					avatar: member.user.avatarURL() || null,
-					roles: member.roles.cache.map(role => role.id).join(",")
-				}
-			})
-			.catch(err => {
-				Logger.error(err)
-			})
-	}
-
-	/**
-	 *
-	 * @returns string of the current time in hours:minutes:seconds.milliseconds format
-	 */
-	public getTime() {
-		const date = new Date()
-		return `${this.m2(date.getHours())}:${this.m2(date.getMinutes())}:${this.m2(date.getSeconds())}.${this.m3(date.getMilliseconds())}`
-	}
-
-	/**
-	 *
-	 * @param id youtube video id
-	 * @returns the youtube link of the given id
-	 */
-	public getYTLink(id: string) {
-		return `https://www.youtube.com/watch?v=${id}`
-	}
-
-	/**
-	 *
-	 * @param channel voice channel to join
-	 * @returns a promise that resolves when the bot joins the voice channel
-	 */
-	public async joinVoiceChannel(channel: VoiceChannel): Promise<string> {
-		const networkStateChangeHandler = (_: VoiceState, newNetworkState: VoiceState) => {
-			const newUdp = Reflect.get(newNetworkState, "udp")
-			clearInterval(newUdp?.keepAliveInterval)
-		}
-		return new Promise((res, rej) => {
-			const oldConnection = getVoiceConnection(channel.guild.id)
-			if (oldConnection) return rej("I'm already connected in: <#" + oldConnection.joinConfig.channelId + ">")
-
-			const options = {
-				channelId: channel.id,
-				guildId: channel.guild.id,
-				adapterCreator: channel.guild.voiceAdapterCreator
-			} as CreateVoiceConnectionOptions & JoinVoiceChannelOptions
-
-			const newConnection = joinVoiceChannel(options)
-
-			newConnection.on(VoiceConnectionStatus.Disconnected, async () => {
-				try {
-					await Promise.race([
-						entersState(newConnection, VoiceConnectionStatus.Signalling, 5_000),
-						entersState(newConnection, VoiceConnectionStatus.Connecting, 5_000)
-					])
-				} catch (error) {
-					newConnection.destroy()
-				}
-			})
-
-			newConnection.on(VoiceConnectionStatus.Destroyed, () => {
-				this.queues.delete(channel.guild.id)
-			})
-
-			newConnection.on("stateChange", (oldState, newState) => {
-				const oldNetworking = Reflect.get(oldState, "networking")
-				const newNetworking = Reflect.get(newState, "networking")
-
-				oldNetworking?.off("stateChange", networkStateChangeHandler)
-				newNetworking?.on("stateChange", networkStateChangeHandler)
-			})
-
-			this.currentChannel = channel
-			return res("Connected to the Voice Channel")
-		})
-	}
-
-	/**
-	 *
-	 * @param channel voice channel to leave
-	 * @returns a promise that resolves when the bot leaves the voice channel
-	 */
-	public async leaveVoiceChannel(channel: VoiceChannel) {
-		return new Promise((res, rej) => {
-			const oldConnection = getVoiceConnection(channel.guild.id)
-			if (oldConnection) {
-				if (oldConnection.joinConfig.channelId != channel.id) return rej("We aren't in the same channel!")
-				try {
-					oldConnection.destroy()
-					this.currentChannel = null
-					return res(true)
-				} catch (e) {
-					this.currentChannel = null
-					return rej(e)
-				}
-			} else {
-				this.currentChannel = null
-				return rej("I'm not connected somwhere.")
-			}
-		})
-	}
-
-	/**
-	 *
-	 * @param queue queue of the guild
-	 * @param songInfoId id of the song
-	 * @param seekTime time to seek to in milliseconds
-	 * @returns a discord audio resource
-	 */
-	public getResource(queue: IQueue, songInfoId: string, seekTime: number) {
-		try {
-			let Qargs = ""
-			const effects = queue.effects
-
-			if (effects.normalizer) Qargs += `,dynaudnorm=f=200`
-			if (effects.bassboost) Qargs += `,bass=g=${effects.bassboost}`
-			if (effects.speed) Qargs += `,atempo=${effects.speed}`
-			if (effects["3d"]) Qargs += `,apulsator=hz=0.03`
-			if (effects.subboost) Qargs += `,asubboost`
-			if (effects.mcompand) Qargs += `,mcompand`
-			if (effects.haas) Qargs += `,haas`
-			if (effects.gate) Qargs += `,agate`
-			if (effects.karaoke) Qargs += `,stereotools=mlev=0.03`
-			if (effects.flanger) Qargs += `,flanger`
-			if (effects.pulsator) Qargs += `,apulsator=hz=1`
-			if (effects.surrounding) Qargs += `,surround`
-			if (effects.vaporwave) Qargs += `,aresample=48000,asetrate=48000*0.8`
-			if (effects.nightcore) Qargs += `,aresample=48000,asetrate=48000*1.5`
-			if (effects.phaser) Qargs += `,aphaser=in_gain=0.4`
-			if (effects.tremolo) Qargs += `,tremolo`
-			if (effects.vibrato) Qargs += `,vibrato=f=6.5`
-			if (effects.reverse) Qargs += `,areverse`
-			if (effects.treble) Qargs += `,treble=g=5`
-			if (Qargs.startsWith(",")) Qargs = Qargs.substring(1)
-
-			const encoderArgs = Qargs ? ["-af", Qargs] : ["-af", "bass=g=2,dynaudnorm=f=200"]
-
-			const requestOpts: downloadOptions = {
-				filter: "audioonly",
-				highWaterMark: 1 << 62,
-				liveBuffer: 1 << 62,
-				dlChunkSize: 0,
-				// begin: seekTime,
-				quality: "highestaudio"
-			}
-
-			if (this.config.youtubeCookie && this.config.youtubeCookie.length > 10) {
-				requestOpts.requestOptions = {
-					headers: {
-						cookie: this.config.youtubeCookie
-					}
-				}
-			}
-
-			const readable = ytdl(this.getYTLink(songInfoId), requestOpts)
-			if (!readable) throw new Error("No readable stream found")
-
-			readable.on("error", err => Logger.error(err.message))
-			readable.on("close", () => Logger.log("readable closed"))
-
-			this.passThrought = new PassThrough()
-
-			this.stream = FFmpeg(readable)
-				.audioChannels(2)
-				.audioBitrate(128)
-				.audioFrequency(48000)
-				.audioCodec("libmp3lame")
-				.addOptions(encoderArgs)
-				.seekInput(this.formatDuration(seekTime))
-				.format("mp3")
-				.output(this.passThrought)
-				.on("error", err => null)
-			this.stream.run()
-
-			this.passThrought.on("error", () => readable.destroy())
-			this.passThrought.on("close", () => {
-				readable.destroy()
-				this.stream = undefined
-				this.passThrought = undefined
-			})
-
-			const resource = createAudioResource(this.passThrought)
-
-			const volume = queue && queue.volume && queue.volume <= 100 && queue.volume > 1 ? queue.volume / 100 : 1
-			resource.volume?.setVolume(volume)
-			resource.playbackDuration = seekTime
-
-			const playing = `${queue.tracks[0]?.title} / ${queue.tracks[0]?.channel?.name}`
-
-			const user = this.user
-			if (user) {
-				user.setPresence({
-					status: "online",
-					activities: [
-						{
-							name: playing,
-							type: ActivityType.Listening
-						}
-					]
-				})
-			}
-			Logger.log(`Playing ${playing}`)
-
-			return resource
-		} catch (e) {
-			Logger.error(JSON.stringify(e))
-			return null
-		}
-	}
-
-	/**
-	 *
-	 * @param channel voice channel to play in
-	 * @param songInfo song to play
-	 * @returns a promise that resolves when the song is played
-	 */
-	public async playSong(channel: VoiceChannel, songInfo: Video) {
-		return new Promise((res, rej) => {
-			const oldConnection = getVoiceConnection(channel.guildId)
-			if (oldConnection) {
-				if (oldConnection.joinConfig.channelId != channel.id) return rej("We aren't in the same channel!")
-				try {
-					const curQueue = this.queues.get(channel.guildId)
-
-					if (!curQueue) return rej("No queue found")
-
-					const player = createAudioPlayer({
-						behaviors: {
-							noSubscriber: NoSubscriberBehavior.Stop
-						}
-					})
-					oldConnection.subscribe(player)
-
-					if (!songInfo.id) return rej("No song id found")
-
-					const resource = this.getResource(curQueue, songInfo.id, 0)
-					if (!resource) return rej("No resource found")
-
-					player.play(resource)
-
-					player.on(AudioPlayerStatus.Playing, () => {
-						const queue = this.queues.get(channel.guildId)
-						if (queue && queue.filtersChanged) {
-							queue.filtersChanged = false
-						} else {
-							this.sendQueueUpdate(channel.guildId)
-						}
-					})
-
-					player.on(AudioPlayerStatus.Idle, () => {
-						const queue = this.queues.get(channel.guildId)
-						if (!queue || !queue.tracks || queue.tracks.length == 0) return
-						this.handleQueue(player, queue)
-					})
-
-					player.on("error", error => {
-						Logger.error(`Error, playing next song: ${error.message}`)
-						const queue = this.queues.get(channel.guildId)
-						if (!queue || !queue.tracks || queue.tracks.length == 0) return
-
-						this.handleQueue(player, queue)
-					})
-
-					return res(songInfo)
-				} catch (e) {
-					console.error(e)
-					return rej(e)
-				}
-			} else {
-				return rej("I'm not connected somwhere.")
-			}
-		})
-	}
-
-	/**
-	 * Sends an update to the queue
-	 * @param guildId id of the guild
-	 * @returns true
-	 */
-	public async sendQueueUpdate(guildId: string) {
-		const queue = this.queues.get(guildId)
-		if (!queue || !queue.tracks || queue.tracks.length == 0) return false
-
-		const channel =
-			(await this.channels.fetch(this.config.baseChannelID).catch(err => Logger.error(err.message))) ||
-			(await this.channels.fetch(queue.textChannel).catch(err => Logger.error(err.message)))
-		const textChannel = channel?.isTextBased() ? (channel as TextChannel) : null
-		if (!textChannel) return false
-
-		const song = queue.tracks[0]
-
-		const songEmbed = new EmbedBuilder()
-			.setColor(Colors.Fuchsia)
-			.setTitle(`${song.title}`)
-			.setURL(this.getYTLink(song.id ? song.id : ""))
-			.addFields(
-				{ name: `**Duration:**`, value: `> \`${song.durationFormatted}\``, inline: true },
-				{ name: `**Requester:**`, value: `> ${song.requester}`, inline: true }
-			)
-		if (song?.thumbnail?.url) songEmbed.setImage(`${song?.thumbnail?.url}`)
-
-		textChannel
-			.send({
-				embeds: [songEmbed]
-			})
-			.catch(console.warn)
-		return true
-	}
-
-	/**
-	 *
-	 * @param song song to create
-	 * @param requester requester of the song
-	 * @returns the song with the requester
-	 */
-	public createSong(song: Video, requester: User) {
-		return { ...song, requester } as IESong
-	}
-
-	/**
-	 *
-	 * @param length length of the queue
-	 * @returns the position in the queue
-	 */
-	public queuePos(length: number) {
-		const str: { [key: number]: string } = {
-			1: "st",
-			2: "nd",
-			3: "rd"
-		}
-		return `${length}${str[length % 10] ? str[length % 10] : "th"}`
-	}
-
-	/**
-	 *
-	 * @param length length of the queue
-	 * @returns a queue
-	 */
-	public createQueue(song: Video, user: User, channelId: string, bitrate = 128) {
-		return {
-			textChannel: channelId,
-			paused: false,
-			skipped: false,
-			effects: {
-				bassboost: 0,
-				subboost: false,
-				mcompand: false,
-				haas: false,
-				gate: false,
-				karaoke: false,
-				flanger: false,
-				pulsator: false,
-				surrounding: false,
-				"3d": false,
-				vaporwave: false,
-				nightcore: false,
-				phaser: false,
-				normalizer: false,
-				speed: 1,
-				tremolo: false,
-				vibrato: false,
-				reverse: false,
-				treble: false
-			},
-			trackloop: false,
-			queueloop: false,
-			filtersChanged: false,
-			volume: 15,
-			tracks: [this.createSong(song, user)],
-			previous: undefined,
-			creator: user,
-			bitrate: bitrate
-		} as IQueue
-	}
-
-	/**
-	 *
-	 * @param ms time to delay
-	 * @returns a promise that resolves after the time
-	 */
-	public async delay(ms: number) {
-		return new Promise(r => setTimeout(() => r(2), ms))
-	}
-
-	/**
-	 * handle the queue
-	 * @param client client to use
-	 * @param player player to use
-	 * @param queue queue to use
-	 */
-	public async handleQueue(player: AudioPlayer, queue: IQueue) {
-		if (queue && !queue.filtersChanged) {
-			try {
-				player.stop()
-				const user = this.user
-				if (user) {
-					user.setPresence({
-						status: "online",
-						activities: [
-							{
-								name: "for commands",
-								type: ActivityType.Watching
-							}
-						]
-					})
-				}
-				if (queue && queue.tracks && queue.tracks.length > 1) {
-					queue.previous = queue.tracks[0]
-					if (queue.trackloop && !queue.skipped) {
-						if (queue.paused) queue.paused = false
-
-						const ressource = this.getResource(queue, queue.tracks[0].id, 0)
-						if (!ressource) return
-						player.play(ressource)
-					} else if (queue.queueloop && !queue.skipped) {
-						const skipped = queue.tracks.shift()
-						if (!skipped) return
-						queue.tracks.push(skipped)
-						if (queue.paused) queue.paused = false
-						const ressource = this.getResource(queue, queue.tracks[0].id, 0)
-						if (!ressource) return
-						player.play(ressource)
-					} else {
-						if (queue.skipped) queue.skipped = false
-						if (queue.paused) queue.paused = false
-						queue.tracks.shift()
-						const ressource = this.getResource(queue, queue.tracks[0].id, 0)
-						if (!ressource) return
-						player.play(ressource)
-					}
-				} else if (queue && queue.tracks && queue.tracks.length <= 1) {
-					queue.previous = queue.tracks[0]
-					if (queue.trackloop || (queue.queueloop && !queue.skipped)) {
-						const ressource = this.getResource(queue, queue.tracks[0].id, 0)
-						if (!ressource) return
-						player.play(ressource)
-					} else {
-						if (queue.skipped) queue.skipped = false
-						queue.tracks = []
-					}
-				}
-			} catch (e) {
-				Logger.error(JSON.stringify(e))
-			}
-		}
-	}
-
-	private m2(t: number) {
-		return t < 10 ? `0${t}` : `${t}`
-	}
-	private m3(t: number) {
-		return t < 100 ? `0${this.m2(t)}` : `${t}`
-	}
+    public musicHandler: MusicHandler
+
+    /**
+     * The current channel where the bot is connected
+     */
+    public currentChannel: VoiceChannel | null
+
+    /**
+     * prisma client
+     */
+    public prisma: PrismaClient
+
+    /**
+     * The config passed to the constructor
+     */
+    public config: IClientConfig
+
+    /**
+     * The discord commands
+     */
+    public commands: Collection<string, ICommand>
+
+    /**
+     * User favorites cache
+     */
+    public favs: Collection<string, Videos[]>
+
+    /**
+     * User achievements cache
+     */
+    public achievements: Collection<string, Achievement[]>
+
+    /**
+     * User connected members cache
+     */
+    public connectedMembers: Collection<string, User>
+
+    /**
+     * Whether the bot is ready or not
+     */
+    public ready: boolean
+
+    /**
+     * Supabase client
+     */
+    public supabaseClient: SupabaseClient<any, "public", any>
+
+    /**
+     * Time buffer for connected users
+     * Equivalent to the time spent in the voice channel after the last push to database
+     * Used to increment the time passed in the voice channel
+     */
+    public times: Collection<string, Date>
+
+    /**
+     * User Time cache
+     */
+    public timeValues: Collection<string, Time>
+
+    /**
+     * User xp cache
+     */
+    public xps: Collection<string, Xp>
+
+    /**
+     * sound path cache
+     */
+    public sounds: Collection<string, string>
+
+    public constructor(options: ClientOptions, environment: IEnv) {
+        super(options)
+        this.ready = false
+        this.currentChannel = null
+        this.config = environment
+
+        this.prisma = new PrismaClient()
+        this.commands = new Collection()
+        this.favs = new Collection()
+        this.achievements = new Collection()
+        this.connectedMembers = new Collection()
+        this.xps = new Collection()
+        this.timeValues = new Collection()
+        this.times = new Collection()
+        this.sounds = new Collection()
+        this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
+
+        this.musicHandler = new MusicHandler(this)
+
+        this.initCommands()
+        this.initListeners()
+        this.initReactionRoles(environment)
+        // this.getSpotifyToken()
+    }
+
+    /**
+     * Initializes the role reaction
+     * @param environment The environment variables
+     **/
+    private async initReactionRoles(environment) {
+        if (environment.reactionRoleChannel) {
+            try {
+                const res = await this.prisma.role_assignment.findMany({
+                    select: {
+                        description: true,
+                        emojiName: true,
+                        roleID: true
+                    }
+                })
+                this.config.reactionRoles = res
+            } catch (error) {
+                Logger.error(error)
+            }
+        }
+    }
+
+    /**
+     * Stops the bot gracefully
+     */
+    public async stop() {
+        const connection = getVoiceConnection(this.config.serverID)
+        if (connection) connection.disconnect()
+
+        for (const [id] of this.times) await this.pushTime(id)
+
+        this.destroy()
+    }
+
+    /**
+     * Pushes the time spent in the voice channel to the database and resets the time buffer
+     */
+    public async pushTime(id: string) {
+        const time = this.times.get(id)
+        if (!time) return
+
+        const timeSpent = new Date().getTime() - time.getTime()
+        const timeSpentSeconds = Math.round(timeSpent / 1000)
+
+        const member = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch(id))
+        if (!member) return
+
+        await this.updateDBUser(member)
+
+        const res = await this.prisma.time_connected
+            .upsert({
+                where: {
+                    user_id: id
+                },
+                update: {
+                    time_spent: {
+                        increment: timeSpentSeconds
+                    }
+                },
+                create: {
+                    user_id: id,
+                    time_spent: timeSpentSeconds
+                },
+                select: {
+                    time_spent: true
+                }
+            })
+            .then(res => res.time_spent)
+            .catch(Logger.error)
+
+        handleAchievements(this, AchievementType.TIME, id, res)
+    }
+
+    async updateTimes() {
+        for (const [id] of this.times) {
+            await this.pushTime(id)
+            this.times.set(id, new Date())
+        }
+    }
+
+    public async checkBirthdays() {
+        const birthdays = await this.prisma.birthDate.findMany()
+        const now = new Date()
+
+        const guild = this.guilds.cache.get(this.config.serverID)
+        if (!guild) return Logger.error("Guild not found!")
+
+        const textChannel = await guild.channels.fetch(this.config.birthdayChannelId)
+        if (!textChannel) return Logger.error("Birthday Channel not found!")
+        if (!isTextChannel(textChannel)) return Logger.error("Birthday Channel is not a text channel!")
+
+        for (const birthday of birthdays) {
+            if (!birthday.annouceBirthday || now.getDate() != birthday.birthdate.getDate() || now.getMonth() != birthday.birthdate.getMonth())
+                continue
+            if (!!birthday.lastWished && birthday.lastWished.getFullYear() === now.getFullYear()) continue
+
+            const user = this.users.cache.get(birthday.user_id)
+            if (!user) continue
+
+            const age = now.getFullYear() - birthday.birthdate.getFullYear()
+
+            const embed = new EmbedBuilder()
+                .setAuthor({ name: "🎂 Birthday Annoucement 🎂" })
+                .setColor(Colors.DarkPurple)
+                .setDescription(`Please wish ${user} a Happy Birthday!${birthday.displayAge ? `\n▶ ${user} is now ${age} years old!` : ``} `)
+                .setTimestamp(now)
+                .setFooter({ text: "🎁Happy Birthday" })
+
+            await textChannel.send({ embeds: [embed] }).catch(Logger.error)
+
+            await this.prisma.birthDate.update({
+                where: {
+                    user_id: birthday.user_id
+                },
+                data: {
+                    lastWished: now
+                }
+            })
+        }
+    }
+
+    /**
+     * check for new game feeds and send them to their channels
+     */
+    public async updateGameFeeds() {
+        if (!this.config.ff14NewsChannelID) return
+        const textChannel = await this.channels.fetch(this.config.ff14NewsChannelID)
+        if (!textChannel) return Logger.error("The ff14 news channel is not found")
+        if (!isTextChannel(textChannel)) return Logger.error("The ff14 news channel is not a text channel")
+
+        const [newsFeed, topicsFeed] = await Promise.all([
+            getFinalFantasyFeed("https://fr.finalfantasyxiv.com/lodestone/news/news.xml", FeedType.NEWS),
+            getFinalFantasyFeed("https://fr.finalfantasyxiv.com/lodestone/news/topics.xml", FeedType.TOPIC)
+        ]).then(value => value)
+
+        if (newsFeed instanceof Error) return Logger.error(newsFeed)
+        if (topicsFeed instanceof Error) return Logger.error(topicsFeed)
+
+        const embed1 = new EmbedBuilder()
+            .setTitle(newsFeed.title)
+            .setThumbnail(newsFeed.image)
+            .setDescription(newsFeed.message)
+            .setAuthor({ name: newsFeed.author })
+            .setColor(Colors.Blue)
+            .setTimestamp(newsFeed.date)
+            .setURL(newsFeed.link)
+
+        const embed2 = new EmbedBuilder()
+            .setTitle(topicsFeed.title)
+            .setThumbnail(topicsFeed.image)
+            .setDescription(topicsFeed.message)
+            .setAuthor({ name: topicsFeed.author })
+            .setColor(Colors.Gold)
+            .setTimestamp(topicsFeed.date)
+            .setURL(topicsFeed.link)
+
+        const isSameTime = newsFeed.date.getTime() === topicsFeed.date.getTime()
+        const lastest = newsFeed.date < topicsFeed.date ? topicsFeed : newsFeed
+
+        const lastMessage = (await textChannel.messages.fetch()).filter(m => m.author.id === this.user?.id).first()
+        if (!lastMessage) {
+            await textChannel
+                .send({
+                    embeds: isSameTime ? [embed1, embed2] : [lastest.id === newsFeed.id ? embed1 : embed2]
+                })
+                .catch(Logger.error)
+            return
+        }
+
+        const messageTimeStamp = lastMessage.createdAt.getTime()
+        const dateTimeStamp = lastest.id === newsFeed.id ? newsFeed.date.getTime() : topicsFeed.date.getTime()
+
+        if (dateTimeStamp > messageTimeStamp)
+            await textChannel
+                .send({
+                    embeds: isSameTime ? [embed1, embed2] : [lastest.id === newsFeed.id ? embed1 : embed2]
+                })
+                .catch(Logger.error)
+    }
+
+    /**
+     * Initialize Variables
+     */
+    public async initVars() {
+        const guild = await this.guilds.fetch(this.config.serverID)
+        const connectedMembers = await guild.members.fetch().then(m => m.filter(m => m.voice.channel && !m.user.bot).map(m => m.user))
+        connectedMembers.forEach(user => {
+            this.connectedMembers.set(user.id, user)
+            if (!user.bot) this.times.set(user.id, new Date())
+        })
+
+        const sounds = await this.prisma.sounds.findMany()
+        sounds.forEach(sound => {
+            this.sounds.set(sound.word, sound.path)
+        })
+    }
+
+    /**
+     * fetch the access token for spotify
+     * @returns The spotify token
+     */
+    public async getSpotifyToken() {
+        if (!this.config.spotifyClientID || !this.config.spotifyClientSecret) return
+        const res = await fetch("https://accounts.spotify.com/api/token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+                grant_type: "client_credentials",
+                client_id: this.config.spotifyClientID,
+                client_secret: this.config.spotifyClientSecret
+            })
+        })
+
+        if (!res.ok) return Logger.error(`Error while getting the spotify token:\n${JSON.stringify(res)}`)
+
+        const data = await res.json()
+        return data.access_token
+    }
+
+    /**
+     * Init the commands of the bot
+     */
+    private initCommands() {
+        const commandsPath = path.join(__dirname, "commands")
+        fs.readdirSync(commandsPath).forEach(dir => {
+            const directorypath = path.join(commandsPath, dir)
+            fs.readdirSync(directorypath)
+                .filter(file => file.endsWith(".js"))
+                .forEach(file => {
+                    const filePath = path.join(directorypath, file)
+                    const { default: commandFunction } = require(filePath)
+                    const command = commandFunction(this)
+                    this.commands.set(command.data.name, command)
+                })
+        })
+    }
+
+    /**
+     * Init the listeners of the bot
+     */
+    private initListeners() {
+        interactionCreate(this)
+        messageCreate(this)
+        voiceStateUpdate(this)
+    }
+
+    /**
+     * Update the cache of the bot
+     */
+    public async updateCache() {
+        const guild = await this.guilds.fetch(this.config.serverID)
+        if (!guild) return
+        guild.members.fetch()
+        guild.channels.fetch()
+        guild.roles.fetch()
+        guild.emojis.fetch()
+
+        const xpRows = await this.prisma.levels.findMany()
+        const xps = xpRows
+            .map(row => {
+                const level = getLevelFromXp(row.xp)
+                const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
+                if (!member) return null
+                return {
+                    user: member,
+                    xp: row.xp,
+                    lvl: level
+                }
+            })
+            .filter(xp => xp !== null) as Xp[]
+        this.xps = new Collection(xps.map(xp => [xp.user.id, xp]))
+
+        const timeRows = await this.prisma.time_connected.findMany()
+
+        const times = timeRows
+            .map(row => {
+                const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
+                if (!member) return null
+                return {
+                    user: member,
+                    time_spent: row.time_spent
+                }
+            })
+            .filter(time => time !== null) as Time[]
+        this.timeValues = new Collection(times.map(time => [time.user.id, time]))
+
+        this.updateFavs()
+        this.updateAcheivements()
+    }
+
+    /**
+     * Update the Favorites cache
+     */
+    private async updateFavs() {
+        const guild = await this.guilds.fetch(this.config.serverID)
+        if (!guild) return
+        const favRows = await this.prisma.favorites.findMany()
+        const videos = await this.prisma.videos.findMany()
+        const favs = favRows
+            .map(row => {
+                const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
+                if (!member) return null
+                return {
+                    user: member,
+                    fav: videos.find(video => video.id === row.video_id)
+                }
+            })
+            .filter(fav => fav !== null) as Fav[]
+        this.favs = new Collection()
+        favs.forEach(fav => {
+            const currentFav = this.favs.get(fav.user.id) || []
+            fav.fav.type = fav.fav.type === "video" ? "video" : "playlist"
+            currentFav.push({ ...fav.fav, type: fav.fav.type })
+            this.favs.set(fav.user.id, currentFav)
+        })
+    }
+
+    /**
+     * Updates the achievements cache
+     */
+    private async updateAcheivements() {
+        const guild = await this.guilds.fetch(this.config.serverID)
+        if (!guild) return
+        const achievementRows = await this.prisma.achievement_get.findMany()
+        const achievements = await this.prisma.achievements.findMany()
+        const newAchievements: Achievement[] = achievementRows
+            .map(row => {
+                const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
+                if (!member) return null
+                const achievement = achievements.find(ach => ach.name === row.achievement_name)
+                if (!achievement) return null
+
+                let achievementType: AchievementType | undefined
+                switch (achievement.type) {
+                    case AchievementType.MESSAGE:
+                        achievementType = AchievementType.MESSAGE
+                        break
+                    case AchievementType.TIME:
+                        achievementType = AchievementType.TIME
+                        break
+                    case AchievementType.BrasilRecieved:
+                        achievementType = AchievementType.BrasilRecieved
+                        break
+                    case AchievementType.BrasilSent:
+                        achievementType = AchievementType.BrasilSent
+                        break
+                    default:
+                        achievementType = undefined
+                }
+                if (!achievementType) return null
+
+                return {
+                    user: member,
+                    currentTitle: achievement.name,
+                    type: achievementType
+                }
+            })
+            .filter(achievement => achievement !== null) as Achievement[]
+        this.achievements = new Collection()
+        newAchievements.forEach(achievement => {
+            const currentAchievement = this.achievements.get(achievement.user.id) || []
+            currentAchievement.push(achievement)
+            this.achievements.set(achievement.user.id, currentAchievement)
+        })
+    }
+
+    /**
+     *
+     * @param duration duration of the song
+     * @param position current position of the song
+     * @returns a string with the progress bar
+     */
+    public createBar(duration: number, position: number) {
+        const full = "▰"
+        const empty = "▱"
+        const size = "▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱".length
+        const percent = duration == 0 ? 0 : Math.floor((position / duration) * 100)
+        const fullBars = Math.round(size * (percent / 100))
+        const emptyBars = size - fullBars
+        return `**${full.repeat(fullBars)}${empty.repeat(emptyBars)}**`
+    }
+
+    /**
+     * Update all users in the database
+     */
+    public async updateDBUsers() {
+        const users = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch())
+        users.forEach(async member => {
+            await this.updateDBUser(member)
+        })
+    }
+
+    /**
+     * Update a user in the database
+     * @param member GuildMember to update in the database
+     */
+    public async updateDBUser(member: GuildMember) {
+        await this.prisma.users
+            .upsert({
+                where: { id: member.user.id },
+                update: {
+                    username: member.user.username,
+                    nickname: member.nickname || null,
+                    avatar: member.user.avatarURL() || null,
+                    roles: member.roles.cache.map(role => role.id).join(",")
+                },
+                create: {
+                    id: member.user.id,
+                    username: member.user.username,
+                    nickname: member.nickname || null,
+                    avatar: member.user.avatarURL() || null,
+                    roles: member.roles.cache.map(role => role.id).join(",")
+                }
+            })
+            .catch(err => {
+                Logger.error(err)
+            })
+    }
+
+    /**
+     *
+     * @param channel voice channel to join
+     * @returns a promise that resolves when the bot joins the voice channel
+     */
+    public async joinVoiceChannel(channel: VoiceChannel): Promise<string> {
+        const networkStateChangeHandler = (_: VoiceState, newNetworkState: VoiceState) => {
+            const newUdp = Reflect.get(newNetworkState, "udp")
+            clearInterval(newUdp?.keepAliveInterval)
+        }
+        return new Promise((res, rej) => {
+            const oldConnection = getVoiceConnection(channel.guild.id)
+            if (oldConnection) return rej("I'm already connected in: <#" + oldConnection.joinConfig.channelId + ">")
+
+            const options = {
+                channelId: channel.id,
+                guildId: channel.guild.id,
+                adapterCreator: channel.guild.voiceAdapterCreator
+            } as CreateVoiceConnectionOptions & JoinVoiceChannelOptions
+
+            const newConnection = joinVoiceChannel(options)
+
+            newConnection.on(VoiceConnectionStatus.Disconnected, async () => {
+                try {
+                    await Promise.race([
+                        entersState(newConnection, VoiceConnectionStatus.Signalling, 5_000),
+                        entersState(newConnection, VoiceConnectionStatus.Connecting, 5_000)
+                    ])
+                } catch (error) {
+                    newConnection.destroy()
+                }
+            })
+
+            newConnection.on(VoiceConnectionStatus.Destroyed, () => {
+                this.musicHandler.queues.delete(channel.guild.id)
+            })
+
+            newConnection.on("stateChange", (oldState, newState) => {
+                const oldNetworking = Reflect.get(oldState, "networking")
+                const newNetworking = Reflect.get(newState, "networking")
+
+                oldNetworking?.off("stateChange", networkStateChangeHandler)
+                newNetworking?.on("stateChange", networkStateChangeHandler)
+            })
+
+            this.currentChannel = channel
+            return res("Connected to the Voice Channel")
+        })
+    }
+
+    /**
+     *
+     * @param channel voice channel to leave
+     * @returns a promise that resolves when the bot leaves the voice channel
+     */
+    public async leaveVoiceChannel(channel: VoiceChannel) {
+        return new Promise((res, rej) => {
+            const oldConnection = getVoiceConnection(channel.guild.id)
+            if (oldConnection) {
+                if (oldConnection.joinConfig.channelId != channel.id) return rej("We aren't in the same channel!")
+                try {
+                    oldConnection.destroy()
+                    this.currentChannel = null
+                    return res(true)
+                } catch (e) {
+                    this.currentChannel = null
+                    return rej(e)
+                }
+            } else {
+                this.currentChannel = null
+                return rej("I'm not connected somwhere.")
+            }
+        })
+    }
 }

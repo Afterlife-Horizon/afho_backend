@@ -1,6 +1,7 @@
 node_modules
 .next
 .vscode
+.trunk
 dist
 tsconfig.json
 src/deploy-commands.ts

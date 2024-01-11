@@ -1,156 +1,183 @@
 import { getVoiceConnection } from "@discordjs/voice"
-import { GuildMember, TextChannel, VoiceChannel } from "discord.js"
 import YouTube, { Playlist, Video } from "youtube-sr"
-import getSongNameFromSpotify from "../../../functions/getInfoFromSpotify"
-import { Logger } from "../../../logger/Logger"
-import type BotClient from "../../../botClient/BotClient"
-import type { IFunctionResponse } from "../../../types"
-import { isTextChannel, isVoiceChannel } from "../../../functions/discordUtils"
+import type BotClient from "#/botClient/BotClient"
+import { isTextChannel, isVoiceChannel } from "#/functions/discordUtils"
+import getSongNameFromSpotify from "#/functions/getInfoFromSpotify"
+import { Logger } from "#/logger/Logger"
+import type { IFunctionResponse } from "#/types"
 
 export default async function play(client: BotClient, user: string, songs: string): Promise<IFunctionResponse> {
-	try {
-		const guild = client.guilds.cache.get(client.config.serverID)
-		const requester = client.connectedMembers.get(user)
+    try {
+        const guild = client.guilds.cache.get(client.config.serverID)
+        const requester = client.connectedMembers.get(user)
 
-		if (!guild) return { status: 406, error: "Guild not found!" }
-		if (!requester) return { status: 406, error: "You are not connected to a voice channel!" }
+        if (!guild) return { status: 406, error: "Guild not found!" }
+        if (!requester)
+            return {
+                status: 406,
+                error: "You are not connected to a voice channel!"
+            }
 
-		const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.find(m => m.user.username === requester.username) !== undefined)
-		if (!voiceChannel) return { status: 406, error: "You are not connected to a voice channel!" }
-		if (!isVoiceChannel(voiceChannel)) return { status: 406, error: "You are not connected to a voice channel!" }
-		client.currentChannel = voiceChannel
+        const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.find(m => m.user.username === requester.username) !== undefined)
+        if (!voiceChannel)
+            return {
+                status: 406,
+                error: "You are not connected to a voice channel!"
+            }
+        if (!isVoiceChannel(voiceChannel))
+            return {
+                status: 406,
+                error: "You are not connected to a voice channel!"
+            }
+        client.currentChannel = voiceChannel
 
-		const channel = client.channels.cache.get(client.config.baseChannelID)
-		if (!channel) return { status: 406, error: "Could not find the base channel!" }
-		if (!isTextChannel(channel)) return { status: 406, error: "Could not find the base channel!" }
+        const channel = client.channels.cache.get(client.config.baseChannelID)
+        if (!channel) return { status: 406, error: "Could not find the base channel!" }
+        if (!isTextChannel(channel)) return { status: 406, error: "Could not find the base channel!" }
 
-		let queue = client.queues.get(client.currentChannel.guildId)
-		const oldConnection = getVoiceConnection(client.currentChannel.guildId)
+        let queue = client.musicHandler.queues.get(client.currentChannel.guildId)
+        const oldConnection = getVoiceConnection(client.currentChannel.guildId)
 
-		if (!oldConnection) {
-			try {
-				await client.joinVoiceChannel(client.currentChannel)
-			} catch (err) {
-				Logger.error(err)
-				return { status: 406, error: `Could not join Voice Channel!` }
-			}
-		}
+        if (!oldConnection) {
+            try {
+                await client.joinVoiceChannel(client.currentChannel)
+            } catch (err) {
+                Logger.error(err)
+                return { status: 406, error: `Could not join Voice Channel!` }
+            }
+        }
 
-		const botsVoiceChanel = client.currentChannel
-		if (botsVoiceChanel?.id !== voiceChannel.id && oldConnection) return { status: 406, error: "Not the same channel!" }
+        const botsVoiceChanel = client.currentChannel
+        if (botsVoiceChanel?.id !== voiceChannel.id && oldConnection) return { status: 406, error: "Not the same channel!" }
 
-		const args = songs.split(" ")
-		const track = args.join(" ")
+        const args = songs.split(" ")
+        const track = args.join(" ")
 
-		const youtubRegex = /^(https?:\/\/)?(www\.)?(m\.|music\.)?(youtube\.com|youtu\.?be)\/.+$/gi
-		const playlistRegex = /^.*(list=)([^#\&\?]*).*/gi
-		const songRegex = /^.*(watch\?v=)([^#\&\?]*).*/gi
+        const youtubRegex = /^(https?:\/\/)?(www\.)?(m\.|music\.)?(youtube\.com|youtu\.?be)\/.+$/gi
+        const playlistRegex = /^.*(list=)([^#\&\?]*).*/gi
+        const songRegex = /^.*(watch\?v=)([^#\&\?]*).*/gi
 
-		const spotifyRegex = /^.*(open\.spotify\.com)\/.+$/gi
-		const spotifySongRegex = /^(https:\/\/open.spotify.com\/(track\/))(.*)$.*/gi
-		const spotifyPlaylistRegex = /^(.*)$|https:\/\/open.spotify.com\/playlist\/([a-zA-Z0-9]+)(.*)$.*/gi
+        const spotifyRegex = /^.*(open\.spotify\.com)\/.+$/gi
+        const spotifySongRegex = /^(https:\/\/open.spotify.com\/(track\/))(.*)$.*/gi
+        const spotifyPlaylistRegex = /^(.*)$|https:\/\/open.spotify.com\/playlist\/([a-zA-Z0-9]+)(.*)$.*/gi
 
-		let song: Video | undefined = undefined
-		let playList: Playlist | undefined = undefined
+        let song: Video | undefined = undefined
+        let playList: Playlist | undefined = undefined
 
-		const isYoutube = youtubRegex.exec(track)
-		const isYoutubeSong = songRegex.exec(track)
-		const isYoutubePlaylist = playlistRegex.exec(track)
+        const isYoutube = youtubRegex.exec(track)
+        const isYoutubeSong = songRegex.exec(track)
+        const isYoutubePlaylist = playlistRegex.exec(track)
 
-		const isSpotify = spotifyRegex.exec(track)
-		const isSpotifySong = spotifySongRegex.exec(track)
-		const isSpotifyPlaylist = spotifyPlaylistRegex.exec(track)
+        const isSpotify = spotifyRegex.exec(track)
+        const isSpotifySong = spotifySongRegex.exec(track)
+        const isSpotifyPlaylist = spotifyPlaylistRegex.exec(track)
 
-		channel.send({ content: `Searching ${track} ...` })
-		if (!oldConnection && queue) {
-			client.queues.delete(client.currentChannel.guildId)
-			queue = undefined
-		}
+        channel.send({ content: `Searching ${track} ...` })
+        if (!oldConnection && queue) {
+            client.musicHandler.queues.delete(client.currentChannel.guildId)
+            queue = undefined
+        }
 
-		if (!isYoutube && !isSpotify) {
-			return { status: 406, error: `Please enter a valid youtube or spotify link!` }
-		}
+        if (!isYoutube && !isSpotify) {
+            return {
+                status: 406,
+                error: `Please enter a valid youtube or spotify link!`
+            }
+        }
 
-		if (isYoutube) {
-			if (isYoutube && isYoutubeSong && !isYoutubePlaylist) {
-				song = await YouTube.getVideo(track)
-			} else if (isYoutube && isYoutubePlaylist && !isYoutubeSong) {
-				playList = await YouTube.getPlaylist(track).then(playlist => playlist.fetch())
-			} else if (isYoutube && isYoutubePlaylist && isYoutubeSong) {
-				song = await YouTube.getVideo(track)
-				playList = await YouTube.getPlaylist(track).then(playlist => playlist.fetch())
-			} else {
-				song = await YouTube.searchOne(track)
-			}
-		} else if (isSpotify) {
-			if (isSpotifySong && !isSpotifyPlaylist) {
-				const spotifyInfo = await getSongNameFromSpotify(client, track)
-				song = await YouTube.searchOne(`${spotifyInfo.artists[0].name} - ${spotifyInfo.name}`)
-			} else if (isSpotifyPlaylist && !isSpotifySong) return { status: 406, error: `Spotify playlists are not supported yet!` }
-			else if (isSpotifyPlaylist && isSpotifySong) {
-				const spotifyInfo = await getSongNameFromSpotify(client, track)
-				song = await YouTube.searchOne(`${spotifyInfo.artists[0].name} - ${spotifyInfo.name}`)
-			} else {
-				const spotifyInfo = await getSongNameFromSpotify(client, track)
-				song = await YouTube.searchOne(`${spotifyInfo.artists[0].name} - ${spotifyInfo.name}`)
-			}
-		}
+        if (isYoutube) {
+            if (isYoutube && isYoutubeSong && !isYoutubePlaylist) {
+                song = await YouTube.getVideo(track)
+            } else if (isYoutube && isYoutubePlaylist && !isYoutubeSong) {
+                playList = await YouTube.getPlaylist(track).then(playlist => playlist.fetch())
+            } else if (isYoutube && isYoutubePlaylist && isYoutubeSong) {
+                song = await YouTube.getVideo(track)
+                playList = await YouTube.getPlaylist(track).then(playlist => playlist.fetch())
+            } else {
+                song = await YouTube.searchOne(track)
+            }
+        } else if (isSpotify) {
+            if (isSpotifySong && !isSpotifyPlaylist) {
+                const spotifyInfo = await getSongNameFromSpotify(client, track)
+                song = await YouTube.searchOne(`${spotifyInfo.artists[0].name} - ${spotifyInfo.name}`)
+            } else if (isSpotifyPlaylist && !isSpotifySong)
+                return {
+                    status: 406,
+                    error: `Spotify playlists are not supported yet!`
+                }
+            else if (isSpotifyPlaylist && isSpotifySong) {
+                const spotifyInfo = await getSongNameFromSpotify(client, track)
+                song = await YouTube.searchOne(`${spotifyInfo.artists[0].name} - ${spotifyInfo.name}`)
+            } else {
+                const spotifyInfo = await getSongNameFromSpotify(client, track)
+                song = await YouTube.searchOne(`${spotifyInfo.artists[0].name} - ${spotifyInfo.name}`)
+            }
+        }
 
-		if (song === null && playList === null) {
-			channel.send({ content: `No song were found!` })
-			return { status: 400, error: "no songs found" }
-		}
-		if (!playList) {
-			const video = song as Video
+        if (song === null && playList === null) {
+            channel.send({ content: `No song were found!` })
+            return { status: 400, error: "no songs found" }
+        }
+        if (!playList) {
+            const video = song as Video
 
-			if (!queue || queue.tracks.length == 0) {
-				const bitrate = 128
-				const newQueue = client.createQueue(video, requester, client.currentChannel.guildId, bitrate)
-				client.queues.set(client.currentChannel.guildId, newQueue)
-				await client.playSong(client.currentChannel, video)
+            if (!queue || queue.tracks.length == 0) {
+                const bitrate = 128
+                const newQueue = client.musicHandler.createQueue(video, requester, client.currentChannel.guildId, bitrate)
+                client.musicHandler.queues.set(client.currentChannel.guildId, newQueue)
+                await client.musicHandler.playSong(client.currentChannel, video)
 
-				channel.send({ content: `Now playing : ${video.title} - ${video.durationFormatted}!` })
-				return { status: 200, message: "OK" }
-			}
-			queue.tracks.push(client.createSong(video, requester))
-			channel.send({ content: `Added : ${video.title} - ${video.durationFormatted}!` })
-			return { status: 200, message: "OK" }
-		} else {
-			song = song ? song : playList.videos[0]
+                channel.send({
+                    content: `Now playing : ${video.title} - ${video.durationFormatted}!`
+                })
+                return { status: 200, message: "OK" }
+            }
+            queue.tracks.push(client.musicHandler.createSong(video, requester))
+            channel.send({
+                content: `Added : ${video.title} - ${video.durationFormatted}!`
+            })
+            return { status: 200, message: "OK" }
+        } else {
+            song = song ? song : playList.videos[0]
 
-			const video = song
-			const index = playList.videos.findIndex(s => s.id == video.id) || 0
-			playList.videos.splice(0, index + 1)
+            const video = song
+            const index = playList.videos.findIndex(s => s.id == video.id) || 0
+            playList.videos.splice(0, index + 1)
 
-			if (!queue || queue.tracks.length == 0) {
-				const bitrate = 128
-				const newQueue = client.createQueue(song, requester, client.config.baseChannelID, bitrate)
-				playList.videos.forEach(nsong => newQueue.tracks.push(client.createSong(nsong, requester)))
-				client.queues.set(client.currentChannel.guildId, newQueue)
+            if (!queue || queue.tracks.length == 0) {
+                const bitrate = 128
+                const newQueue = client.musicHandler.createQueue(song, requester, client.config.baseChannelID, bitrate)
+                playList.videos.forEach(nsong => newQueue.tracks.push(client.musicHandler.createSong(nsong, requester)))
+                client.musicHandler.queues.set(client.currentChannel.guildId, newQueue)
 
-				await client.playSong(client.currentChannel, video)
+                await client.musicHandler.playSong(client.currentChannel, video)
 
-				channel.send({ content: `Now playing : ${video.title} - ${video.durationFormatted} - from playlist: ${playList.title}` })
-				return { status: 200, message: "OK" }
-			}
+                channel.send({
+                    content: `Now playing : ${video.title} - ${video.durationFormatted} - from playlist: ${playList.title}`
+                })
+                return { status: 200, message: "OK" }
+            }
 
-			if (!client.queues.get(client.currentChannel.guildId))
-				client.queues.set(client.currentChannel.guildId, client.createQueue(song, requester, client.config.baseChannelID, 128))
-			queue = client.queues.get(client.currentChannel.guildId)
+            if (!client.musicHandler.queues.get(client.currentChannel.guildId))
+                client.musicHandler.queues.set(
+                    client.currentChannel.guildId,
+                    client.musicHandler.createQueue(song, requester, client.config.baseChannelID, 128)
+                )
+            queue = client.musicHandler.queues.get(client.currentChannel.guildId)
 
-			if (!queue) return { status: 406, error: `Could not play song!` }
+            if (!queue) return { status: 406, error: `Could not play song!` }
 
-			playList.videos.forEach(nsong => queue?.tracks.push(client.createSong(nsong, requester)))
+            playList.videos.forEach(nsong => queue?.tracks.push(client.musicHandler.createSong(nsong, requester)))
 
-			channel.send(
-				`Queued at \`${client.queuePos(queue.tracks.length - (playList.videos.length - 1))}\`: __${video.title} - \`${
-					video.durationFormatted
-				}\`\n> Added \`${playList.videos.length - 1} Songs\` from the Playlist:\n> ${playList.title}`
-			)
-			return { status: 200, message: "OK" }
-		}
-	} catch (err) {
-		Logger.error(err)
-		return { status: 406, error: `Could not play song!` }
-	}
+            channel.send(
+                `Queued at \`${client.musicHandler.queuePos(queue.tracks.length - (playList.videos.length - 1))}\`: __${video.title} - \`${
+                    video.durationFormatted
+                }\`\n> Added \`${playList.videos.length - 1} Songs\` from the Playlist:\n> ${playList.title}`
+            )
+            return { status: 200, message: "OK" }
+        }
+    } catch (err) {
+        Logger.error(err)
+        return { status: 406, error: `Could not play song!` }
+    }
 }

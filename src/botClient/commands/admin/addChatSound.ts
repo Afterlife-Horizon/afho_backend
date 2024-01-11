@@ -1,32 +1,22 @@
-import { SlashCommandBuilder, PermissionFlagsBits  } from "discord.js"
-import type { ICommand } from "../../../types"
-import type BotClient from "../../BotClient"
+import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js"
 import fs from "fs"
 import path from "node:path"
-import { Logger } from "../../../logger/Logger"
 import request from "request"
+import { Logger } from "#/logger/Logger"
+import type { ICommand } from "#/types"
+import type BotClient from "#/botClient/BotClient"
 
 export default (client: BotClient): ICommand => {
-	return {
-		data: new SlashCommandBuilder()
-			.setName("addchatsound")
-			.setDescription("Add a sound reaction to the server.")
-			.addStringOption(option =>
-				option
-					.setName("word")
-					.setDescription("Enter here the word that triggers this sound.")
-					.setRequired(true)
-            )
-            .addAttachmentOption(option =>
-                option
-                    .setName("sound")
-                    .setDescription("The mp3 file for the sound.")
-                    .setRequired(true)
-            )
+    return {
+        data: new SlashCommandBuilder()
+            .setName("addchatsound")
+            .setDescription("Add a sound reaction to the server.")
+            .addStringOption(option => option.setName("word").setDescription("Enter here the word that triggers this sound.").setRequired(true))
+            .addAttachmentOption(option => option.setName("sound").setDescription("The mp3 file for the sound.").setRequired(true))
             .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
-		async execute(interaction) {
+        async execute(interaction) {
             await interaction.deferReply()
-			const word = interaction.options.get("word")?.value as string
+            const word = interaction.options.get("word")?.value as string
             const sound = interaction.options.get("sound", true).attachment
 
             const dirPath = path.resolve(__dirname, "../../../assets/sounds")
@@ -50,5 +40,5 @@ export default (client: BotClient): ICommand => {
                 Logger.error(err)
             }
         }
-	}
+    }
 }

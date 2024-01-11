@@ -1,12 +1,12 @@
-import BotClient from "../botClient/BotClient"
-import { Message } from "discord.js"
-import { isVoiceChannel } from "./discordUtils"
 import { AudioPlayerStatus, VoiceConnectionStatus, createAudioPlayer, createAudioResource, getVoiceConnection } from "@discordjs/voice"
-import { Logger } from "../logger/Logger"
+import { Message } from "discord.js"
 import path from "node:path"
+import BotClient from "#/botClient/BotClient"
+import { Logger } from "#/logger/Logger"
+import { isVoiceChannel } from "./discordUtils"
 
 export async function playSound(client: BotClient, message: Message, sound: string) {
-    if (client.queues[client.config.serverID]?.tracks.length > 0) return
+    if (client.musicHandler.queues[client.config.serverID]?.tracks.length > 0) return
 
     const guild = client.guilds.cache.get(client.config.serverID)
     const requester = client.connectedMembers.get(message.author.id)
