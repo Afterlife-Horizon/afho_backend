@@ -6,6 +6,7 @@ import { Collection, Guild, GuildMember, User } from "discord.js"
 import BotClient from "./BotClient"
 import { Videos } from "@prisma/client"
 import ytdl from "ytdl-core"
+import YouTube from "youtube-sr"
 
 export default class CacheHandler {
     private botClient: BotClient
@@ -230,7 +231,8 @@ export default class CacheHandler {
     public async updateDBVideos() {
         const videos = await this.botClient.prisma.videos.findMany()
         videos.forEach(async video => {
-            await this.updateDBVideo(video)
+            if (video.type === "playlist") await this.updateDBPlaylist(video)
+            else await this.updateDBVideo(video)
         })
     }
 
@@ -239,13 +241,32 @@ export default class CacheHandler {
      * @param video Video to update in the database
      */
     public async updateDBVideo(video: Videos) {
-        const videoInfo = (await ytdl.getInfo(video.url)).player_response.videoDetails
+        const videoInfo = await YouTube.getVideo(video.url)
         await this.botClient.prisma.videos
             .update({
                 where: { id: video.id },
                 data: {
                     name: videoInfo.title,
-                    thumbnail: videoInfo.thumbnail.thumbnails[0].url
+                    thumbnail: videoInfo.thumbnail?.url
+                }
+            })
+            .catch(err => {
+                Logger.error(err)
+            })
+    }
+
+    /**
+     * Update a playlist in the database
+     * @param video Video to update in the database
+     */
+    public async updateDBPlaylist(video: Videos) {
+        const playlist = await YouTube.getPlaylist(video.url)
+        await this.botClient.prisma.videos
+            .update({
+                where: { id: video.id },
+                data: {
+                    name: playlist.title,
+                    thumbnail: playlist.thumbnail?.url
                 }
             })
             .catch(err => {
