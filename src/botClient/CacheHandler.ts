@@ -242,6 +242,7 @@ export default class CacheHandler {
      */
     public async updateDBVideo(video: Videos) {
         const videoInfo = await YouTube.getVideo(video.url)
+        if (!videoInfo) return
         await this.botClient.prisma.videos
             .update({
                 where: { id: video.id },
@@ -261,6 +262,7 @@ export default class CacheHandler {
      */
     public async updateDBPlaylist(video: Videos) {
         const playlist = await YouTube.getPlaylist(video.url)
+        if (!playlist) return
         await this.botClient.prisma.videos
             .update({
                 where: { id: video.id },
