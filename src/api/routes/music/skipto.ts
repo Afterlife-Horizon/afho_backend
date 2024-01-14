@@ -29,14 +29,14 @@ export default function (client: BotClient) {
                 return res.status(406).send({
                     error: "You are not connected to a voice channel!"
                 })
-            else if (voiceChannel?.id !== client.currentChannel?.id) return res.status(406).send({ error: "Not the same channel!" })
+            else if (voiceChannel?.id !== client.voiceHandler.currentChannel?.id) return res.status(406).send({ error: "Not the same channel!" })
 
             const textChannel = (await client.channels.fetch(client.config.baseChannelID)) as TextChannel
-            if (!client.currentChannel) return res.status(406).send({ error: "not connected!" })
+            if (!client.voiceHandler.currentChannel) return res.status(406).send({ error: "not connected!" })
 
-            const queue = client.musicHandler.queues.get(client.currentChannel.guild.id)
+            const queue = client.musicHandler.queues.get(client.voiceHandler.currentChannel.guild.id)
 
-            const oldConnection = getVoiceConnection(client.currentChannel.guild.id)
+            const oldConnection = getVoiceConnection(client.voiceHandler.currentChannel.guild.id)
             if (!oldConnection) {
                 res.status(406).send({ error: "not connected!" })
                 return textChannel.send({ content: `👎 **I'm not connected somewhere**!` }).catch((err: any) => Logger.error(err.message))

@@ -15,7 +15,7 @@ export default function levels(client: BotClient) {
     return router.get("/", async (_, res) => {
         if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
         try {
-            const sendData = Array.from(client.xps.values()).sort(compareData)
+            const sendData = Array.from(client.cacheHandler.xps.values()).sort(compareData)
             res.json(sendData)
         } catch (err) {
             Logger.error(err)

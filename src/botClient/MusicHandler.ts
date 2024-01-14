@@ -375,4 +375,20 @@ export class MusicHamdler {
             }
         }
     }
+
+    /**
+     *
+     * @param duration duration of the song
+     * @param position current position of the song
+     * @returns a string with the progress bar
+     */
+    public createBar(duration: number, position: number) {
+        const full = "▰"
+        const empty = "▱"
+        const size = "▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱".length
+        const percent = duration == 0 ? 0 : Math.floor((position / duration) * 100)
+        const fullBars = Math.round(size * (percent / 100))
+        const emptyBars = size - fullBars
+        return `**${full.repeat(fullBars)}${empty.repeat(emptyBars)}**`
+    }
 }

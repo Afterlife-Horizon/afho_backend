@@ -8,7 +8,7 @@ export default (client: BotClient): ICommand => {
         data: new SlashCommandBuilder().setName("brasilboard").setDescription("Get brasil leaderboard!"),
         async execute(interaction) {
             await interaction.reply({
-                content: `${client.config.websiteURL}/brasilboard`
+                content: `${client.config.websiteURL}`
             })
         }
     }

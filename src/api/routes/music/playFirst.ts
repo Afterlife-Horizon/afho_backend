@@ -31,10 +31,10 @@ export default function (client: BotClient) {
             const voiceChannel = guild.channels.cache.find(
                 c => c && c.type === 2 && c.members.filter(m => m.user.username === user.data.user?.user_metadata.full_name).size > 0
             )
-            if (client.currentChannel?.id !== voiceChannel?.id) return res.status(406).send({ error: "Not the same channel!" })
-            if (!client.currentChannel) return res.status(406).send({ error: "not connected!" })
+            if (client.voiceHandler.currentChannel?.id !== voiceChannel?.id) return res.status(406).send({ error: "Not the same channel!" })
+            if (!client.voiceHandler.currentChannel) return res.status(406).send({ error: "not connected!" })
 
-            const currentChannel = client.channels.cache.get(client.currentChannel.id)
+            const currentChannel = client.channels.cache.get(client.voiceHandler.currentChannel.id)
             if (!currentChannel) return res.status(406).send({ error: "Channel not found!" })
             if (currentChannel.type !== ChannelType.GuildVoice) return res.status(406).send({ error: "Incorrect channel!" })
 

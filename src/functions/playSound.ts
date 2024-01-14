@@ -9,20 +9,20 @@ export async function playSound(client: BotClient, message: Message, sound: stri
     if (client.musicHandler.queues[client.config.serverID]?.tracks.length > 0) return
 
     const guild = client.guilds.cache.get(client.config.serverID)
-    const requester = client.connectedMembers.get(message.author.id)
+    const requester = client.cacheHandler.connectedMembers.get(message.author.id)
 
     if (!guild || !requester) return
 
     const voiceChannel = guild.channels.cache.find(c => c.type === 2 && c.members.find(m => m.user.username === requester.username) !== undefined)
     if (!voiceChannel) return
     if (!isVoiceChannel(voiceChannel)) return
-    client.currentChannel = voiceChannel
+    client.voiceHandler.currentChannel = voiceChannel
 
-    let connection = getVoiceConnection(client.currentChannel.guildId)
+    let connection = getVoiceConnection(client.voiceHandler.currentChannel.guildId)
     try {
         if (connection) connection.destroy()
-        await client.joinVoiceChannel(client.currentChannel)
-        connection = getVoiceConnection(client.currentChannel.guildId)
+        await client.voiceHandler.joinVoiceChannel(client.voiceHandler.currentChannel)
+        connection = getVoiceConnection(client.voiceHandler.currentChannel.guildId)
     } catch (err) {
         Logger.error(err)
         return

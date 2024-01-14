@@ -1,42 +1,25 @@
-import {
-    CreateVoiceConnectionOptions,
-    JoinVoiceChannelOptions,
-    VoiceConnectionStatus,
-    entersState,
-    getVoiceConnection,
-    joinVoiceChannel
-} from "@discordjs/voice"
 import { SupabaseClient, createClient } from "@supabase/supabase-js"
-import { Client, ClientOptions, Collection, Colors, EmbedBuilder, GuildMember, User, VoiceChannel, VoiceState } from "discord.js"
+import { Client, ClientOptions, Collection, Colors, EmbedBuilder } from "discord.js"
 import fs from "node:fs"
 import path from "node:path"
 
-import { PrismaClient, Videos } from "@prisma/client"
 import { Logger } from "#/logger/Logger"
+import { PrismaClient } from "@prisma/client"
 import interactionCreate from "./listeners/interactionCreate"
 import messageCreate from "./listeners/messageCreate"
 import voiceStateUpdate from "./listeners/voiceStateUpdate"
 
 import { isTextChannel } from "#/functions/discordUtils"
 import getFinalFantasyFeed, { FeedType } from "#/functions/getFinalFantasyFeed"
-import getLevelFromXp from "#/functions/getLevelFromXp"
-import { handleAchievements } from "#/functions/handleAchievements"
-import type { Fav, IClientConfig, ICommand, IEnv, Time, Xp } from "#/types"
-import { Achievement, AchievementType } from "#/types/achievements"
+import type { IClientConfig, ICommand, IEnv } from "#/types"
+import CacheHandler from "./CacheHandler"
 import { MusicHamdler as MusicHandler } from "./MusicHandler"
+import VoiceHandler from "./VoiceHandler"
 
 export default class BotClient extends Client {
     public musicHandler: MusicHandler
-
-    /**
-     * The current channel where the bot is connected
-     */
-    public currentChannel: VoiceChannel | null
-
-    /**
-     * prisma client
-     */
-    public prisma: PrismaClient
+    public cacheHandler: CacheHandler
+    public voiceHandler: VoiceHandler
 
     /**
      * The config passed to the constructor
@@ -44,29 +27,9 @@ export default class BotClient extends Client {
     public config: IClientConfig
 
     /**
-     * The discord commands
+     * prisma client
      */
-    public commands: Collection<string, ICommand>
-
-    /**
-     * User favorites cache
-     */
-    public favs: Collection<string, Videos[]>
-
-    /**
-     * User achievements cache
-     */
-    public achievements: Collection<string, Achievement[]>
-
-    /**
-     * User connected members cache
-     */
-    public connectedMembers: Collection<string, User>
-
-    /**
-     * Whether the bot is ready or not
-     */
-    public ready: boolean
+    public prisma: PrismaClient
 
     /**
      * Supabase client
@@ -74,49 +37,35 @@ export default class BotClient extends Client {
     public supabaseClient: SupabaseClient<any, "public", any>
 
     /**
-     * Time buffer for connected users
-     * Equivalent to the time spent in the voice channel after the last push to database
-     * Used to increment the time passed in the voice channel
+     * The discord commands
      */
-    public times: Collection<string, Date>
+    public commands: Collection<string, ICommand>
 
     /**
-     * User Time cache
+     * Whether the bot is ready or not
      */
-    public timeValues: Collection<string, Time>
-
-    /**
-     * User xp cache
-     */
-    public xps: Collection<string, Xp>
-
-    /**
-     * sound path cache
-     */
-    public sounds: Collection<string, string>
+    public ready: boolean
 
     public constructor(options: ClientOptions, environment: IEnv) {
         super(options)
         this.ready = false
-        this.currentChannel = null
         this.config = environment
 
         this.prisma = new PrismaClient()
         this.commands = new Collection()
-        this.favs = new Collection()
-        this.achievements = new Collection()
-        this.connectedMembers = new Collection()
-        this.xps = new Collection()
-        this.timeValues = new Collection()
-        this.times = new Collection()
-        this.sounds = new Collection()
         this.supabaseClient = createClient(this.config.supabaseURL, this.config.supabaseKey)
 
         this.musicHandler = new MusicHandler(this)
+        this.cacheHandler = new CacheHandler(this)
+        this.voiceHandler = new VoiceHandler(this)
 
+        this.init()
+    }
+
+    private async init() {
         this.initCommands()
         this.initListeners()
-        this.initReactionRoles(environment)
+        this.initReactionRoles(this.config)
         // this.getSpotifyToken()
     }
 
@@ -124,7 +73,7 @@ export default class BotClient extends Client {
      * Initializes the role reaction
      * @param environment The environment variables
      **/
-    private async initReactionRoles(environment) {
+    private async initReactionRoles(environment: IClientConfig) {
         if (environment.reactionRoleChannel) {
             try {
                 const res = await this.prisma.role_assignment.findMany({
@@ -142,61 +91,64 @@ export default class BotClient extends Client {
     }
 
     /**
-     * Stops the bot gracefully
+     * Initialize Variables
      */
-    public async stop() {
-        const connection = getVoiceConnection(this.config.serverID)
-        if (connection) connection.disconnect()
-
-        for (const [id] of this.times) await this.pushTime(id)
-
-        this.destroy()
+    public async initVars() {
+        Logger.log("Initializing variables...")
+        this.cacheHandler.init()
+        this.voiceHandler.init()
+        Logger.log("Variables initialized")
     }
 
     /**
-     * Pushes the time spent in the voice channel to the database and resets the time buffer
+     * fetch the access token for spotify
+     * @returns The spotify token
      */
-    public async pushTime(id: string) {
-        const time = this.times.get(id)
-        if (!time) return
-
-        const timeSpent = new Date().getTime() - time.getTime()
-        const timeSpentSeconds = Math.round(timeSpent / 1000)
-
-        const member = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch(id))
-        if (!member) return
-
-        await this.updateDBUser(member)
-
-        const res = await this.prisma.time_connected
-            .upsert({
-                where: {
-                    user_id: id
-                },
-                update: {
-                    time_spent: {
-                        increment: timeSpentSeconds
-                    }
-                },
-                create: {
-                    user_id: id,
-                    time_spent: timeSpentSeconds
-                },
-                select: {
-                    time_spent: true
-                }
+    public async getSpotifyToken() {
+        if (!this.config.spotifyClientID || !this.config.spotifyClientSecret) return
+        const res = await fetch("https://accounts.spotify.com/api/token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+                grant_type: "client_credentials",
+                client_id: this.config.spotifyClientID,
+                client_secret: this.config.spotifyClientSecret
             })
-            .then(res => res.time_spent)
-            .catch(Logger.error)
+        })
 
-        handleAchievements(this, AchievementType.TIME, id, res)
+        if (!res.ok) return Logger.error(`Error while getting the spotify token:\n${JSON.stringify(res)}`)
+
+        const data = await res.json()
+        return data.access_token
     }
 
-    async updateTimes() {
-        for (const [id] of this.times) {
-            await this.pushTime(id)
-            this.times.set(id, new Date())
-        }
+    /**
+     * Init the commands of the bot
+     */
+    private initCommands() {
+        const commandsPath = path.join(__dirname, "commands")
+        fs.readdirSync(commandsPath).forEach(dir => {
+            const directorypath = path.join(commandsPath, dir)
+            fs.readdirSync(directorypath)
+                .filter(file => file.endsWith(".js") || file.endsWith(".ts"))
+                .forEach(file => {
+                    const filePath = path.join(directorypath, file)
+                    const { default: commandFunction } = require(filePath)
+                    const command = commandFunction(this)
+                    this.commands.set(command.data.name, command)
+                })
+        })
+    }
+
+    /**
+     * Init the listeners of the bot
+     */
+    private initListeners() {
+        interactionCreate(this)
+        messageCreate(this)
+        voiceStateUpdate(this)
     }
 
     public async checkBirthdays() {
@@ -243,7 +195,7 @@ export default class BotClient extends Client {
     /**
      * check for new game feeds and send them to their channels
      */
-    public async updateGameFeeds() {
+    public async fetchGameFeeds() {
         if (!this.config.ff14NewsChannelID) return
         const textChannel = await this.channels.fetch(this.config.ff14NewsChannelID)
         if (!textChannel) return Logger.error("The ff14 news channel is not found")
@@ -300,318 +252,10 @@ export default class BotClient extends Client {
     }
 
     /**
-     * Initialize Variables
+     * Stops the bot gracefully
      */
-    public async initVars() {
-        const guild = await this.guilds.fetch(this.config.serverID)
-        const connectedMembers = await guild.members.fetch().then(m => m.filter(m => m.voice.channel && !m.user.bot).map(m => m.user))
-        connectedMembers.forEach(user => {
-            this.connectedMembers.set(user.id, user)
-            if (!user.bot) this.times.set(user.id, new Date())
-        })
-
-        const sounds = await this.prisma.sounds.findMany()
-        sounds.forEach(sound => {
-            this.sounds.set(sound.word, sound.path)
-        })
-    }
-
-    /**
-     * fetch the access token for spotify
-     * @returns The spotify token
-     */
-    public async getSpotifyToken() {
-        if (!this.config.spotifyClientID || !this.config.spotifyClientSecret) return
-        const res = await fetch("https://accounts.spotify.com/api/token", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: new URLSearchParams({
-                grant_type: "client_credentials",
-                client_id: this.config.spotifyClientID,
-                client_secret: this.config.spotifyClientSecret
-            })
-        })
-
-        if (!res.ok) return Logger.error(`Error while getting the spotify token:\n${JSON.stringify(res)}`)
-
-        const data = await res.json()
-        return data.access_token
-    }
-
-    /**
-     * Init the commands of the bot
-     */
-    private initCommands() {
-        const commandsPath = path.join(__dirname, "commands")
-        fs.readdirSync(commandsPath).forEach(dir => {
-            const directorypath = path.join(commandsPath, dir)
-            fs.readdirSync(directorypath)
-                .filter(file => file.endsWith(".js"))
-                .forEach(file => {
-                    const filePath = path.join(directorypath, file)
-                    const { default: commandFunction } = require(filePath)
-                    const command = commandFunction(this)
-                    this.commands.set(command.data.name, command)
-                })
-        })
-    }
-
-    /**
-     * Init the listeners of the bot
-     */
-    private initListeners() {
-        interactionCreate(this)
-        messageCreate(this)
-        voiceStateUpdate(this)
-    }
-
-    /**
-     * Update the cache of the bot
-     */
-    public async updateCache() {
-        const guild = await this.guilds.fetch(this.config.serverID)
-        if (!guild) return
-        guild.members.fetch()
-        guild.channels.fetch()
-        guild.roles.fetch()
-        guild.emojis.fetch()
-
-        const xpRows = await this.prisma.levels.findMany()
-        const xps = xpRows
-            .map(row => {
-                const level = getLevelFromXp(row.xp)
-                const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
-                if (!member) return null
-                return {
-                    user: member,
-                    xp: row.xp,
-                    lvl: level
-                }
-            })
-            .filter(xp => xp !== null) as Xp[]
-        this.xps = new Collection(xps.map(xp => [xp.user.id, xp]))
-
-        const timeRows = await this.prisma.time_connected.findMany()
-
-        const times = timeRows
-            .map(row => {
-                const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
-                if (!member) return null
-                return {
-                    user: member,
-                    time_spent: row.time_spent
-                }
-            })
-            .filter(time => time !== null) as Time[]
-        this.timeValues = new Collection(times.map(time => [time.user.id, time]))
-
-        this.updateFavs()
-        this.updateAcheivements()
-    }
-
-    /**
-     * Update the Favorites cache
-     */
-    private async updateFavs() {
-        const guild = await this.guilds.fetch(this.config.serverID)
-        if (!guild) return
-        const favRows = await this.prisma.favorites.findMany()
-        const videos = await this.prisma.videos.findMany()
-        const favs = favRows
-            .map(row => {
-                const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
-                if (!member) return null
-                return {
-                    user: member,
-                    fav: videos.find(video => video.id === row.video_id)
-                }
-            })
-            .filter(fav => fav !== null) as Fav[]
-        this.favs = new Collection()
-        favs.forEach(fav => {
-            const currentFav = this.favs.get(fav.user.id) || []
-            fav.fav.type = fav.fav.type === "video" ? "video" : "playlist"
-            currentFav.push({ ...fav.fav, type: fav.fav.type })
-            this.favs.set(fav.user.id, currentFav)
-        })
-    }
-
-    /**
-     * Updates the achievements cache
-     */
-    private async updateAcheivements() {
-        const guild = await this.guilds.fetch(this.config.serverID)
-        if (!guild) return
-        const achievementRows = await this.prisma.achievement_get.findMany()
-        const achievements = await this.prisma.achievements.findMany()
-        const newAchievements: Achievement[] = achievementRows
-            .map(row => {
-                const member = guild.members.cache.find(mem => mem.user.id === row.user_id)
-                if (!member) return null
-                const achievement = achievements.find(ach => ach.name === row.achievement_name)
-                if (!achievement) return null
-
-                let achievementType: AchievementType | undefined
-                switch (achievement.type) {
-                    case AchievementType.MESSAGE:
-                        achievementType = AchievementType.MESSAGE
-                        break
-                    case AchievementType.TIME:
-                        achievementType = AchievementType.TIME
-                        break
-                    case AchievementType.BrasilRecieved:
-                        achievementType = AchievementType.BrasilRecieved
-                        break
-                    case AchievementType.BrasilSent:
-                        achievementType = AchievementType.BrasilSent
-                        break
-                    default:
-                        achievementType = undefined
-                }
-                if (!achievementType) return null
-
-                return {
-                    user: member,
-                    currentTitle: achievement.name,
-                    type: achievementType
-                }
-            })
-            .filter(achievement => achievement !== null) as Achievement[]
-        this.achievements = new Collection()
-        newAchievements.forEach(achievement => {
-            const currentAchievement = this.achievements.get(achievement.user.id) || []
-            currentAchievement.push(achievement)
-            this.achievements.set(achievement.user.id, currentAchievement)
-        })
-    }
-
-    /**
-     *
-     * @param duration duration of the song
-     * @param position current position of the song
-     * @returns a string with the progress bar
-     */
-    public createBar(duration: number, position: number) {
-        const full = "▰"
-        const empty = "▱"
-        const size = "▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱".length
-        const percent = duration == 0 ? 0 : Math.floor((position / duration) * 100)
-        const fullBars = Math.round(size * (percent / 100))
-        const emptyBars = size - fullBars
-        return `**${full.repeat(fullBars)}${empty.repeat(emptyBars)}**`
-    }
-
-    /**
-     * Update all users in the database
-     */
-    public async updateDBUsers() {
-        const users = await this.guilds.fetch(this.config.serverID).then(guild => guild.members.fetch())
-        users.forEach(async member => {
-            await this.updateDBUser(member)
-        })
-    }
-
-    /**
-     * Update a user in the database
-     * @param member GuildMember to update in the database
-     */
-    public async updateDBUser(member: GuildMember) {
-        await this.prisma.users
-            .upsert({
-                where: { id: member.user.id },
-                update: {
-                    username: member.user.username,
-                    nickname: member.nickname || null,
-                    avatar: member.user.avatarURL() || null,
-                    roles: member.roles.cache.map(role => role.id).join(",")
-                },
-                create: {
-                    id: member.user.id,
-                    username: member.user.username,
-                    nickname: member.nickname || null,
-                    avatar: member.user.avatarURL() || null,
-                    roles: member.roles.cache.map(role => role.id).join(",")
-                }
-            })
-            .catch(err => {
-                Logger.error(err)
-            })
-    }
-
-    /**
-     *
-     * @param channel voice channel to join
-     * @returns a promise that resolves when the bot joins the voice channel
-     */
-    public async joinVoiceChannel(channel: VoiceChannel): Promise<string> {
-        const networkStateChangeHandler = (_: VoiceState, newNetworkState: VoiceState) => {
-            const newUdp = Reflect.get(newNetworkState, "udp")
-            clearInterval(newUdp?.keepAliveInterval)
-        }
-        return new Promise((res, rej) => {
-            const oldConnection = getVoiceConnection(channel.guild.id)
-            if (oldConnection) return rej("I'm already connected in: <#" + oldConnection.joinConfig.channelId + ">")
-
-            const options = {
-                channelId: channel.id,
-                guildId: channel.guild.id,
-                adapterCreator: channel.guild.voiceAdapterCreator
-            } as CreateVoiceConnectionOptions & JoinVoiceChannelOptions
-
-            const newConnection = joinVoiceChannel(options)
-
-            newConnection.on(VoiceConnectionStatus.Disconnected, async () => {
-                try {
-                    await Promise.race([
-                        entersState(newConnection, VoiceConnectionStatus.Signalling, 5_000),
-                        entersState(newConnection, VoiceConnectionStatus.Connecting, 5_000)
-                    ])
-                } catch (error) {
-                    newConnection.destroy()
-                }
-            })
-
-            newConnection.on(VoiceConnectionStatus.Destroyed, () => {
-                this.musicHandler.queues.delete(channel.guild.id)
-            })
-
-            newConnection.on("stateChange", (oldState, newState) => {
-                const oldNetworking = Reflect.get(oldState, "networking")
-                const newNetworking = Reflect.get(newState, "networking")
-
-                oldNetworking?.off("stateChange", networkStateChangeHandler)
-                newNetworking?.on("stateChange", networkStateChangeHandler)
-            })
-
-            this.currentChannel = channel
-            return res("Connected to the Voice Channel")
-        })
-    }
-
-    /**
-     *
-     * @param channel voice channel to leave
-     * @returns a promise that resolves when the bot leaves the voice channel
-     */
-    public async leaveVoiceChannel(channel: VoiceChannel) {
-        return new Promise((res, rej) => {
-            const oldConnection = getVoiceConnection(channel.guild.id)
-            if (oldConnection) {
-                if (oldConnection.joinConfig.channelId != channel.id) return rej("We aren't in the same channel!")
-                try {
-                    oldConnection.destroy()
-                    this.currentChannel = null
-                    return res(true)
-                } catch (e) {
-                    this.currentChannel = null
-                    return rej(e)
-                }
-            } else {
-                this.currentChannel = null
-                return rej("I'm not connected somwhere.")
-            }
-        })
+    public async stop() {
+        await this.voiceHandler.stop()
+        await this.destroy()
     }
 }

@@ -34,11 +34,11 @@ export default function delFav(client: BotClient) {
                 }
             })
 
-            const prevFavs = client.favs.get(userId) || []
+            const prevFavs = client.cacheHandler.favs.get(userId) || []
             const newFavs = prevFavs.filter(fav => fav.id !== id)
-            client.favs.set(userId, newFavs)
+            client.cacheHandler.favs.set(userId, newFavs)
 
-            res.status(200).json({ data: client.favs.get(userId) })
+            res.status(200).json({ data: client.cacheHandler.favs.get(userId) })
         } catch (err) {
             Logger.error(err)
             res.status(500).json({ error: err })

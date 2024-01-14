@@ -19,7 +19,7 @@ export default function (client: BotClient) {
 
             let curPos = 0
             let oldConnection: VoiceConnection | undefined
-            const currentChannel = client.currentChannel
+            const currentChannel = client.voiceHandler.currentChannel
             if (currentChannel) oldConnection = getVoiceConnection(currentChannel.guild.id)
 
             const state = oldConnection?.state

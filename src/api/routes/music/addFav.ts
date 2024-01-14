@@ -68,7 +68,7 @@ export default function (client: BotClient) {
 
             if (!vid) return res.status(400).json({ error: "No video found" })
 
-            await client.updateDBUser(member)
+            await client.cacheHandler.updateDBUser(member)
 
             let newFav: Favorite | undefined = undefined
             try {
@@ -104,9 +104,9 @@ export default function (client: BotClient) {
                 }
             })
 
-            const favs = client.favs.get(userId) || []
+            const favs = client.cacheHandler.favs.get(userId) || []
             favs.push(newFav)
-            client.favs.set(userId, favs)
+            client.cacheHandler.favs.set(userId, favs)
 
             res.status(200).json({ data: newFav })
         } catch (err: any) {

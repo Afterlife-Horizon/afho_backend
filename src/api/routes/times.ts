@@ -8,7 +8,7 @@ export default function (client: BotClient) {
         try {
             if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
 
-            const sendData = Array.from(client.timeValues.values()).sort((time1, time2) => {
+            const sendData = Array.from(client.cacheHandler.timeValues.values()).sort((time1, time2) => {
                 if (time1.time_spent > time2.time_spent) return -1
                 if (time1.time_spent < time2.time_spent) return 1
                 return 0

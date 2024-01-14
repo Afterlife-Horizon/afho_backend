@@ -21,7 +21,7 @@ export default function (client: BotClient) {
             const member = guild.members.cache.get(user.data?.user?.user_metadata.provider_id)
             if (!member) return res.status(406).send({ error: "Member not found!" })
 
-            const favorites = client.favs.get(member.id) || []
+            const favorites = client.cacheHandler.favs.get(member.id) || []
             const sorted = favorites.sort((a, b) => b.date_added.getTime() - a.date_added.getTime())
 
             res.status(200).json({ favorites: sorted })

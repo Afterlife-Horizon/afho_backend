@@ -14,7 +14,7 @@ export default function (client: BotClient) {
 
         const member = message.member
         if (!member) return
-        await client.updateDBUser(member)
+        await client.cacheHandler.updateDBUser(member)
 
         client.prisma.levels
             .upsert({
@@ -41,7 +41,7 @@ export default function (client: BotClient) {
             .catch(Logger.error)
 
         if (client.config.funnySound && !message.content.includes("http")) {
-            for (const [word, path] of client.sounds) {
+            for (const [word, path] of client.cacheHandler.sounds) {
                 if (message.content.toLowerCase().includes(word)) {
                     Logger.log(`Playing sound ${path}`)
                     playSound(client, message, path)

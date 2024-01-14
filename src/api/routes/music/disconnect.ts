@@ -9,7 +9,7 @@ export default function (client: BotClient) {
     return router.post("/", async (req, res) => {
         try {
             if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
-            if (!client.currentChannel) return res.status(406).send("Not connected!")
+            if (!client.voiceHandler.currentChannel) return res.status(406).send("Not connected!")
 
             const access_token = req.body.access_token
             if (!access_token) return res.status(406).send({ error: "No Access Token!" })

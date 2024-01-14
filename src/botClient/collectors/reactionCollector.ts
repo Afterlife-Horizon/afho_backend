@@ -4,6 +4,7 @@ import type { IReactionRole } from "#/types"
 import type BotClient from "#/botClient/BotClient"
 
 export default async function reactionCollector(client: BotClient) {
+    Logger.log("Running reaction collector")
     const channelId = client.config.reactionRoleChannel
     const reactionRoles = client.config.reactionRoles
     if (!channelId || !reactionRoles) return
@@ -61,6 +62,7 @@ export default async function reactionCollector(client: BotClient) {
         addReactions(client, message, reactionRoles)
         await attachCollector(message, reactionRoles)
     })
+    Logger.log("Reaction collector initialized")
 }
 
 async function attachCollector(message: Message, reactionRoles: IReactionRole[]) {

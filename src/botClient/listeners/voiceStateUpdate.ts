@@ -9,19 +9,19 @@ export default function (client: BotClient) {
     return client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
         if (newState.id == client.user?.id) return
 
-        client.updateCache()
+        client.cacheHandler.updateCache()
 
         switch (getStateAction(oldState, newState)) {
             case "join":
                 handleUpdateTimer(true, oldState, newState)
                 if (!newState.member) return
-                client.connectedMembers.set(newState.member.id, newState.member.user)
+                client.cacheHandler.connectedMembers.set(newState.member.id, newState.member.user)
                 break
             case "leave":
                 handleUpdateTimer(false, oldState, newState)
                 handleChannelLeave(oldState, newState)
                 if (!oldState.member?.id) return
-                client.connectedMembers.delete(oldState.member.id)
+                client.cacheHandler.connectedMembers.delete(oldState.member.id)
                 break
             case "join" || "server undeafen" || "self undeafen" || "server unmute" || "self unmute":
                 handleUpdateTimer(true, oldState, newState)
@@ -105,15 +105,15 @@ export default function (client: BotClient) {
             if (!newState.channelId) return Logger.log("No channel id found")
             if (newState.member.id == client.user?.id) return
 
-            client.times.set(newState.member.id, new Date())
+            client.voiceHandler.times.set(newState.member.id, new Date())
         }
 
         if (!enter) {
             if (!oldState.member?.id) return
             if (oldState.member.id == client.user?.id) return
 
-            client.pushTime(oldState.member.id)
-            client.times.delete(oldState.member.id)
+            client.voiceHandler.pushTime(oldState.member.id)
+            client.voiceHandler.times.delete(oldState.member.id)
         }
     }
 
@@ -136,8 +136,8 @@ export default function (client: BotClient) {
 
             if (!mover || !moved) return
 
-            await client.updateDBUser(mover)
-            await client.updateDBUser(moved)
+            await client.cacheHandler.updateDBUser(mover)
+            await client.cacheHandler.updateDBUser(moved)
 
             const moved_count = await client.prisma.bresil_count.upsert({
                 where: {

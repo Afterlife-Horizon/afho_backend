@@ -58,7 +58,9 @@ export default (client: BotClient): ICommand => {
                     },
                     {
                         name: `⏳ **Duration:**`,
-                        value: `> ${client.createBar(song.duration, curPos)}\n> **${formatDuration(curPos)} / ${song.durationFormatted}**`
+                        value: `> ${client.musicHandler.createBar(song.duration, curPos)}\n> **${formatDuration(curPos)} / ${
+                            song.durationFormatted
+                        }**`
                     }
                 )
             if (song?.thumbnail?.url) songEmbed.setImage(`${song?.thumbnail?.url}`)

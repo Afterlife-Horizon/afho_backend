@@ -33,8 +33,8 @@ export default (client: BotClient): ICommand => {
                         content: `Something went wrong`
                     })
 
-                await client.joinVoiceChannel(voiceChannel)
-                client.currentChannel = voiceChannel
+                await client.voiceHandler.joinVoiceChannel(voiceChannel)
+                client.voiceHandler.currentChannel = voiceChannel
                 await interaction.reply({ content: `joined voice channel!` })
             } catch (err) {
                 Logger.error(err)

@@ -20,7 +20,7 @@ export async function handleAchievements(client: BotClient, type: AchievementTyp
 async function handleMessageAchievements(client: BotClient, id: string, messageCount: unknown) {
     if (typeof messageCount !== "number") return Logger.error("handleMessageAchievements: messageCount is not a number")
 
-    const previousAchievement = client.achievements.get(id)?.find(achievement => achievement.type === AchievementType.MESSAGE)
+    const previousAchievement = client.cacheHandler.achievements.get(id)?.find(achievement => achievement.type === AchievementType.MESSAGE)
     const user = client.guilds?.cache.get(client.config.serverID)?.members.cache.get(id)
     if (!user) return Logger.error("handleMessageAchievements: user not found")
 
@@ -43,7 +43,7 @@ async function handleMessageAchievements(client: BotClient, id: string, messageC
 async function handleTimeAchievements(client: BotClient, id: string, time: unknown) {
     if (typeof time !== "number") return Logger.error("handleTimeAchievements: time is not a number")
 
-    const previousAchievement = client.achievements.get(id)?.find(achievement => achievement.type === AchievementType.TIME)
+    const previousAchievement = client.cacheHandler.achievements.get(id)?.find(achievement => achievement.type === AchievementType.TIME)
     const user = client.guilds?.cache.get(client.config.serverID)?.members.cache.get(id)
     if (!user) return Logger.error("handleMessageAchievements: user not found")
 
@@ -68,7 +68,7 @@ async function handleTimeAchievements(client: BotClient, id: string, time: unkno
 async function handleBrasilRecievedAchievements(client: BotClient, id: string, brasilRecieved: unknown) {
     if (typeof brasilRecieved !== "number") return Logger.error("handleBrasilRecievedAchievements: brasilRecieved is not a number")
 
-    const previousAchievement = client.achievements.get(id)?.find(achievement => achievement.type === AchievementType.BrasilRecieved)
+    const previousAchievement = client.cacheHandler.achievements.get(id)?.find(achievement => achievement.type === AchievementType.BrasilRecieved)
     const user = client.guilds?.cache.get(client.config.serverID)?.members.cache.get(id)
     if (!user) return Logger.error("handleMessageAchievements: user not found")
 
@@ -92,7 +92,7 @@ async function handleBrasilRecievedAchievements(client: BotClient, id: string, b
 async function handleBrasilSentAchievements(client: BotClient, id: string, brasilSent: unknown) {
     if (typeof brasilSent !== "number") return Logger.error("handleBrasilSentAchievements: brasilSent is not a number")
 
-    const previousAchievement = client.achievements.get(id)?.find(achievement => achievement.type === AchievementType.BrasilSent)
+    const previousAchievement = client.cacheHandler.achievements.get(id)?.find(achievement => achievement.type === AchievementType.BrasilSent)
     const user = client.guilds?.cache.get(client.config.serverID)?.members.cache.get(id)
     if (!user) return Logger.error("handleMessageAchievements: user not found")
 
@@ -114,8 +114,8 @@ async function handleBrasilSentAchievements(client: BotClient, id: string, brasi
 }
 
 async function applyAchievment(client: BotClient, achievement: Achievement, previousAchievement: Achievement | undefined) {
-    const previousAchievements = client.achievements.get(achievement.user.id) || []
-    client.achievements.set(achievement.user.id, [...previousAchievements, achievement])
+    const previousAchievements = client.cacheHandler.achievements.get(achievement.user.id) || []
+    client.cacheHandler.achievements.set(achievement.user.id, [...previousAchievements, achievement])
     try {
         if (!!previousAchievement)
             return await client.prisma.achievement_get.update({
