@@ -1,8 +1,14 @@
 import { Collection, Message, MessageType } from "discord.js"
 import fs from "node:fs"
-import { ChatCompletionRequestMessage, ChatCompletionRequestMessageRoleEnum, Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai"
+import { OpenAI } from "openai"
 import BotClient from "#/botClient/BotClient"
 import { Logger } from "#/logger/Logger"
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_KEY
+})
+
+const chatCompletion = openai.completions
 
 interface IMessageType {
     message?: string
@@ -15,17 +21,14 @@ interface IMessageType {
 let maxLength = 2000
 
 export default async function handleGPTChat(client: BotClient, message: Message) {
-    let conversationLog: ChatCompletionRequestMessage[] = []
+    let conversationLog: any[] = []
     if (!client.config.gptChatChannelID || !client.config.openAIKey) return
     if (message.channel.id !== client.config.gptChatChannelID) return
     if (message.type === MessageType.Reply) return
 
     Logger.log(`GPT-3 Chat: ${message.author.username} (${message.author.id}) asked: ${message.content}`)
 
-    const configuration = new Configuration({
-        apiKey: client.config.openAIKey
-    })
-    const openai = new OpenAIApi(configuration)
+    openai.apiKey = client.config.openAIKey
 
     await message.channel.sendTyping()
 
@@ -44,27 +47,27 @@ export default async function handleGPTChat(client: BotClient, message: Message)
         if (msg.author.id !== message.author.id) return
 
         conversationLog.push({
-            role: ChatCompletionRequestMessageRoleEnum.User,
+            role: "User",
             content: msg.content
         })
     })
 
-    const request: CreateChatCompletionRequest = {
+    const request: OpenAI.Completions.CompletionCreateParamsNonStreaming = {
         model: "gpt-3.5-turbo",
-        messages: conversationLog
+        prompt: conversationLog
     }
 
     try {
-        const result = await openai.createChatCompletion(request).catch(err => {
+        const result = await chatCompletion.create(request).catch(err => {
             Logger.error(err.message)
             message.reply({ content: "Something went wrong!" })
         })
 
-        if (!result || result.status !== 200) return message.reply({ content: "Something went wrong!" })
+        if (!result) return message.reply({ content: "Something went wrong!" })
 
-        Logger.logGPT(`GPT-3 Chat: ${message.author.username} (${message.author.id}) got: ${result.data.choices[0].message?.content}`)
+        Logger.logGPT(`GPT-3 Chat: ${message.author.username} (${message.author.id}) got: ${result.choices[0].text}`)
 
-        const messages = splitTokens(result.data.choices[0].message?.content ? result.data.choices[0].message?.content : "Something went wrong!")
+        const messages = splitTokens(result.choices[0].text ? result.choices[0].text : "Something went wrong!")
 
         for (let i = 0; i < messages.length; i++) {
             if (messages[i].message) {
