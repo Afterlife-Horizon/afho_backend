@@ -55,7 +55,6 @@ export default function configCheck() {
     if (!process.env.REACTION_ROLE_CHANNEL_ID) Logger.warn("No roles channel ID found, not using reaction roles")
     if (!process.env.YOUTUBE_LOGIN_COOKIE) Logger.warn("No YouTube cookie found, not using cookie for YouTube API")
     if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) Logger.warn("No Spotify credentials found")
-    if (process.env.NODE_ENV === "development") Logger.warn("Running in development mode, no webserver will be started")
     if (!process.env.FF14_NEWS_CHANNEL_ID) Logger.warn("No FF14 news channel ID found, not using FF14 news feed")
     if (!process.env.VOICEFUNNY) Logger.warn("No voice funny found, not using voice funny")
     if (!process.env.BIRTHDAY_CHANNEL_ID) Logger.warn("No birthday channel id set, using base bot channel")

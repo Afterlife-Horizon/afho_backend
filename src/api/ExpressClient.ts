@@ -93,6 +93,7 @@ export default class ExpressClient {
             Logger.log(`API is now listening on port ${PORT}`)
         })
         this.server.on("error", err => Logger.error(err))
+        
         this.server.listen(PORT)
     }
 }

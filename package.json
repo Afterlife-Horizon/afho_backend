@@ -4,12 +4,11 @@
     "description": "Discord bot for AFHO server",
     "main": "index.js",
     "scripts": {
-        "start": "node dist/index.js",
-        "dev": "nodemon --watch 'src/**/*.ts' --exec 'bun src/index.ts'",
-        "prettier": "prettier --write .",
-        "add-commands": "METHOD=add node dist/index.js",
-        "del-commands": "METHOD=delete node dist/index.js",
-        "build": "tsc && tsc-alias"
+        "start": "bun src/index.ts",
+        "dev": "bun --watch src/index.ts",
+        "add-commands": "METHOD=add bun src/index.ts",
+        "del-commands": "METHOD=delete bun src/index.ts",
+        "prettier": "prettier --write ."
     },
     "author": "Nicobonnardot3",
     "license": "ISC",
