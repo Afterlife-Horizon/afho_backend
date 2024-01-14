@@ -13,7 +13,7 @@ import { isTextChannel } from "#/functions/discordUtils"
 import getFinalFantasyFeed, { FeedType } from "#/functions/getFinalFantasyFeed"
 import type { IClientConfig, ICommand, IEnv } from "#/types"
 import CacheHandler from "./CacheHandler"
-import { MusicHamdler as MusicHandler } from "./MusicHandler"
+import MusicHandler from "./MusicHandler"
 import VoiceHandler from "./VoiceHandler"
 
 export default class BotClient extends Client {

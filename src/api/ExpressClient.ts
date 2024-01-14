@@ -78,13 +78,11 @@ export default class ExpressClient {
         if (client.config.cert && client.config.certKey) {
             let cas = sslRootCAs.create()
             if (process.env.CA_CERT) cas.addFile(client.config.caCert)
-            const hostname = "api.local.afterlifehorizon.net"
 
             const sslOptions = {
                 key: fs.readFileSync(client.config.certKey),
                 cert: fs.readFileSync(client.config.cert),
-                ca: cas,
-                servername: hostname
+                ca: cas
             }
             this.server = https.createServer(sslOptions, this.app)
         } else this.server = http.createServer(this.app)
@@ -93,7 +91,7 @@ export default class ExpressClient {
             Logger.log(`API is now listening on port ${PORT}`)
         })
         this.server.on("error", err => Logger.error(err))
-        
+
         this.server.listen(PORT)
     }
 }

@@ -10,7 +10,7 @@ import { getYTLink } from "#/functions/getYTLink"
 import BotClient from "./BotClient"
 import { formatDuration } from "#/functions/time"
 
-export class MusicHamdler {
+export default class MusicHandler {
     /**
      * The music queues
      */
