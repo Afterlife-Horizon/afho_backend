@@ -4,12 +4,6 @@ import { OpenAI } from "openai"
 import BotClient from "#/botClient/BotClient"
 import { Logger } from "#/logger/Logger"
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_KEY
-})
-
-const chatCompletion = openai.completions
-
 interface IMessageType {
     message?: string
     file?: {
@@ -27,10 +21,12 @@ export default async function handleGPTChat(client: BotClient, message: Message)
     if (message.type === MessageType.Reply) return
 
     Logger.log(`GPT-3 Chat: ${message.author.username} (${message.author.id}) asked: ${message.content}`)
-
-    openai.apiKey = client.config.openAIKey
-
     await message.channel.sendTyping()
+
+    const openai = new OpenAI({
+        apiKey: client.config.openAIKey
+    })
+    const chatCompletion = openai.completions
 
     let prevMessages = (await message.channel.messages.fetch()).reverse()
     let count = 0
