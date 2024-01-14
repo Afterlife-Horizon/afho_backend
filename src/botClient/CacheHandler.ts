@@ -70,6 +70,7 @@ export default class CacheHandler {
         this.updateFavs(guild)
         this.updateAcheivements(guild)
         this.updateDBUsers(guild)
+        this.updateDBVideos()
     }
 
     private async fetchGuildinfo() {
