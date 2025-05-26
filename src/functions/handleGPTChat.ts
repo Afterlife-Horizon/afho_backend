@@ -1,167 +1,181 @@
-import { Message, MessageType } from "discord.js"
-import BotClient from "../botClient/BotClient"
-import { ChatCompletionRequestMessage, Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai"
+import { Collection, Message, MessageType } from "discord.js"
 import fs from "node:fs"
-import { Logger } from "../logger/Logger"
+import { OpenAI } from "openai"
+import BotClient from "#/botClient/BotClient"
+import { Logger } from "#/logger/Logger"
 
 interface IMessageType {
-	message?: string
-	file?: {
-		name: string
-		contentType: string
-	}
+    message?: string
+    file?: {
+        name: string
+        contentType: string
+    }
 }
 
-let conversationLog: ChatCompletionRequestMessage[] = []
+let maxLength = 2000
 
 export default async function handleGPTChat(client: BotClient, message: Message) {
-	if (!client.config.gptChatChannel || !client.config.openAIKey) return
-	if (message.channel.id !== client.config.gptChatChannel) return
-	if (message.type === MessageType.Reply) return
+    let conversationLog: any[] = []
+    if (!client.config.gptChatChannelID || !client.config.openAIKey) return
+    if (message.channel.id !== client.config.gptChatChannelID) return
+    if (message.type === MessageType.Reply) return
 
-	Logger.log(`GPT-3 Chat: ${message.author.username} (${message.author.id}) asked: ${message.content}`)
+    Logger.log(`GPT-3 Chat: ${message.author.username} (${message.author.id}) asked: ${message.content}`)
+    await message.channel.sendTyping()
 
-	const configuration = new Configuration({
-		apiKey: client.config.openAIKey
-	})
-	const openai = new OpenAIApi(configuration)
+    const openai = new OpenAI({
+        apiKey: client.config.openAIKey
+    })
+    const chatCompletion = openai.completions
 
-	await message.channel.sendTyping()
+    let prevMessages = (await message.channel.messages.fetch()).reverse()
+    let count = 0
+    const messages = new Collection<string, Message>()
+    for (const message of prevMessages.entries()) {
+        if (message[1].author.bot) continue
+        count += message[1].content.length
+        if (count > 1800) break
+        messages.set(message[0], message[1])
+    }
 
-	let prevMessages = await message.channel.messages.fetch({ limit: 15 })
-	prevMessages.reverse()
+    messages.forEach((msg: Message) => {
+        if (msg.author.id !== client.user?.id && message.author.bot) return
+        if (msg.author.id !== message.author.id) return
 
-	prevMessages.forEach((msg: Message) => {
-		if (msg.author.id !== client.user?.id && message.author.bot) return
-		if (msg.author.id !== message.author.id) return
+        conversationLog.push({
+            role: "User",
+            content: msg.content
+        })
+    })
 
-		conversationLog.push({ role: "user", content: msg.content })
-	})
+    const request: OpenAI.Completions.CompletionCreateParamsNonStreaming = {
+        model: "gpt-3.5-turbo",
+        prompt: conversationLog
+    }
 
-	const request: CreateChatCompletionRequest = {
-		model: "gpt-3.5-turbo",
-		messages: conversationLog
-	}
+    try {
+        const result = await chatCompletion.create(request).catch(err => {
+            Logger.error(err.message)
+            message.reply({ content: "Something went wrong!" })
+        })
 
-	try {
-		const result = await openai.createChatCompletion(request).catch(err => {
-			Logger.error(err.message)
-			message.reply({ content: "Something went wrong!" })
-		})
+        if (!result) return message.reply({ content: "Something went wrong!" })
 
-		if (!result || result.status !== 200) return message.reply({ content: "Something went wrong!" })
+        Logger.logGPT(`GPT-3 Chat: ${message.author.username} (${message.author.id}) got: ${result.choices[0].text}`)
 
-		Logger.logGPT(`GPT-3 Chat: ${message.author.username} (${message.author.id}) got: ${result.data.choices[0].message?.content}`)
+        const messages = splitTokens(result.choices[0].text ? result.choices[0].text : "Something went wrong!")
 
-		const messages = splitTokens(result.data.choices[0].message?.content ? result.data.choices[0].message?.content : "Something went wrong!")
-
-		for (let i = 0; i < messages.length; i++) {
-			if (messages[i].message) {
-				if (messages[i].message === "" || messages[i].message === " ") continue
-				await message.reply({ content: messages[i].message })
-			} else if (messages[i].file) {
-				const file = fs.readFileSync("./messages/" + messages[i].file?.name)
-				await message.reply({
-					files: [
-						{
-							name: messages[i].file?.name,
-							attachment: file,
-							contentType: messages[i].file?.contentType
-						}
-					]
-				})
-				fs.rm("./messages/" + messages[i].file?.name, err => { if (err) Logger.error(err.message) })
-			}
-		}
-	} catch (err) {
-		if (err instanceof Error) Logger.error(err.message)
-		message.reply({ content: "Something went wrong!" })
-	}
+        for (let i = 0; i < messages.length; i++) {
+            if (messages[i].message) {
+                if (messages[i].message === "" || messages[i].message === " ") continue
+                await message.reply({ content: messages[i].message })
+            } else if (messages[i].file) {
+                const file = fs.readFileSync("./messages/" + messages[i].file?.name)
+                await message.reply({
+                    files: [
+                        {
+                            name: messages[i].file?.name,
+                            attachment: file,
+                            contentType: messages[i].file?.contentType
+                        }
+                    ]
+                })
+                fs.rm("./messages/" + messages[i].file?.name, err => {
+                    if (err) Logger.error(err.message)
+                })
+            }
+        }
+    } catch (err) {
+        Logger.error(err)
+        message.reply({ content: "Something went wrong!" })
+    }
 }
 
 function splitTokens(message: string): IMessageType[] {
-	let returnMessages: IMessageType[] = []
+    let returnMessages: IMessageType[] = []
 
-	const codeBlockSelector = "```"
+    const codeBlockSelector = "```"
 
-	let codeBlock = false
-	let codeBlockType = ""
-	let codeBlockMessage = ""
+    let codeBlock = false
+    let codeBlockType = ""
+    let codeBlockMessage = ""
 
-	let messageCount = 0
-	let messageContent = ""
+    let messageCount = 0
+    let messageContent = ""
 
-	let messageArray = message.split(" ")
+    let messageArray = message.split(" ")
 
-	for (let i = 0; i < messageArray.length; i++) {
-		if (messageArray[i].includes(codeBlockSelector)) {
-			if (!codeBlock) {
-				if (!messageArray[i].startsWith(codeBlockSelector)) {
-					if (messageContent.length + messageArray[i].length + 1 >= 2000) {
-						returnMessages.push({ message: messageContent })
-						messageContent = ""
-						messageCount++
-					}
-					const split = messageArray[i].split(codeBlockSelector)
-					messageContent += split[0] + " "
-					messageArray[i] = split[1] + " "
-				}
+    for (let i = 0; i < messageArray.length; i++) {
+        if (messageArray[i].includes(codeBlockSelector)) {
+            if (!codeBlock) {
+                if (!messageArray[i].startsWith(codeBlockSelector)) {
+                    if (messageContent.length + messageArray[i].length + 1 >= maxLength) {
+                        returnMessages.push({ message: messageContent })
+                        messageContent = ""
+                        messageCount++
+                    }
+                    const split = messageArray[i].split(codeBlockSelector)
+                    messageContent += split[0] + " "
+                    messageArray[i] = split[1] + " "
+                }
 
-				returnMessages.push({ message: messageContent })
-				codeBlockType = messageArray[i].replace(codeBlockSelector, "").split("\n")[0]
-				codeBlockMessage = messageArray[i].replace(codeBlockSelector, "").split("\n")[1]
-				messageContent = ""
-				messageCount++
-			} else {
-				if (!messageArray[i].startsWith(codeBlockSelector)) {
-					codeBlockMessage += messageArray[i].split(codeBlockSelector)[0] + " "
-					messageArray[i] = messageArray[i].split(codeBlockSelector)[1]
-				}
+                returnMessages.push({ message: messageContent })
+                codeBlockType = messageArray[i].replace(codeBlockSelector, "").split("\n")[0]
+                codeBlockMessage = messageArray[i].replace(codeBlockSelector, "").split("\n")[1]
+                messageContent = ""
+                messageCount++
+            } else {
+                if (!messageArray[i].startsWith(codeBlockSelector)) {
+                    codeBlockMessage += messageArray[i].split(codeBlockSelector)[0] + " "
+                    messageArray[i] = messageArray[i].split(codeBlockSelector)[1]
+                }
 
-				returnMessages = handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, messageCount, codeBlockType)
-			}
-			codeBlock = !codeBlock
-			continue
-		}
+                returnMessages = handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, messageCount, codeBlockType)
+            }
+            codeBlock = !codeBlock
+            continue
+        }
 
-		if (codeBlock) {
-			codeBlockMessage += messageArray[i] + " "
-			continue
-		}
+        if (codeBlock) {
+            codeBlockMessage += messageArray[i] + " "
+            continue
+        }
 
-		if (messageContent.length + messageArray[i].length + 1 >= 4000) {
-			returnMessages.push({ message: messageContent })
-			messageContent = ""
-			messageCount++
-		}
-		messageContent += messageArray[i] + " "
-	}
+        if (messageContent.length + messageArray[i].length + 1 >= maxLength) {
+            returnMessages.push({ message: messageContent })
+            messageContent = ""
+            messageCount++
+        }
+        messageContent += messageArray[i] + " "
+    }
 
-	if (!codeBlock) returnMessages.push({ message: messageContent })
-	else {
-		returnMessages = handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, messageCount, codeBlockType)
-	}
-	return returnMessages
+    if (!codeBlock) returnMessages.push({ message: messageContent })
+    else {
+        returnMessages = handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, messageCount, codeBlockType)
+    }
+    return returnMessages
 }
 
 function handleCodeBlock(codeBlockMessage, returnMessages, codeBlockSelector, messageCount, codeBlockType) {
-	if (codeBlockMessage.length > 2000) {
-		if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
-		returnMessages.push({
-			file: {
-				name: `codeBlock${messageCount}.${codeBlockType ? codeBlockType : "txt"}`,
-				contentType: "text/plain"
-			}
-		})
+    if (codeBlockMessage.length > maxLength) {
+        if (!fs.existsSync("./messages")) fs.mkdirSync("./messages")
+        returnMessages.push({
+            file: {
+                name: `codeBlock${messageCount}.${codeBlockType ? codeBlockType : "txt"}`,
+                contentType: "text/plain"
+            }
+        })
 
-		codeBlockMessage = codeBlockMessage.replace(/```/g, "")
+        codeBlockMessage = codeBlockMessage.replace(/```/g, "")
 
-		fs.writeFile(`./messages/codeBlock${messageCount}.${codeBlockType ? codeBlockType : "txt"}`, codeBlockMessage, err => {
-			if (err) Logger.error(err.message)
-		})
-	} else {
-		returnMessages.push({ message: codeBlockSelector + codeBlockType + "\n" + codeBlockMessage + codeBlockSelector })
-	}
+        fs.writeFile(`./messages/codeBlock${messageCount}.${codeBlockType ? codeBlockType : "txt"}`, codeBlockMessage, err => {
+            if (err) Logger.error(err.message)
+        })
+    } else {
+        returnMessages.push({
+            message: codeBlockSelector + codeBlockType + "\n" + codeBlockMessage + codeBlockSelector
+        })
+    }
 
-	return returnMessages
+    return returnMessages
 }

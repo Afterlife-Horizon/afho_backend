@@ -1,36 +1,46 @@
+import { Colors, EmbedBuilder } from "discord.js"
 import express from "express"
+import type BotClient from "#/botClient/BotClient"
+import bresil from "#/functions/commandUtils/bresil/bresil"
+import { isTextChannel } from "#/functions/discordUtils"
+import { Logger } from "#/logger/Logger"
 const router = express.Router()
-import { Colors, EmbedBuilder, TextChannel } from "discord.js"
-import BotClient from "../../../botClient/BotClient"
-import bresil from "../../../functions/commandUtils/bresil/bresil"
-import { Logger } from "../../../logger/Logger"
 
 export default function (client: BotClient) {
-	return router.post("/", async (req, res) => {
-		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
-		try {
-			const { moverId, movedId } = req.body
-			const logChannel = client.channels.cache.get(client.config.baseChannelID) as TextChannel
-			const mover = client.guilds.cache.get(client.config.serverID)?.members.cache.get(moverId)
-			const member = client.guilds.cache.get(client.config.serverID)?.members.cache.get(movedId)
-			if (!mover || !member) return res.status(406).json({ error: "Member not found!" })
+    return router.post("/", async (req, res) => {
+        if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
+        try {
+            const { moverId, movedId } = req.body
+            if (!moverId || !movedId) return res.status(406).json({ error: "Bad Request!" })
 
-			const result = await bresil(client, mover, member)
-			if (result.status !== 200) return res.status(result.status).json({ error: result.error })
+            const guild = client.guilds.cache.get(client.config.serverID)
+            if (!guild) return res.status(406).json({ error: "Guild not found!" })
 
-			await logChannel.send({
-				embeds: [
-					new EmbedBuilder()
-						.setColor(Colors.Green)
-						.setAuthor({ name: mover.user.tag })
-						.setDescription(result.message ? result.message : "Bresil moved!")
-						.setTimestamp(new Date())
-				]
-			})
-			res.status(200).send({ message: result.message ? result.message : "Bresil moved!" })
-		} catch (err) {
-			if (err instanceof Error) Logger.error(err.message)
-			res.status(500).json({ error: "Internal error!" })
-		}
-	})
+            const logChannel = await guild.channels.fetch(client.config.baseChannelID)
+            if (!logChannel) return res.status(406).json({ error: "Log Channel not found!" })
+            if (!isTextChannel(logChannel)) return res.status(406).json({ error: "Log Channel is not a text channel!" })
+            const mover = guild?.members.cache.get(moverId)
+            const member = guild?.members.cache.get(movedId)
+            if (!mover || !member) return res.status(406).json({ error: "Member not found!" })
+
+            const result = await bresil(client, mover, member)
+            if (result.status !== 200) return res.status(result.status).json({ error: result.error })
+
+            await logChannel.send({
+                embeds: [
+                    new EmbedBuilder()
+                        .setColor(Colors.Green)
+                        .setAuthor({ name: mover.user.tag })
+                        .setDescription(result.message ? result.message : "Bresil moved!")
+                        .setTimestamp(new Date())
+                ]
+            })
+            res.status(200).send({
+                message: result.message ? result.message : "Bresil moved!"
+            })
+        } catch (err) {
+            Logger.error(err)
+            res.status(500).json({ error: "Internal error!" })
+        }
+    })
 }

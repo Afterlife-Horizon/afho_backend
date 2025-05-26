@@ -1,46 +1,47 @@
 import express = require("express")
-import BotClient from "../../../botClient/BotClient"
-import { IFavorite } from "../../../types"
-import { Logger } from "../../../logger/Logger"
 const router = express.Router()
+import type BotClient from "#/botClient/BotClient"
+import { Logger } from "#/logger/Logger"
 
 export default function delFav(client: BotClient) {
-	return router.delete("/", async (req, res) => {
-		if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
-		try {
-			const access_token = req.body.access_token
-			if (!access_token) return res.status(406).send({ error: "No Access Token!" })
+    return router.delete("/", async (req, res) => {
+        if (!client.ready) return res.status(406).json({ error: "Bot is not ready!" })
+        try {
+            const access_token = req.body.access_token
+            if (!access_token) return res.status(406).send({ error: "No Access Token!" })
 
-			const user = await client.supabaseClient.auth.getUser(access_token)
-			if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
+            const user = await client.supabaseClient.auth.getUser(access_token)
+            if (!user) return res.status(406).send({ error: "Invalid Access Token!" })
 
-			const guild = client.guilds.cache.get(client.config.serverID)
-			if (!guild) return res.status(406).send({ error: "Server not found!" })
+            const guild = client.guilds.cache.get(client.config.serverID)
+            if (!guild) return res.status(406).send({ error: "Server not found!" })
 
-			const member = guild.members.cache.get(user.data?.user?.user_metadata.provider_id)
-			if (!member) return res.status(406).send({ error: "Member not found!" })
+            const member = guild.members.cache.get(user.data?.user?.user_metadata.provider_id)
+            if (!member) return res.status(406).send({ error: "Member not found!" })
 
-			const userId = member.user.id
-			const name = req.body.name
+            const userId = user.data?.user?.user_metadata.provider_id
+            const id = req.body.id
 
-			if (!userId) return res.status(400).json({ error: "No userId" })
-			if (!name) return res.status(400).json({ error: "No song name" })
+            if (!userId) return res.status(400).json({ error: "No userId" })
+            if (!id) return res.status(400).json({ error: "No song id given" })
 
-			await client.prisma.bot_favorites.delete({
-				where: {
-					id_user_id: {
-						id: name,
-						user_id: userId
-					}
-				}
-			})
+            await client.prisma.favorites.delete({
+                where: {
+                    user_id_video_id: {
+                        user_id: userId,
+                        video_id: id
+                    }
+                }
+            })
 
-			client.favs[userId] = client.favs[userId].filter((fav: IFavorite) => fav.name !== name)
+            const prevFavs = client.cacheHandler.favs.get(userId) || []
+            const newFavs = prevFavs.filter(fav => fav.id !== id)
+            client.cacheHandler.favs.set(userId, newFavs)
 
-			res.status(200).json({ data: client.favs[userId] })
-		} catch (err) {
-			if (err instanceof Error) Logger.error(err.message)
-			res.status(500).json({ error: err })
-		}
-	})
+            res.status(200).json({ data: client.cacheHandler.favs.get(userId) })
+        } catch (err) {
+            Logger.error(err)
+            res.status(500).json({ error: err })
+        }
+    })
 }

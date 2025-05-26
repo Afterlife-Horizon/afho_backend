@@ -114,3 +114,7 @@ build/
 .fleet/
 .vscode/
 .dist/
+package-lock.json
+src/assets/sounds/
+
+bot-discord-381816-49aa8d63267a.json
